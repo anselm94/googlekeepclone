@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { IconButton, Tooltip } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
-import TodoContentNote from "./ContentCheckbox";
+import ContentCheckbox from "./ContentList";
+import ContentText from "./ContentText";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -23,15 +24,19 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function({ isCreateMode, isCheckboxMode }) {
-  const classes = useStyles();
-  const theme = useTheme();
+  const [noteItems, setNoteItems] = useState([{text: "ABC", isCompleted: false}]);
+  const onContentChange = () => {
+    setNoteItems((notes) => {
+      return [{text: "ABC", isCompleted: !notes[0].isCompleted}];
+    })
+  }
 
   return (
     <>
       {isCheckboxMode ? (
-        <TodoContentNote isCreateMode={true} />
+        <ContentCheckbox noteItems={noteItems} isCreateMode={isCreateMode} onContentChange={onContentChange} />
       ) : (
-        <TodoContentNote isCreateMode={true} />
+        <ContentText noteItems={noteItems} isCreateMode={isCreateMode} onContentChange={onContentChange} />
       )}
     </>
   );

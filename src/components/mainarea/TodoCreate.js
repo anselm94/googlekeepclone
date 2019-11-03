@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Paper, InputBase, Collapse, Button } from "@material-ui/core";
-import ActionsBar from "../todo/Actions";
-import LabelsBar from "../todo/Labels";
+import TodoActions from "../todo/Actions";
+import TodoLabels from "../todo/Labels";
+import TodoContent from "../todo/Content";
 
 const useStyles = makeStyles(theme => ({
   wrapper: {
@@ -52,28 +53,22 @@ export default function() {
         in={isFocussed}
         collapsedHeight="2.7rem"
       >
-        {isFocussed ? (
-          <InputBase
-            placeholder="Title"
+        <InputBase
+            placeholder={isFocussed ? "Title" : "Take a note..."}
             classes={{
-              root: classes.inputTitleRoot,
+              root: isFocussed ? classes.inputTitleRoot : classes.inputNoteRoot,
               input: classes.inputTitleInput
             }}
+            onFocus={() => setFocussed(true)}
             inputProps={{ "aria-label": "note title" }}
           />
+        {isFocussed ? (
+          <TodoContent isCreateMode={true} isCheckboxMode={true}/>
         ) : null}
-        <InputBase
-          placeholder="Take a note..."
-          classes={{
-            root: classes.inputNoteRoot,
-            input: isFocussed ? classes.inputNoteInput : classes.inputTitleInput
-          }}
-          onFocus={() => setFocussed(true)}
-          inputProps={{ "aria-label": "take a note" }}
-        />
-        <LabelsBar labels={labels} />
+        
+        <TodoLabels labels={labels} />
         <div className={classes.barWrapper}>
-          <ActionsBar isCreateMode={true} />
+          <TodoActions isCreateMode={true} />
           <div>
             <Button size="small" onClick={() => setFocussed(false)}>
               Close

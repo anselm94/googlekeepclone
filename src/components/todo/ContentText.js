@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { IconButton, Tooltip, Typography } from "@material-ui/core";
+import { InputBase } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
@@ -18,31 +18,36 @@ const useStyles = makeStyles(theme => ({
   optionWrapper: {
     padding: theme.spacing(0, 1)
   },
-  barClose: {}
+  barClose: {},
+  inputNoteRoot: {
+    ...theme.custom.fontFamily.roboto,
+    padding: theme.spacing(1.5, 2)
+  },
+  inputNoteInput: {
+    fontWeight: 500,
+    fontSize: "0.85rem",
+    padding: 0,
+    color: theme.palette.text.primary
+  }
 }));
 
 export default function({ isCreateMode, noteItems }) {
   const classes = useStyles();
   const theme = useTheme();
+  const text = noteItems.join("\n");
 
   return (
     <>
-      <FormGroup row>
-        {noteItems.map(({}, index) => {
-          <FormControlLabel
-            key={index}
-            control={
-              <Checkbox
-                color="default"
-                checked={state.checkedA}
-                onChange={handleChange("checkedA")}
-                value="checkedA"
-              />
-            }
-            label={<Typography>ABC</Typography>}
-          />;
-        })}
-      </FormGroup>
+      <InputBase
+        placeholder="Take a note..."
+        classes={{
+          root: classes.inputNoteRoot,
+          input: classes.inputNoteInput
+        }}
+        inputProps={{ "aria-label": "take a note" }}
+      >
+        {text}
+      </InputBase>
     </>
   );
 }
