@@ -89,7 +89,22 @@ const theme = createMuiTheme({
       metropolis: fontFamilyMetropolis
     },
     palette: {
-      iconHighlight: grey[900]
+      iconHighlight: grey[900],
+      noteBackground: [
+        "#FFF",
+        "#F28B82",
+        "#FBBC04",
+        "#FFF475",
+        "#CCFF90",
+        "#A7FFEB",
+        "#CBF0F8",
+        "#CBF0F8",
+        "#AECBFA",
+        "#FDCFE8",
+        "#E6C9A8",
+        "#E8EAED"
+      ],
+      noteColorCheck: "#0007"
     }
   }
 });

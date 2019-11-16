@@ -5,34 +5,47 @@ import { Popover, Typography, Avatar, Divider, Button } from "@material-ui/core"
 const useStyles = makeStyles(theme => ({
   popover: {
     width: theme.spacing(40),
-    borderRadius: theme.spacing(0.5)
+    borderRadius: theme.shape.borderRadius
   },
   container: {
     display: "flex",
-    padding: theme.spacing(2)
+    padding: theme.spacing(2),
+    flexDirection: "column",
+    alignItems: "center"
   },
   avatar: {
     width: theme.spacing(10),
-    height: theme.spacing(10)
+    height: theme.spacing(10),
+    margin: theme.spacing(1)
   },
   userInfo: {
     display: "flex",
     flexDirection: "column",
-    justifyContent: "center",
+    alignItems: "center",
     paddingLeft: theme.spacing(1)
   },
   userName: {
-    fontSize: "0.9rem",
-    fontWeight: 700
+    ...theme.custom.fontFamily.metropolis,
+    fontSize: "1rem",
+    fontWeight: 500
   }, 
   userEmail: {
+    ...theme.custom.fontFamily.roboto,
     fontSize: "0.9rem",
   },
   bar: {
-    padding: theme.spacing(1, 2),
+    padding: theme.spacing(2),
     display: "flex",
-    flexDirection: "row-reverse",
-    backgroundColor: theme.palette.background.highlight
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  buttonSignout: {
+    ...theme.custom.fontFamily.metropolis,
+    borderRadius: theme.spacing(0.5),
+    padding: theme.spacing(0.5, 2),
+    fontSize: "0.8rem",
+    fontWeight: 500,
+    textTransform: "none"
   }
 }));
 
@@ -76,7 +89,7 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
         </div>
         <Divider/>
         <div className={classes.bar}>
-          <Button variant="outlined" size="small">Sign out</Button>
+          <Button variant="outlined" size="small" classes={{root: classes.buttonSignout}}>Sign out</Button>
         </div>
       </Popover>
     </div>

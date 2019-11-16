@@ -18,10 +18,15 @@ import {
 } from "@material-ui/icons";
 
 const useStyles = makeStyles(theme => ({
-  itemContainer: {
+  itemContainerWithBorder: {
     borderStyle: "solid",
     borderWidth: `${theme.spacing(0.1)}px 0 ${theme.spacing(0.1)}px 0`,
     borderColor: theme.palette.divider
+  },
+  itemContainerWithoutBorder: {
+    borderStyle: "solid",
+    borderWidth: `${theme.spacing(0.1)}px 0 ${theme.spacing(0.1)}px 0`,
+    borderColor: "transparent"
   },
   itemWrapper: {
     display: "flex",
@@ -54,6 +59,9 @@ const useStyles = makeStyles(theme => ({
     fontSize: "0.875rem",
     lineHeight: "0.875rem",
     verticalAlign: "middle"
+  },
+  closeButtonWrapper: {
+    margin: "auto 0"
   }
 }));
 
@@ -133,7 +141,13 @@ function ContentListItem({
   const [isFocussed, setFocussed] = useState(false);
   const isEmpty = text === "";
   return (
-    <div className={isFocussed ? classes.itemContainer : null}>
+    <div
+      className={
+        isFocussed
+          ? classes.itemContainerWithBorder
+          : classes.itemContainerWithoutBorder
+      }
+    >
       <div className={classes.itemWrapper}>
         <Checkbox
           icon={
@@ -165,9 +179,11 @@ function ContentListItem({
           onBlur={() => setFocussed(false)}
         />
         {isEmpty ? null : (
-          <IconButton size="small">
-            <CloseIcon fontSize="small" />
-          </IconButton>
+          <div className={classes.closeButtonWrapper}>
+            <IconButton size="small">
+              <CloseIcon fontSize="small" />
+            </IconButton>
+          </div>
         )}
       </div>
     </div>

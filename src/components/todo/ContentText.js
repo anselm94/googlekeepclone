@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { InputBase } from "@material-ui/core";
-import { useTheme } from "@material-ui/core/styles";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -33,7 +32,6 @@ const useStyles = makeStyles(theme => ({
 
 export default function({ isCreateMode, noteItems }) {
   const classes = useStyles();
-  const theme = useTheme();
   const text = noteItems.join("\n");
 
   return (
