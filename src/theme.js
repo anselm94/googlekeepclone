@@ -98,13 +98,14 @@ const theme = createMuiTheme({
         "#CCFF90",
         "#A7FFEB",
         "#CBF0F8",
-        "#CBF0F8",
         "#AECBFA",
+        "#D7AEFB",
         "#FDCFE8",
         "#E6C9A8",
         "#E8EAED"
       ],
-      noteColorCheck: "#0007"
+      noteColorCheck: "#0007",
+      labelBackground: "#0002"
     }
   }
 });

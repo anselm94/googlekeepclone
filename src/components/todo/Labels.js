@@ -12,7 +12,8 @@ const useStyles = makeStyles(theme => ({
   },
   label: {
     ...theme.custom.fontFamily.metropolis,
-    fontSize: theme.typography.overline.fontSize
+    fontSize: theme.typography.overline.fontSize,
+    backgroundColor: theme.custom.palette.labelBackground
   }
 }));
 
@@ -23,7 +24,7 @@ export default function({ labels }) {
     <div className={classes.labelsWrapper}>
       {labels.map(text => (
         <div className={classes.labelWrapper}>
-          <Chip label={text} size="small" className={classes.label} />
+          <Chip label={text} size="small" classes={{root: classes.label}} />
         </div>
       ))}
     </div>

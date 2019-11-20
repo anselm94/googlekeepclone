@@ -39,6 +39,10 @@ const useStyles = makeStyles(theme => ({
   inputRoot: {
     flex: 1
   },
+  checkboxRoot: {
+    margin: `auto ${theme.spacing(1.5)}px`,
+    padding: "0 !important"
+  },
   textEmpty: {
     ...theme.custom.fontFamily.metropolis,
     fontWeight: 500,
@@ -161,6 +165,7 @@ function ContentListItem({
           disabled={isEmpty}
           color="default"
           checked={isCompleted}
+          classes={{root: classes.checkboxRoot}}
           onChange={event => onMarkCompleted(id, event.target.checked)}
         />
         <InputBase

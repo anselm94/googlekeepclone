@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Popover, Checkbox } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
@@ -34,10 +34,24 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ColorPopover({ anchorEl, isOpen, onClose }) {
+export default function ColorPopover({
+  anchorEl,
+  isOpen,
+  onClose,
+  onColorSelect
+}) {
   const classes = useStyles();
   const theme = useTheme();
   const id = isOpen ? "color-popover" : undefined;
+  const [selectedColor, setSelectedColor] = useState(
+    theme.custom.palette.noteBackground[0]
+  );
+
+  const onSelectColor = color => {
+    setSelectedColor(color);
+    onColorSelect(color);
+    onClose()
+  };
 
   return (
     <div>
@@ -60,7 +74,12 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
       >
         <div className={classes.container}>
           {theme.custom.palette.noteBackground.map((color, index) => (
-            <ColorItem key={index} color={color} />
+            <ColorItem
+              key={index}
+              color={color}
+              isChecked={selectedColor === color}
+              onClick={selColor => onSelectColor(selColor)}
+            />
           ))}
         </div>
       </Popover>
@@ -68,7 +87,7 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
   );
 }
 
-function ColorItem({ color }) {
+function ColorItem({ color, isChecked, onClick: onPressed }) {
   const classes = useStyles();
   return (
     <Checkbox
@@ -76,6 +95,8 @@ function ColorItem({ color }) {
       icon={<ColorUnselected color={color} />}
       checkedIcon={<ColorSelected color={color} />}
       color="default"
+      checked={isChecked}
+      onClick={() => onPressed(color)}
     />
   );
 }

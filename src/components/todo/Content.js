@@ -3,24 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import ContentCheckbox from "./ContentList";
 import ContentText from "./ContentText";
 
-const useStyles = makeStyles(theme => ({
-  optionsWrapper: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between"
-  },
-  optionWrapperFirst: {
-    padding: theme.spacing(0, 1, 0, 0)
-  },
-  optionWrapperLast: {
-    padding: theme.spacing(0, 0, 0, 1)
-  },
-  optionWrapper: {
-    padding: theme.spacing(0, 1)
-  },
-  barClose: {}
-}));
-
 export default function({ isCreateMode, isCheckboxMode }) {
   const [noteItems, setNoteItems] = useState([{text: "ABC", isCompleted: false}]);
   const onContentChange = () => {

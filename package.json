@@ -3,12 +3,13 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@material-ui/core": "latest",
+    "@material-ui/icons": "latest",
+    "easy-peasy": "^3.2.3",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
-    "react-scripts": "3.2.0",
     "react-helmet": "latest",
-    "@material-ui/core": "latest",
-    "@material-ui/icons": "latest"
+    "react-scripts": "3.2.0"
   },
   "scripts": {
     "start": "react-scripts start",

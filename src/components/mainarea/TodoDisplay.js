@@ -3,6 +3,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Paper, Typography, Fade } from "@material-ui/core";
 import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
+import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   wrapper: {
@@ -35,12 +36,19 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ title, notes, labels }) {
+export default function({ id, title, notes, labels, color }) {
   const classes = useStyles();
   const [isHovered, setHovered] = useState(false);
+  const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
 
   return (
-    <Paper onMouseOver={() => setHovered(true)} onMouseLeave={() => setHovered(false)} className={classes.wrapper} elevation={isHovered ? 2 : 0}>
+    <Paper
+      onMouseOver={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className={classes.wrapper}
+      elevation={isHovered ? 2 : 0}
+      style={{backgroundColor: color}}
+    >
       <Typography className={classes.textTitle} variant="subtitle1">
         {title}
       </Typography>
@@ -50,7 +58,10 @@ export default function({ title, notes, labels }) {
       <LabelsBar labels={labels} />
       <Fade in={isHovered}>
         <div className={classes.barWrapper}>
-          <ActionsBar isCreateMode={false} />
+          <ActionsBar
+            isCreateMode={false}
+            onColorSelect={selColor => updateNotesItem({ id: id, key: "color", value: selColor })}
+          />
         </div>
       </Fade>
     </Paper>

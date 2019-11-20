@@ -1,8 +1,9 @@
 import React from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
-import TodoCreateBar from "./TodoCreate";
+import TodoCreate from "./TodoCreate";
 import TodoDisplay from "./TodoDisplay";
 import { useMediaQuery } from "@material-ui/core";
+import { useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -33,17 +34,18 @@ const useStyles = makeStyles(theme => ({
   todosWrapper: {
     margin: "0 auto",
     columnWidth: theme.spacing(29),
-    columnGap: "0.5rem",
+    columnGap: "0.5rem"
   },
   todoWrapper: {
     width: theme.spacing(29),
+    margin: "0 auto",
     breakInside: "avoid",
     pageBreakInside: "avoid",
     padding: "0.5rem 0",
     transition: theme.transitions.create("all", {
       easing: theme.transitions.easing.easeOut,
       duration: theme.transitions.duration.enteringScreen
-    }),
+    })
   }
 }));
 
@@ -51,102 +53,77 @@ export default function() {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
-  const isTablet = useMediaQuery(theme.breakpoints.up('sm'));
-  const isLaptop = useMediaQuery(theme.breakpoints.up('md'));
-  const isLaptopL = useMediaQuery(theme.breakpoints.up('lg'));
-  const is4K = useMediaQuery(theme.breakpoints.up('xl'));
-  const numberOfColumns = is4K ? 8 : (isLaptopL ? 4 : (isLaptop ? 3 : (isTablet ? 2 : 1) ));
-  const width = is4K ? "100%" : ( isLaptopL ? "1000px" : (isLaptop ? "730px" : (isTablet ? "480px" : "100%")))
-  const todos = [
-    {
-      title: "Things to fix",
-      notes:
-        "In Mobile Chrome, while in 'Offline' mode for any site, sharing to Whatsapp shares some file",
-      labels: ["Cache"]
-    },
-    {
-      title: "Elementary OS - 123",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a neque sollicitudin, suscipit sem in, tristique  llicitudin, suscipit sem in, tristique  leo. Nullam lorem dolor, gravida nec magna sit amet, vulputate laoreet mauris. Suspendisse in posuere turpis. Aliquam sit amet orci sit amet mi euismod pulvinar eget quis felis. Ut elit libero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "consectetur adipiscing",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisqibero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: " ac arcu tincidunt maximus",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur avelit ac arcu tincidunt mcula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "'Offline' mode for any site",
-      notes:
-        "In Mobile Chrome, while in 'Offline' mode for any site, sharing to Whatsapp shares some file. In Mobile Chrome, while in 'Offline' mode for any site, sharing to Whatsapp shares some file",
-      labels: ["Cache"]
-    },
-    {
-      title: "Quisque a neque",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a neque sollicitudin, suscipit sem in, tristique leo. Nullam lorem dolor, gravida nec magna sit amet, vulputate laoreet mauris. Suspendisse in posuere turpis. Aliquam sit amet orci sit amet mi euismod pulvinar eget quis felis. Ut elit libero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "Donec nec velit",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisqibero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "Ut in odio sed sapien",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur avelit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "'Offline' mode for any site",
-      notes:
-        "In Mobile Chrome, while in 'Offline' mode for any site, sharing to Whatsapp shares some file. In Mobile Chrome, while in 'Offline' mode for any site, sharing to Whatsapp shares some file",
-      labels: ["Cache"]
-    },
-    {
-      title: "Quisque a neque",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a neque sollicitudin, suscipit sem in, tristique leo. Nullam lorem dolor, gravida nec magna sit amet, vulputate laoreet mauris. Suspendisse in posuere turpis. Aliquam sit amet orci sit amet mi euismod pulvinar eget quis felis. Ut elit libero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "Donec nec velit",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisqibero, eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-    {
-      title: "Ut in odio sed sapien",
-      notes:
-        "Lorem ipsum dolor sit amet, consectetur avelit ac arcu tincidunt maximus. Ut in odio sed sapien vehicula posuere eget ut ligula.",
-      labels: ["Cache", "To Do"]
-    },
-  ];
+  const isTablet = useMediaQuery(theme.breakpoints.up("sm"));
+  const isLaptop = useMediaQuery(theme.breakpoints.up("md"));
+  const isLaptopL = useMediaQuery(theme.breakpoints.up("lg"));
+  const is4K = useMediaQuery(theme.breakpoints.up("xl"));
+  const numberOfColumns = is4K
+    ? 8
+    : isLaptopL
+    ? 4
+    : isLaptop
+    ? 3
+    : isTablet
+    ? 2
+    : 1;
+  var width = is4K
+    ? "100%"
+    : isLaptopL
+    ? "1000px"
+    : isLaptop
+    ? "730px"
+    : isTablet
+    ? "480px"
+    : "100%";
+  const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
+  const isListView = !useStoreState(state => state.ui.isGridView);
+  const notesItems = useStoreState(state => state.notes.items);
+  const labelItems = useStoreState(state => state.notes.labels);
+  width = isListView
+    ? isLaptop || isLaptopL
+      ? theme.spacing(75)
+      : "100%"
+    : width;
+  const noteTexts = Object.keys(notesItems).map(id => notesItems[id]);
 
   return (
     <main>
-      <div className={isMobile ? classes.contentShift : classes.content}>
+      <div
+        className={
+          isMobile || !isNavBarOpen ? classes.contentShift : classes.content
+        }
+      >
         <div className={classes.todoCreateContainer}>
           <div className={classes.todoCreateWrapper}>
-            <TodoCreateBar />
+            <TodoCreate />
           </div>
         </div>
-        <div className={classes.todosWrapper} style={{columnCount: numberOfColumns, width: width}}>
-            {todos.map(({ title, notes, labels }, index) => (
-              <div key={index} className={classes.todoWrapper} style={{width: isMobile ? "100%": null}}>
-                <TodoDisplay title={title} notes={notes} labels={labels} />
+        <div
+          className={classes.todosWrapper}
+          style={{
+            columnCount: isListView ? 1 : numberOfColumns,
+            width: width
+          }}
+        >
+          {noteTexts.map(({ id, title, notes, labels, color }) => {
+            const labelTexts = [...labels].map(id => labelItems[id]);
+            return (
+              <div
+                key={id}
+                className={classes.todoWrapper}
+                style={{ width: isMobile || isListView ? "100%" : null }}
+              >
+                <TodoDisplay
+                  id={id}
+                  title={title}
+                  notes={notes}
+                  labels={labelTexts}
+                  color={color}
+                />
               </div>
-            ))}
-          </div>
+            );
+          })}
+        </div>
       </div>
     </main>
   );

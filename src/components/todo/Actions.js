@@ -32,7 +32,7 @@ const useStyles = makeStyles(theme => ({
   barClose: {}
 }));
 
-export default function({ isCreateMode }) {
+export default function({ isCreateMode, onColorSelect }) {
   const classes = useStyles();
   const theme = useTheme();
   const refActionColor = useRef();
@@ -115,7 +115,7 @@ export default function({ isCreateMode }) {
           </>
         )}
       </div>
-      <ColorPopover anchorEl={refActionColor.current} isOpen={isColorPopoverOpen} onClose={() => setColorPopoverOpen(false)} />
+      <ColorPopover anchorEl={refActionColor.current} isOpen={isColorPopoverOpen} onClose={() => setColorPopoverOpen(false)} onColorSelect={onColorSelect} />
       <LabelPopover anchorEl={refActionLabel.current} isOpen={isLabelPopoverOpen} onClose={() => setLabelPopoverOpen(false)} />
     </>
   );

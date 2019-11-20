@@ -1,6 +1,13 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Drawer, List, Divider, Typography, useTheme, useMediaQuery } from "@material-ui/core";
+import {
+  Drawer,
+  List,
+  Divider,
+  Typography,
+  useTheme,
+  useMediaQuery
+} from "@material-ui/core";
 import {
   NotificationsNoneOutlined as NotificationIcon,
   WbIncandescentOutlined as IdeaIcon,
@@ -10,6 +17,7 @@ import {
   EditOutlined as EditIcon
 } from "@material-ui/icons";
 import DrawerItem from "./DrawerItem";
+import { useStoreState, useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -31,12 +39,22 @@ export default function NavDrawer() {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+  const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
+  const labelItems = useStoreState(state => state.notes.labels);
+  const selectedLabelId = useStoreState(state => state.ui.selectedLabelId);
+  const setSelectedLabelId = useStoreActions(actions => actions.ui.setSelectedLabelId);
+  const filterNotesItemsByLabelId = useStoreActions(actions => actions.notes.filterByLabelId);
 
+  const onDrawerItemSelected = (labelId) => {
+    setSelectedLabelId(labelId);
+    filterNotesItemsByLabelId(labelId);
+  }
+ 
   return (
     <Drawer
-      variant={isMobile ? "temporary" : "permanent"}
+      variant={isMobile ? "temporary" : "persistent"}
       anchor="left"
-      open={false}
+      open={isNavBarOpen}
       classes={{
         root: classes.drawer,
         paper: classes.drawerPaper
@@ -44,14 +62,12 @@ export default function NavDrawer() {
     >
       <div className={classes.toolbar} />
       <List>
-        {["Notes", "Reminders"].map((text, index) => (
-          <DrawerItem
-            key={text}
-            text={text}
-            isSelected={text === "Notes"}
-            icon={index % 2 === 0 ? <IdeaIcon /> : <NotificationIcon />}
-          />
-        ))}
+        <DrawerItem
+          text={"Notes"}
+          isSelected={selectedLabelId === ""}
+          icon={<IdeaIcon />}
+          onClick={() => onDrawerItemSelected("")}
+        />
       </List>
       <Divider />
       <div className={classes.sectionTitle}>
@@ -60,8 +76,14 @@ export default function NavDrawer() {
         </Typography>
       </div>
       <List>
-        {["Cache", "Concepts", "Information", "My Thoughts", "To Do", "Wish Items"].map((text, index) => (
-          <DrawerItem key={text} text={text} icon={<LabelIcon />} />
+        {Object.keys(labelItems).map(labelId => (
+          <DrawerItem
+            key={labelId}
+            text={labelItems[labelId]}
+            icon={<LabelIcon />}
+            isSelected={selectedLabelId === labelId}
+            onClick={() => onDrawerItemSelected(labelId)}
+          />
         ))}
         <DrawerItem text={"Edit labels"} icon={<EditIcon />} />
       </List>

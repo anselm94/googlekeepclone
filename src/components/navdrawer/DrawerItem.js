@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ text, icon, isSelected }) {
+export default function({ text, icon, isSelected, onClick }) {
   const classes = useStyles();
 
   return (
@@ -24,6 +24,7 @@ export default function({ text, icon, isSelected }) {
         selected: classes.listItemSelected,
         root: classes.listItemRoot
       }}
+      onClick={onClick}
     >
       <ListItemIcon>{icon}</ListItemIcon>
       <ListItemText primary={text} />

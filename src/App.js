@@ -25,7 +25,7 @@ export default function App() {
         <NavDrawer />
         <Container maxWidth={false}>
           <Box mt={8}>
-          <NotesArea />
+            <NotesArea />
           </Box>
         </Container>
       </ThemeProvider>

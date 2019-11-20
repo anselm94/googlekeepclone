@@ -11,11 +11,14 @@ import {
   AccountCircleOutlined as AccountsIcon,
   DashboardOutlined as TileViewIcon,
   Brightness4Outlined as ToggleDarkModeIcon,
+  Brightness5Outlined as ToggleLightModeIcon,
   RefreshOutlined as RefreshIcon,
-  Menu as MenuIcon
+  Menu as MenuIcon,
+  ViewAgendaOutlined as ListIcon
 } from "@material-ui/icons";
 import ProfilePopover from "./ProfilePopover";
 import SearchBar from "./SearchBar";
+import { useStoreActions, useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   grow: {
@@ -73,6 +76,12 @@ export default function() {
     disableHysteresis: true,
     threshold: 0
   });
+  const isGridView = useStoreState(state => state.ui.isGridView);
+  const isDarkMode = useStoreState(state => state.ui.isDarkMode);
+  const toggleNavBar = useStoreActions(actions => actions.ui.toggleNavBar);
+  const toggleDarkMode = useStoreActions(actions => actions.ui.toggleDarkMode);
+  const toggleView = useStoreActions(actions => actions.ui.toggleView);
+  const refreshItems = useStoreActions(actions => actions.notes.refresh);
 
   return (
     <div className={classes.grow}>
@@ -85,6 +94,7 @@ export default function() {
             edge="start"
             className={classes.menuButton}
             aria-label="open drawer"
+            onClick={toggleNavBar}
           >
             <MenuIcon />
           </IconButton>
@@ -107,7 +117,7 @@ export default function() {
             <IconButton
               aria-label="refresh"
               aria-controls={menuId}
-              onClick={() => setProfilePopoverOpen(true)}
+              onClick={refreshItems}
             >
               <RefreshIcon />
             </IconButton>
@@ -116,18 +126,18 @@ export default function() {
             <IconButton
               aria-label="toggle dark theme"
               aria-controls={menuId}
-              onClick={() => setProfilePopoverOpen(true)}
+              onClick={toggleDarkMode}
             >
-              <ToggleDarkModeIcon />
+              {isDarkMode ? <ToggleLightModeIcon /> : <ToggleDarkModeIcon />}
             </IconButton>
           </div>
           <div>
             <IconButton
-              aria-label="toggle tile view"
+              aria-label={isGridView ? "toggle list view" : "toggle tile view"}
               aria-controls={menuId}
-              onClick={() => setProfilePopoverOpen(true)}
+              onClick={toggleView}
             >
-              <TileViewIcon />
+              {isGridView ? <ListIcon /> : <TileViewIcon /> }
             </IconButton>
           </div>
           <div>
