@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { InputBase } from "@material-ui/core";
+import { InputBase, Typography } from "@material-ui/core";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -20,32 +20,45 @@ const useStyles = makeStyles(theme => ({
   barClose: {},
   inputNoteRoot: {
     ...theme.custom.fontFamily.roboto,
-    padding: theme.spacing(1.5, 2)
+    padding: theme.spacing(0.5, 2, 1.5, 2),
   },
   inputNoteInput: {
-    fontWeight: 500,
-    fontSize: "0.85rem",
+    fontWeight: 400,
+    fontSize: "0.88rem",
     padding: 0,
     color: theme.palette.text.primary
-  }
+  },
+  textNote: {
+    ...theme.custom.fontFamily.roboto,
+    padding: theme.spacing(0.5, 2, 1.5, 2),
+    fontWeight: 400,
+    fontSize: "0.88rem",
+    color: theme.palette.text.primary
+  },
 }));
 
-export default function({ isCreateMode, noteItems }) {
+export default function({ isEditMode, noteItems }) {
   const classes = useStyles();
-  const text = noteItems.join("\n");
+  const reducedText = noteItems.map(({text}) => text).join("\n");
 
   return (
     <>
-      <InputBase
-        placeholder="Take a note..."
-        classes={{
-          root: classes.inputNoteRoot,
-          input: classes.inputNoteInput
-        }}
-        inputProps={{ "aria-label": "take a note" }}
-      >
-        {text}
-      </InputBase>
+      {isEditMode ? (
+        <InputBase
+          placeholder="Take a note..."
+          classes={{
+            root: classes.inputNoteRoot,
+            input: classes.inputNoteInput
+          }}
+          inputProps={{ "aria-label": "take a note" }}
+          value={reducedText}
+          multiline={true}
+        />
+      ) : (
+        <Typography className={classes.textNote} variant="body1">
+          {reducedText}
+        </Typography>
+      )}
     </>
   );
 }

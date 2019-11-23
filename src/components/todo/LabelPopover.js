@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import {
   Popover,
@@ -19,6 +19,7 @@ import {
   AddOutlined as AddIcon,
   SearchOutlined as SearchIcon
 } from "@material-ui/icons";
+import { useStoreState, useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -80,6 +81,19 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
   const classes = useStyles();
   const theme = useTheme();
   const id = isOpen ? "color-popover" : undefined;
+  const [newLabelName, setNewLabelName] = useState("");
+  const allLabelItems = useStoreState(state => state.notes.labels);
+  const addLabel = useStoreActions(actions => actions.notes.addLabel);
+  const filteredLabelIds = Object.keys(allLabelItems).filter(labelId =>
+    allLabelItems[labelId].includes(newLabelName)
+  );
+  const filteredLabelItems =
+    newLabelName === ""
+      ? allLabelItems
+      : filteredLabelIds.reduce((filterLabels, labelId) => {
+          filterLabels[labelId] = allLabelItems[labelId];
+          return filterLabels;
+        }, {});
 
   return (
     <div>
@@ -107,18 +121,23 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
               <InputBase
                 classes={{ root: classes.inputText }}
                 placeholder="Enter label name"
+                value={newLabelName}
+                onChange={event => setNewLabelName(event.target.value)}
               />
-              <SearchIcon fontSize="small" htmlColor={theme.palette.grey[500]}/>
+              <SearchIcon
+                fontSize="small"
+                htmlColor={theme.palette.grey[500]}
+              />
             </div>
           </div>
           <List dense={true} component="div" style={{ width: "100%" }}>
-            {[0, 1, 2, 3].map(value => {
-              const labelId = `checkbox-list-label-${value}`;
+            {Object.keys(filteredLabelItems).map(labelId => {
+              const labelAriaId = `checkbox-list-label-${labelId}`;
 
               return (
                 <ListItem
                   alignItems="flex-start"
-                  key={value}
+                  key={labelId}
                   dense={true}
                   button={true}
                   disableGutters={true}
@@ -131,7 +150,7 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
                       checkedIcon={<CheckboxIcon fontSize="small" />}
                       color="default"
                       disableRipple
-                      inputProps={{ "aria-labelledby": labelId }}
+                      inputProps={{ "aria-labelledby": labelAriaId }}
                       size="small"
                       classes={{ root: classes.checkboxRoot }}
                     />
@@ -141,20 +160,24 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
                       variant="body1"
                       classes={{ root: classes.listItemText }}
                     >
-                      {`Line item ${value + 1}`}
+                      {filteredLabelItems[labelId]}
                     </Typography>
                   </ListItemText>
                 </ListItem>
               );
             })}
           </List>
-          <Divider />
-          <Button size="small" classes={{ root: classes.footer }}>
-            <AddIcon fontSize="small" />
-            <Typography classes={{ root: classes.footerText }}>
-              Create "<b>abc</b>"
-            </Typography>
-          </Button>
+          {newLabelName !== "" ? (
+            <>
+              <Divider />
+              <Button size="small" classes={{ root: classes.footer }} onClick={() => addLabel(newLabelName)}>
+                <AddIcon fontSize="small" />
+                <Typography classes={{ root: classes.footerText }}>
+                  Create "<b>{newLabelName}</b>"
+                </Typography>
+              </Button>
+            </>
+          ) : null}
         </div>
       </Popover>
     </div>

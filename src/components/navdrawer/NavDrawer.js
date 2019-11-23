@@ -9,7 +9,6 @@ import {
   useMediaQuery
 } from "@material-ui/core";
 import {
-  NotificationsNoneOutlined as NotificationIcon,
   WbIncandescentOutlined as IdeaIcon,
   LabelOutlined as LabelIcon,
   ArchiveOutlined as ArchiveIcon,

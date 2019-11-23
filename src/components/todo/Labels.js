@@ -23,7 +23,7 @@ export default function({ labels }) {
   return (
     <div className={classes.labelsWrapper}>
       {labels.map(text => (
-        <div className={classes.labelWrapper}>
+        <div key={text} className={classes.labelWrapper}>
           <Chip label={text} size="small" classes={{root: classes.label}} />
         </div>
       ))}

@@ -34,26 +34,25 @@ const useStyles = makeStyles(theme => ({
     alignContent: "center",
     marginLeft: theme.spacing(2),
     marginRight: theme.spacing(1),
-    height: theme.spacing(4)
+    minHeight: theme.spacing(4)
   },
   inputRoot: {
     flex: 1
   },
   checkboxRoot: {
     margin: `auto ${theme.spacing(1.5)}px`,
-    padding: "0 !important"
+    padding: "0 !important",
+    color: `${theme.custom.palette.notesCheckbox} !important`
   },
   textEmpty: {
     ...theme.custom.fontFamily.metropolis,
     fontWeight: 500,
     fontSize: "0.875rem",
-    lineHeight: "0.875rem",
     verticalAlign: "middle"
   },
   textIncomplete: {
     fontWeight: 400,
     fontSize: "0.875rem",
-    lineHeight: "0.875rem",
     verticalAlign: "middle"
   },
   textComplete: {
@@ -61,7 +60,6 @@ const useStyles = makeStyles(theme => ({
     textDecorationColor: theme.palette.text.disabled,
     fontWeight: 400,
     fontSize: "0.875rem",
-    lineHeight: "0.875rem",
     verticalAlign: "middle"
   },
   closeButtonWrapper: {
@@ -69,9 +67,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ noteItems, isCreateMode, onContentChange }) {
-  const incompleteNoteitems = noteItems.filter(isCompleted => isCompleted);
-  const completedNoteitems = noteItems.filter(isCompleted => !isCompleted);
+export default function({ noteItems, isEditMode, onContentChange }) {
+  const incompleteNoteitems = noteItems.filter(
+    ({ isCompleted }) => !isCompleted
+  );
+  const completedNoteitems = noteItems.filter(
+    ({ isCompleted }) => isCompleted
+  );
   const hasCompletedNoteItems = completedNoteitems.length > 0;
 
   const onTextChange = () => {
@@ -83,10 +85,11 @@ export default function({ noteItems, isCreateMode, onContentChange }) {
 
   return (
     <>
-      {isCreateMode ? (
+      {isEditMode ? (
         <>
           <ContentMarkList
             noteItems={incompleteNoteitems}
+            isEditMode={isEditMode}
             onTextChange={onTextChange}
             onMarkCompleted={onMarkCompleted}
           />
@@ -96,14 +99,16 @@ export default function({ noteItems, isCreateMode, onContentChange }) {
               <ExpansionPanel expanded={true}>
                 <ExpansionPanelSummary expandIcon={<ExpandIcon />}>
                   <Typography>
-                    `${completedNoteitems.length} Completed items`
+                    {`${completedNoteitems.length} Completed items`}
                   </Typography>
                 </ExpansionPanelSummary>
                 <ExpansionPanelDetails>
-                  <Typography>
-                    Nulla facilisi. Phasellus sollicitudin nulla et quam mattis
-                    feugiat. Aliquam eget maximus est, id dignissim quam.
-                  </Typography>
+                  <ContentMarkList
+                    noteItems={completedNoteitems}
+                    isEditMode={isEditMode}
+                    onTextChange={onTextChange}
+                    onMarkCompleted={onMarkCompleted}
+                  />
                 </ExpansionPanelDetails>
               </ExpansionPanel>
             </>
@@ -120,12 +125,20 @@ export default function({ noteItems, isCreateMode, onContentChange }) {
   );
 }
 
-function ContentMarkList({ noteItems, onTextChange, onMarkCompleted }) {
+function ContentMarkList({
+  noteItems,
+  isEditMode,
+  onTextChange,
+  onMarkCompleted
+}) {
   return (
     <>
       {noteItems.map(({ text, isCompleted }, index) => (
         <ContentListItem
           key={index}
+          text={text}
+          isCompleted={isCompleted}
+          isEditMode={isEditMode}
           onTextChange={onTextChange}
           onMarkCompleted={onMarkCompleted}
         />
@@ -138,11 +151,13 @@ function ContentListItem({
   id,
   text,
   isCompleted,
+  isEditMode,
   onTextChange,
   onMarkCompleted
 }) {
   const classes = useStyles();
   const [isFocussed, setFocussed] = useState(false);
+  const [isHovered, setHovered] = useState(false);
   const isEmpty = text === "";
   return (
     <div
@@ -151,6 +166,8 @@ function ContentListItem({
           ? classes.itemContainerWithBorder
           : classes.itemContainerWithoutBorder
       }
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
     >
       <div className={classes.itemWrapper}>
         <Checkbox
@@ -162,10 +179,10 @@ function ContentListItem({
             )
           }
           checkedIcon={<CheckboxIcon fontSize="small" />}
-          disabled={isEmpty}
           color="default"
           checked={isCompleted}
-          classes={{root: classes.checkboxRoot}}
+          disabled={!isEditMode || isEmpty}
+          classes={{ root: classes.checkboxRoot }}
           onChange={event => onMarkCompleted(id, event.target.checked)}
         />
         <InputBase
@@ -182,14 +199,16 @@ function ContentListItem({
           onChange={event => onTextChange(id, event.target.value)}
           onFocus={() => setFocussed(true)}
           onBlur={() => setFocussed(false)}
+          readOnly={!isEditMode}
+          multiline={true}
         />
-        {isEmpty ? null : (
+        {isEditMode && isHovered ? (
           <div className={classes.closeButtonWrapper}>
             <IconButton size="small">
               <CloseIcon fontSize="small" />
             </IconButton>
           </div>
-        )}
+        ) : null}
       </div>
     </div>
   );

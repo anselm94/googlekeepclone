@@ -3,8 +3,6 @@ import { makeStyles } from "@material-ui/core/styles";
 import { IconButton, Tooltip } from "@material-ui/core";
 import {
   PaletteOutlined as PaletteIcon,
-  UndoOutlined as UndoIcon,
-  RedoOutlined as RedoIcon,
   LabelOutlined as LabelIcon,
   DeleteOutlineOutlined as DeleteIcon,
   FileCopyOutlined as CopyIcon,
@@ -45,7 +43,12 @@ export default function({ isCreateMode, onColorSelect }) {
       <div className={classes.optionsWrapper}>
         <div className={classes.optionWrapperFirst}>
           <Tooltip title="Change color">
-            <IconButton size="small" aria-label="change color" ref={refActionColor} onClick={() => setColorPopoverOpen(true)}>
+            <IconButton
+              size="small"
+              aria-label="change color"
+              ref={refActionColor}
+              onClick={() => setColorPopoverOpen(true)}
+            >
               <PaletteIcon
                 htmlColor={theme.custom.palette.iconHighlight}
                 fontSize="small"
@@ -63,24 +66,22 @@ export default function({ isCreateMode, onColorSelect }) {
             </IconButton>
           </Tooltip>
         </div>
-        {isCreateMode ? (
-          <>
-            <div className={classes.optionWrapper}>
-              <Tooltip title="Undo">
-                <IconButton size="small" disabled aria-label="undo changes">
-                  <UndoIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </div>
-            <div className={classes.optionWrapperLast}>
-              <Tooltip title="Redo">
-                <IconButton size="small" disabled aria-label="redo changes">
-                  <RedoIcon fontSize="small" />
-                </IconButton>
-              </Tooltip>
-            </div>
-          </>
-        ) : (
+        <div className={classes.optionWrapper}>
+          <Tooltip title="Change labels">
+            <IconButton
+              size="small"
+              aria-label="change labels"
+              ref={refActionLabel}
+              onClick={() => setLabelPopoverOpen(true)}
+            >
+              <LabelIcon
+                htmlColor={theme.custom.palette.iconHighlight}
+                fontSize="small"
+              />
+            </IconButton>
+          </Tooltip>
+        </div>
+        {isCreateMode ? null : (
           <>
             <div className={classes.optionWrapper}>
               <Tooltip title="Make a copy">
@@ -92,16 +93,7 @@ export default function({ isCreateMode, onColorSelect }) {
                 </IconButton>
               </Tooltip>
             </div>
-            <div className={classes.optionWrapper}>
-              <Tooltip title="Change labels">
-                <IconButton size="small" aria-label="change labels" ref={refActionLabel} onClick={() => setLabelPopoverOpen(true)}>
-                  <LabelIcon
-                    htmlColor={theme.custom.palette.iconHighlight}
-                    fontSize="small"
-                  />
-                </IconButton>
-              </Tooltip>
-            </div>
+
             <div className={classes.optionWrapperLast}>
               <Tooltip title="Delete note">
                 <IconButton size="small" aria-label="delete note">
@@ -115,8 +107,17 @@ export default function({ isCreateMode, onColorSelect }) {
           </>
         )}
       </div>
-      <ColorPopover anchorEl={refActionColor.current} isOpen={isColorPopoverOpen} onClose={() => setColorPopoverOpen(false)} onColorSelect={onColorSelect} />
-      <LabelPopover anchorEl={refActionLabel.current} isOpen={isLabelPopoverOpen} onClose={() => setLabelPopoverOpen(false)} />
+      <ColorPopover
+        anchorEl={refActionColor.current}
+        isOpen={isColorPopoverOpen}
+        onClose={() => setColorPopoverOpen(false)}
+        onColorSelect={onColorSelect}
+      />
+      <LabelPopover
+        anchorEl={refActionLabel.current}
+        isOpen={isLabelPopoverOpen}
+        onClose={() => setLabelPopoverOpen(false)}
+      />
     </>
   );
 }

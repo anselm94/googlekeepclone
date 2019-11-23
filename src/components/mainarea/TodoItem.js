@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Paper, Typography, Fade } from "@material-ui/core";
+import { Paper, Fade } from "@material-ui/core";
 import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
+import ContentTitle from "../todo/ContentTitle";
+import Content from "../todo/Content";
 import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
@@ -21,13 +23,6 @@ const useStyles = makeStyles(theme => ({
     color: theme.palette.text.primary,
     lineHeight: theme.spacing(0.18)
   },
-  textNote: {
-    ...theme.custom.fontFamily.roboto,
-    padding: theme.spacing(0.5, 2, 1.5, 2),
-    fontWeight: 400,
-    fontSize: "14px",
-    color: theme.palette.text.primary
-  },
   barWrapper: {
     display: "flex",
     flexDirection: "row",
@@ -36,10 +31,11 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ id, title, notes, labels, color }) {
+export default function({ id, title, notes, labels, color, isCheckboxMode, isEditMode }) {
   const classes = useStyles();
   const [isHovered, setHovered] = useState(false);
   const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
+  const setNoteInMode = useStoreActions(actions => actions.notes.setNoteInEditMode);
 
   return (
     <Paper
@@ -49,14 +45,10 @@ export default function({ id, title, notes, labels, color }) {
       elevation={isHovered ? 2 : 0}
       style={{backgroundColor: color}}
     >
-      <Typography className={classes.textTitle} variant="subtitle1">
-        {title}
-      </Typography>
-      <Typography className={classes.textNote} variant="body1">
-        {notes}
-      </Typography>
+      <ContentTitle title={title} isEditMode={isEditMode}/>
+      <Content isEditMode={isEditMode} isCheckboxMode={isCheckboxMode} noteItems={notes}/>
       <LabelsBar labels={labels} />
-      <Fade in={isHovered}>
+      <Fade in={isHovered || isEditMode}>
         <div className={classes.barWrapper}>
           <ActionsBar
             isCreateMode={false}

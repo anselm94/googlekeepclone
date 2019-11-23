@@ -90,6 +90,7 @@ const theme = createMuiTheme({
     },
     palette: {
       iconHighlight: grey[900],
+      notesCheckbox: grey[700],
       noteBackground: [
         "#FFF",
         "#F28B82",

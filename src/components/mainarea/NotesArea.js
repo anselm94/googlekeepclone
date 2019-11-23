@@ -1,7 +1,7 @@
 import React from "react";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import TodoCreate from "./TodoCreate";
-import TodoDisplay from "./TodoDisplay";
+import TodoItem from "./TodoItem";
 import { useMediaQuery } from "@material-ui/core";
 import { useStoreState } from "easy-peasy";
 
@@ -105,7 +105,7 @@ export default function() {
             width: width
           }}
         >
-          {noteTexts.map(({ id, title, notes, labels, color }) => {
+          {noteTexts.map(({ id, title, notes, labels, color, isCheckboxMode, isEditMode }) => {
             const labelTexts = [...labels].map(id => labelItems[id]);
             return (
               <div
@@ -113,12 +113,14 @@ export default function() {
                 className={classes.todoWrapper}
                 style={{ width: isMobile || isListView ? "100%" : null }}
               >
-                <TodoDisplay
+                <TodoItem
                   id={id}
                   title={title}
                   notes={notes}
                   labels={labelTexts}
                   color={color}
+                  isCheckboxMode={isCheckboxMode}
+                  isEditMode={isEditMode}
                 />
               </div>
             );

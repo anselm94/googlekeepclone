@@ -5,64 +5,73 @@ const notesItems = {
     id: "123",
     title: "Things to fix",
     notes: [
-      "In Mobile Chrome,",
-      "while in 'Offline' mode for any site,",
-      "sharing to Whatsapp shares some file"
+      {text: "In Mobile Chrome,", isCompleted: false},
+      {text: "while in 'Offline' mode for any site,", isCompleted: false},
+      {text: "sharing to Whatsapp shares some file", isCompleted: false},
     ],
     labels: new Set(["1"]),
-    color: ""
+    color: "",
+    isCheckboxMode: false,
+    isEditMode: true
   },
   "234": {
     id: "234",
     title: "Elementary OS - 123",
     notes: [
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a neque sollicitudin, ",
-      "suscipit sem in, tristique  llicitudin, suscipit sem in, ",
-      "tristique  leo. Nullam lorem dolor, gravida nec magna sit amet, ",
-      "vulputate laoreet mauris. Suspendisse in posuere turpis. ",
-      "Aliquam sit amet orci sit amet mi euismod pulvinar eget quis felis. Ut elit libero, ",
-      "eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. ",
-      "Ut in odio sed sapien vehicula posuere eget ut ligula."
+      {text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque a neque sollicitudin, ", isCompleted: false},
+      {text: "suscipit sem in, tristique  llicitudin, suscipit sem in, ", isCompleted: false},
+      {text: "tristique  leo. Nullam lorem dolor, gravida nec magna sit amet, ", isCompleted: false},
+      {text: "vulputate laoreet mauris. Suspendisse in posuere turpis. ", isCompleted: false},
+      {text: "Aliquam sit amet orci sit amet mi euismod pulvinar eget quis felis. Ut elit libero, ", isCompleted: false},
+      {text: "eleifend nec massa eget, hendrerit tempor libero. Donec nec velit ac arcu tincidunt maximus. ", isCompleted: false},
+      {text: "Ut in odio sed sapien vehicula posuere eget ut ligula.", isCompleted: false}
     ],
-
-    labels: new Set(["1", "2"]),
-    color: ""
+    labels: new Set(["2", "3"]),
+    color: "",
+    isCheckboxMode: true,
+    isEditMode: false
   },
   "345": {
     id: "345",
     title: "consectetur adipiscing ",
     notes: [
-      "Lorem ipsum dolor sit amet, ",
-      "consectetur adipiscing elit. ",
-      "Quisqibero, eleifend nec massa eget, ",
-      "hendrerit tempor libero. ",
-      "Donec nec velit ac arcu tincidunt maximus. ",
-      "Ut in odio sed sapien vehicula posuere eget ut ligula."
+      {text: "Lorem ipsum dolor sit amet, ", isCompleted: false},
+      {text: "consectetur adipiscing elit.", isCompleted: false},
+      {text: "Quisqibero, eleifend nec massa eget, ", isCompleted: false},
+      {text: "hendrerit tempor libero. ", isCompleted: false},
+      {text: "Donec nec velit ac arcu tincidunt maximus. ", isCompleted: false},
+      {text: "Ut in odio sed sapien vehicula posuere eget ut ligula.", isCompleted: false}
     ],
-    labels: new Set(["1", "2"]),
-    color: ""
+    labels: new Set(["3", "4"]),
+    color: "",
+    isCheckboxMode: false,
+    isEditMode: false
   },
   "456": {
     id: "456",
     title: "ac arcu tincidunt maximus",
     notes: [
-      "Lorem ipsum dolor sit amet, ",
-      "consectetur avelit ac arcu tincidunt mcula posuere eget ut ligula."
+      {text: "Lorem ipsum dolor sit amet, ", isCompleted: false},
+      {text: "consectetur avelit ac arcu tincidunt mcula posuere eget ut ligula.", isCompleted: false}
     ],
-    labels: new Set(["1", "2"]),
-    color: ""
+    labels: new Set(["1", "5"]),
+    color: "",
+    isCheckboxMode: true,
+    isEditMode: false
   },
   "567": {
     id: "567",
     title: "'Offline' mode for any site ",
     notes: [
-      "In Mobile Chrome, while in 'Offline' mode for any site, ",
-      "sharing to Whatsapp shares some file. ",
-      "In Mobile Chrome, while in 'Offline' mode for any site, ",
-      "sharing to Whatsapp shares some file"
+      {text: "In Mobile Chrome, while in 'Offline' mode for any site, ", isCompleted: false},
+      {text: "sharing to Whatsapp shares some file. ", isCompleted: true},
+      {text: "In Mobile Chrome, while in 'Offline' mode for any site, ", isCompleted: false},
+      {text: "sharing to Whatsapp shares some file", isCompleted: true}
     ],
     labels: new Set(["1"]),
-    color: ""
+    color: "",
+    isCheckboxMode: true,
+    isEditMode: false
   }
 };
 
@@ -91,22 +100,26 @@ const notesModel = {
     actions.setNotesItems(notesItems);
   }),
   filterByLabelId: thunk(async (actions, labelId) => {
-    actions.setNotesItems(notesItems);
+    if(labelId) {
+      const filteredNotes = Object.keys(notesItems).map((noteId) => notesItems[noteId]).filter(note => note.labels.has(labelId));
+      actions.setNotesItems(filteredNotes);
+    } else {
+      actions.setNotesItems(notesItems);
+    }
+  }),
+  addLabel: thunk(async (actions, labelText) => {
+    labelItems[Math.random()] = labelText;
+    actions.setLabelItems(labelItems);
   }),
   updateNotesItem: thunk(async (actions, {id, key, value}) => {
     const updatedNote = Object.assign({}, notesItems[id]);
     updatedNote[key] = value; //TODO Check
     actions.setNoteItem(updatedNote);
+  }),
+  setNoteInEditMode: action((state, noteId) => {
+    Object.keys(state.items).forEach(id => state.items[noteId].isEditMode = false);
+    state.items[noteId].isEditMode = true;
   })
-};
-
-const newNoteModel = {
-  title: "",
-  content: [],
-  isEditMode: true,
-  isCheckboxMode: false,
-  labels: [],
-  color: 0
 };
 
 const userModel = {
@@ -129,7 +142,6 @@ const uiModel = {
 };
 
 export default {
-  new: newNoteModel,
   notes: notesModel,
   user: userModel,
   ui: uiModel

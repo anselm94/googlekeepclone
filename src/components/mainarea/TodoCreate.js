@@ -63,7 +63,7 @@ export default function() {
             inputProps={{ "aria-label": "note title" }}
           />
         {isFocussed ? (
-          <TodoContent isCreateMode={true} isCheckboxMode={true}/>
+          <TodoContent noteItems={[{text: "", isCompleted: false}]} isEditMode={true} isCheckboxMode={true}/>
         ) : null}
         
         <TodoLabels labels={labels} />
