@@ -19,8 +19,7 @@ const notesItems = {
     ],
     labels: new Set(["1"]),
     color: "",
-    isCheckboxMode: false,
-    isEditMode: false
+    isCheckboxMode: false
   },
   "234": {
     id: "234",
@@ -61,8 +60,7 @@ const notesItems = {
     ],
     labels: new Set(["2", "3"]),
     color: "",
-    isCheckboxMode: true,
-    isEditMode: true
+    isCheckboxMode: true
   },
   "345": {
     id: "345",
@@ -83,8 +81,7 @@ const notesItems = {
     ],
     labels: new Set(["3", "4"]),
     color: "",
-    isCheckboxMode: false,
-    isEditMode: false
+    isCheckboxMode: false
   },
   "456": {
     id: "456",
@@ -99,8 +96,7 @@ const notesItems = {
     ],
     labels: new Set(["1", "5"]),
     color: "",
-    isCheckboxMode: true,
-    isEditMode: false
+    isCheckboxMode: true
   },
   "567": {
     id: "567",
@@ -119,8 +115,7 @@ const notesItems = {
     ],
     labels: new Set(["1"]),
     color: "",
-    isCheckboxMode: true,
-    isEditMode: false
+    isCheckboxMode: true
   }
 };
 
@@ -137,6 +132,7 @@ const notesModel = {
   new: newItem,
   items: notesItems,
   labels: labelItems,
+  noteInEditMode: "",
   setNotesItems: action((state, allNotesItems) => {
     state.items = allNotesItems;
   }),
@@ -144,9 +140,9 @@ const notesModel = {
     state.items[noteItem.id] = noteItem;
   }),
   updateNotesItem: action((state, { id, key, value }) => {
-    if (id && id !== "") {
+    if (id) {
       // update the existing item
-      const updatedNote = Object.assign({}, notesItems[id]);
+      const updatedNote = Object.assign({}, state.items[id]);
       updatedNote[key] = value;
       state.items[id] = updatedNote;
     } else {
@@ -160,10 +156,11 @@ const notesModel = {
     state.labels = allLabelItems;
   }),
   setNoteInEditMode: action((state, noteId) => {
-    Object.keys(state.items).forEach(
-      id => (state.items[noteId].isEditMode = false)
-    );
-    state.items[noteId].isEditMode = true;
+    if (noteId) {
+      state.noteInEditMode = noteId;
+    } else {
+      state.noteInEditMode = "";
+    }
   }),
   resetNewItem: action(state => {
     state.new = newItem;
@@ -181,8 +178,14 @@ const notesModel = {
       actions.setNotesItems(notesItems);
     }
   }),
+  search: thunk(async (actions, searchTerm) => {
+
+  }),
   createNote: thunk(async (actions, noteItem) => {
-    if ((noteItem.notes.length > 0 && noteItem.notes[0].text) || noteItem.title) {
+    if (
+      (noteItem.notes.length > 0 && noteItem.notes[0].text) ||
+      noteItem.title
+    ) {
       const newId = Math.random();
       noteItem.id = newId;
       actions.resetNewItem();

@@ -78,6 +78,7 @@ export default function() {
   const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
   const isListView = !useStoreState(state => state.ui.isGridView);
   const notesItems = useStoreState(state => state.notes.items);
+  const noteInEditMode = useStoreState(state => state.notes.noteInEditMode);
   width = isListView
     ? isLaptop || isLaptopL
       ? theme.spacing(75)
@@ -104,7 +105,7 @@ export default function() {
             width: width
           }}
         >
-          {noteTexts.map(({ id, title, notes, labels, color, isCheckboxMode, isEditMode }) => {
+          {noteTexts.map(({ id, title, notes, labels, color, isCheckboxMode }) => {
             return (
               <div
                 key={id}
@@ -118,7 +119,7 @@ export default function() {
                   labels={labels}
                   color={color}
                   isCheckboxMode={isCheckboxMode}
-                  isEditMode={isEditMode}
+                  isEditMode={id === noteInEditMode}
                 />
               </div>
             );

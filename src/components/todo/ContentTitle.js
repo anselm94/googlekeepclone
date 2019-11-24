@@ -6,13 +6,13 @@ import { useStoreActions } from "easy-peasy";
 const useStyles = makeStyles(theme => ({
   inputTitleRoot: {
     ...theme.custom.fontFamily.metropolis,
-    padding: theme.spacing(1.25, 2)
+    padding: theme.spacing(1.5, 2, 0, 2)
   },
   inputTitleInput: {
     fontWeight: 500,
     fontSize: "1rem",
     padding: 0,
-    lineHeight: "1rem",
+    lineHeight: theme.spacing(0.18),
     verticalAlign: "middle",
     color: theme.palette.text.primary
   },
@@ -22,7 +22,9 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 500,
     fontSize: "1rem",
     color: theme.palette.text.primary,
-    lineHeight: theme.spacing(0.18)
+    lineHeight: theme.spacing(0.18),
+    display: "flex",
+    flexWrap: "wrap"
   }
 }));
 
@@ -41,6 +43,7 @@ export default function({ id, title, isEditMode }) {
           }}
           inputProps={{ "aria-label": "note title" }}
           value={title}
+          multiline={true}
           onChange={(event) => updateNotesItem({id: id, key: "title", value: event.target.value})}
         />
       ) : (

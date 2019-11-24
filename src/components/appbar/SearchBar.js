@@ -4,8 +4,9 @@ import {
   Search as SearchIcon,
   CloseOutlined as CloseOutlinedIcon
 } from "@material-ui/icons";
-import { Box, InputBase, IconButton } from "@material-ui/core";
+import { Box, InputBase, IconButton, ClickAwayListener } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
+import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   search: {
@@ -34,43 +35,66 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SearchBar = () => {
+const SearchBar = ({onSearchClose}) => {
   const classes = useStyles();
   const theme = useTheme();
 
   const [isFocussed, setFocussed] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const searchAction = useStoreActions(actions => actions.notes.search);
+  const onSearchCancel = () => {
+    setSearchTerm("");
+    setFocussed(false);
+    onSearchClose();
+  };
+  const onSearch = (event) => {
+    setFocussed(true);
+    if (event.key === "Enter") {
+      searchAction(searchTerm);
+      setFocussed(false);
+      onSearchClose();
+    }
+  }
+  const onFocusLoss = () => {
+    onSearchClose();
+    setFocussed(false);
+  }
 
   return (
-    <Box
-      className={classes.search}
-      borderRadius={theme.shape.borderRadius}
-      bgcolor={
-        isFocussed
-          ? theme.palette.background.default
-          : theme.palette.background.highlight
-      }
-      boxShadow={isFocussed ? 2 : 0}
-      height={"3rem"}
-    >
-      <div className={classes.searchIcon}>
-        <SearchIcon />
-      </div>
-      <InputBase
-        placeholder="Search"
-        classes={{
-          root: classes.inputRoot,
-          input: classes.inputInput
-        }}
-        onFocus={() => setFocussed(true)}
-        onBlur={() => setFocussed(false)}
-        inputProps={{ "aria-label": "search" }}
-      />
-      {isFocussed ? (
-        <IconButton hidden={!isFocussed} onClick={() => setFocussed(false)}>
-          <CloseOutlinedIcon />
-        </IconButton>
-      ) : null}
-    </Box>
+    <ClickAwayListener onClickAway={onFocusLoss}>
+      <Box
+        className={classes.search}
+        borderRadius={theme.shape.borderRadius}
+        bgcolor={
+          isFocussed
+            ? theme.palette.background.default
+            : theme.palette.background.highlight
+        }
+        boxShadow={isFocussed ? 2 : 0}
+        height={"3rem"}
+      >
+        <div className={classes.searchIcon}>
+          <SearchIcon />
+        </div>
+        <InputBase
+          placeholder="Search"
+          classes={{
+            root: classes.inputRoot,
+            input: classes.inputInput
+          }}
+          value={searchTerm}
+          onClick={() => setFocussed(true)}
+          inputProps={{ "aria-label": "search" }}
+          onChange={event => setSearchTerm(event.target.value)}
+          onKeyDown={onSearch}
+        />
+        {isFocussed ? (
+          <IconButton hidden={!isFocussed} onClick={onSearchCancel}>
+            <CloseOutlinedIcon />
+          </IconButton>
+        ) : null}
+      </Box>
+    </ClickAwayListener>
   );
 };
 

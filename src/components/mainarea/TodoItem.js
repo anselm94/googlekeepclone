@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Paper, Fade } from "@material-ui/core";
+import { Paper, Fade, ClickAwayListener } from "@material-ui/core";
 import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
 import ContentTitle from "../todo/ContentTitle";
@@ -51,16 +51,20 @@ export default function({
       onMouseOver={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       className={classes.wrapper}
-      elevation={isHovered ? 2 : 0}
+      elevation={isHovered || isEditMode ? 2 : 0}
       style={{ backgroundColor: color }}
     >
-      <ContentTitle id={id} title={title} isEditMode={isEditMode} />
-      <Content
-        id={id}
-        isEditMode={isEditMode}
-        isCheckboxMode={isCheckboxMode}
-        noteItems={notes}
-      />
+      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInMode("")) : () => {}}>
+        <div onClick={() => setNoteInMode(id)}>
+          <ContentTitle id={id} title={title} isEditMode={isEditMode} />
+          <Content
+            id={id}
+            isEditMode={isEditMode}
+            isCheckboxMode={isCheckboxMode}
+            noteItems={notes}
+          />
+        </div>
+      </ClickAwayListener>
       <LabelsBar id={id} labels={labels} />
       <Fade in={isHovered || isEditMode}>
         <div className={classes.barWrapper}>

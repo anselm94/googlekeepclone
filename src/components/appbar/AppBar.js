@@ -1,11 +1,12 @@
 import React, { useRef, useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import {
   AppBar,
   Toolbar,
   IconButton,
   Typography,
-  useScrollTrigger
+  useScrollTrigger,
+  useMediaQuery
 } from "@material-ui/core";
 import {
   AccountCircleOutlined as AccountsIcon,
@@ -13,6 +14,7 @@ import {
   Brightness4Outlined as ToggleDarkModeIcon,
   Brightness5Outlined as ToggleLightModeIcon,
   RefreshOutlined as RefreshIcon,
+  SearchOutlined as SearchIcon,
   Menu as MenuIcon,
   ViewAgendaOutlined as ListIcon
 } from "@material-ui/icons";
@@ -22,9 +24,7 @@ import { useStoreActions, useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   grow: {
-    [theme.breakpoints.up("md")]: {
-      flexGrow: 1
-    }
+    flexGrow: 1
   },
   containerBorder: {
     borderBottomStyle: "solid",
@@ -70,12 +70,15 @@ const useStyles = makeStyles(theme => ({
 export default function() {
   const menuId = "primary-search-account-menu";
   const classes = useStyles();
+  const theme = useTheme();
   const [isProfilePopoverOpen, setProfilePopoverOpen] = useState(false);
+  const [isSearchShowingInMobile, setSearchShowing] = useState(false);
   const profileMenuRef = useRef();
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 0
   });
+  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
   const isGridView = useStoreState(state => state.ui.isGridView);
   const isDarkMode = useStoreState(state => state.ui.isDarkMode);
   const toggleNavBar = useStoreActions(actions => actions.ui.toggleNavBar);
@@ -98,21 +101,30 @@ export default function() {
           >
             <MenuIcon />
           </IconButton>
-          <div className={classes.logoContainer}>
-            <img className={classes.logo} src={`../../logo.png`} alt={"logo"} />
-            <Typography
-              color="textSecondary"
-              className={classes.title}
-              variant="h6"
-              noWrap
-            >
-              Notes
-            </Typography>
-          </div>
-          <div className={classes.searchbarContainer}>
-            <SearchBar ml={8} />
-          </div>
+          {isMobile ? (
+            isSearchShowingInMobile ? (
+              <SearchContainer onSearchClose={() => setSearchShowing(false)} />
+            ) : (
+              <LogoContainer />
+            )
+          ) : (
+            <>
+              <LogoContainer />
+              <SearchContainer onSearchClose={() => setSearchShowing(false)} />
+            </>
+          )}
           <div className={classes.grow} />
+          {isMobile && !isSearchShowingInMobile ? (
+            <div>
+              <IconButton
+                aria-label="search"
+                aria-controls={menuId}
+                onClick={() => setSearchShowing(true)}
+              >
+                <SearchIcon />
+              </IconButton>
+            </div>
+          ) : null}
           <div>
             <IconButton
               aria-label="refresh"
@@ -131,15 +143,19 @@ export default function() {
               {isDarkMode ? <ToggleLightModeIcon /> : <ToggleDarkModeIcon />}
             </IconButton>
           </div>
-          <div>
-            <IconButton
-              aria-label={isGridView ? "toggle list view" : "toggle tile view"}
-              aria-controls={menuId}
-              onClick={toggleView}
-            >
-              {isGridView ? <ListIcon /> : <TileViewIcon /> }
-            </IconButton>
-          </div>
+          {isMobile ? null : (
+            <div>
+              <IconButton
+                aria-label={
+                  isGridView ? "toggle list view" : "toggle tile view"
+                }
+                aria-controls={menuId}
+                onClick={toggleView}
+              >
+                {isGridView ? <ListIcon /> : <TileViewIcon />}
+              </IconButton>
+            </div>
+          )}
           <div>
             <IconButton
               edge="end"
@@ -159,6 +175,32 @@ export default function() {
           onClose={() => setProfilePopoverOpen(false)}
         />
       </AppBar>
+    </div>
+  );
+}
+
+function LogoContainer() {
+  const classes = useStyles();
+  return (
+    <div className={classes.logoContainer}>
+      <img className={classes.logo} src={`../../logo.png`} alt={"logo"} />
+      <Typography
+        color="textSecondary"
+        className={classes.title}
+        variant="h6"
+        noWrap
+      >
+        Notes
+      </Typography>
+    </div>
+  );
+}
+
+function SearchContainer({ onSearchClose }) {
+  const classes = useStyles();
+  return (
+    <div className={classes.searchbarContainer}>
+      <SearchBar ml={8} onSearchClose={onSearchClose} />
     </div>
   );
 }

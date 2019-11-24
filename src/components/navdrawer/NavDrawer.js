@@ -10,10 +10,7 @@ import {
 } from "@material-ui/core";
 import {
   WbIncandescentOutlined as IdeaIcon,
-  LabelOutlined as LabelIcon,
-  ArchiveOutlined as ArchiveIcon,
-  DeleteOutlined as DeleteIcon,
-  EditOutlined as EditIcon
+  LabelOutlined as LabelIcon
 } from "@material-ui/icons";
 import DrawerItem from "./DrawerItem";
 import { useStoreState, useStoreActions } from "easy-peasy";
@@ -42,6 +39,7 @@ export default function NavDrawer() {
   const labelItems = useStoreState(state => state.notes.labels);
   const selectedLabelId = useStoreState(state => state.ui.selectedLabelId);
   const setSelectedLabelId = useStoreActions(actions => actions.ui.setSelectedLabelId);
+  const toggleNavBar = useStoreActions(actions => actions.ui.toggleNavBar);
   const filterNotesItemsByLabelId = useStoreActions(actions => actions.notes.filterNotesByLabelId);
 
   const onDrawerItemSelected = (labelId) => {
@@ -54,6 +52,7 @@ export default function NavDrawer() {
       variant={isMobile ? "temporary" : "persistent"}
       anchor="left"
       open={isNavBarOpen}
+      onClose={toggleNavBar}
       classes={{
         root: classes.drawer,
         paper: classes.drawerPaper
@@ -82,17 +81,6 @@ export default function NavDrawer() {
             icon={<LabelIcon />}
             isSelected={selectedLabelId === labelId}
             onClick={() => onDrawerItemSelected(labelId)}
-          />
-        ))}
-        <DrawerItem text={"Edit labels"} icon={<EditIcon />} />
-      </List>
-      <Divider />
-      <List>
-        {["Archive", "Trash"].map((text, index) => (
-          <DrawerItem
-            key={text}
-            text={text}
-            icon={index % 2 === 0 ? <ArchiveIcon /> : <DeleteIcon />}
           />
         ))}
       </List>
