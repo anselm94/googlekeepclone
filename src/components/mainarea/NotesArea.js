@@ -44,7 +44,7 @@ const useStyles = makeStyles(theme => ({
     padding: "0.5rem 0",
     transition: theme.transitions.create("all", {
       easing: theme.transitions.easing.easeOut,
-      duration: theme.transitions.duration.enteringScreen
+      duration: theme.transitions.duration.standard
     })
   }
 }));

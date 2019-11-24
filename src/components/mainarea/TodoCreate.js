@@ -4,8 +4,15 @@ import { Paper, InputBase, Collapse, Button } from "@material-ui/core";
 import TodoActions from "../todo/Actions";
 import TodoLabels from "../todo/Labels";
 import TodoContent from "../todo/Content";
+import { useStoreActions, useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
+  paperWrapper: {
+    transition: theme.transitions.create("all", {
+      easing: theme.transitions.easing.easeIn,
+      duration: theme.transitions.duration.short
+    })
+  },
   wrapper: {
     display: "flex",
     flexDirection: "column"
@@ -43,34 +50,58 @@ const useStyles = makeStyles(theme => ({
 export default function() {
   const classes = useStyles();
   const [isFocussed, setFocussed] = useState(false);
-
-  const labels = ["Cache", "To Do", "Later"];
+  const newNoteItem = useStoreState(state => state.notes.new);
+  const updateNotesItem = useStoreActions(
+    actions => actions.notes.updateNotesItem
+  );
+  const createNote = useStoreActions(actions => actions.notes.createNote);
+  const onCloseClick = () => {
+    createNote(newNoteItem);
+    setFocussed(false);
+  }
 
   return (
-    <Paper elevation={2}>
+    <Paper
+      elevation={2}
+      classes={{ root: classes.paperWrapper }}
+      style={{ backgroundColor: newNoteItem.color }}
+    >
       <Collapse
         classes={{ wrapperInner: classes.wrapper }}
         in={isFocussed}
         collapsedHeight="2.7rem"
       >
         <InputBase
-            placeholder={isFocussed ? "Title" : "Take a note..."}
-            classes={{
-              root: isFocussed ? classes.inputTitleRoot : classes.inputNoteRoot,
-              input: classes.inputTitleInput
-            }}
-            onFocus={() => setFocussed(true)}
-            inputProps={{ "aria-label": "note title" }}
-          />
+          placeholder={isFocussed ? "Title" : "Take a note..."}
+          classes={{
+            root: isFocussed ? classes.inputTitleRoot : classes.inputNoteRoot,
+            input: classes.inputTitleInput
+          }}
+          onFocus={() => setFocussed(true)}
+          inputProps={{ "aria-label": "note title" }}
+          value={newNoteItem.title}
+          onChange={event =>
+            updateNotesItem({ id: "", key: "title", value: event.target.value })
+          }
+        />
         {isFocussed ? (
-          <TodoContent noteItems={[{text: "", isCompleted: false}]} isEditMode={true} isCheckboxMode={true}/>
+          <TodoContent
+            id={""}
+            noteItems={newNoteItem.notes}
+            isEditMode={true}
+            isCheckboxMode={newNoteItem.isCheckboxMode}
+          />
         ) : null}
-        
-        <TodoLabels labels={labels} />
+        <TodoLabels labels={newNoteItem.labels} />
         <div className={classes.barWrapper}>
-          <TodoActions isCreateMode={true} />
+          <TodoActions
+            id={""}
+            isCreateMode={true}
+            isCheckboxMode={newNoteItem.isCheckboxMode}
+            labels={newNoteItem.labels}
+          />
           <div>
-            <Button size="small" onClick={() => setFocussed(false)}>
+            <Button size="small" onClick={onCloseClick}>
               Close
             </Button>
           </div>

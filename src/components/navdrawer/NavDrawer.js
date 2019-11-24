@@ -42,7 +42,7 @@ export default function NavDrawer() {
   const labelItems = useStoreState(state => state.notes.labels);
   const selectedLabelId = useStoreState(state => state.ui.selectedLabelId);
   const setSelectedLabelId = useStoreActions(actions => actions.ui.setSelectedLabelId);
-  const filterNotesItemsByLabelId = useStoreActions(actions => actions.notes.filterByLabelId);
+  const filterNotesItemsByLabelId = useStoreActions(actions => actions.notes.filterNotesByLabelId);
 
   const onDrawerItemSelected = (labelId) => {
     setSelectedLabelId(labelId);

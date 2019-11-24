@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ id, isEditMode, noteItems }) {
+export default function({ id, isEditMode, noteItems = [] }) {
   const classes = useStyles();
   const reducedText = noteItems.map(({ text }) => text).join("\n");
   const updateNotesItem = useStoreActions(

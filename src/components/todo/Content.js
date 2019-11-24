@@ -1,18 +1,14 @@
 import React from "react";
-import ContentCheckbox from "./ContentList";
+import ContentList from "./ContentList";
 import ContentText from "./ContentText";
 
-export default function({id, isEditMode, isCheckboxMode, noteItems }) {
-  const onContentChange = () => {
-    
-  }
-
+export default function({ id, isEditMode, isCheckboxMode, noteItems }) {
   return (
     <>
       {isCheckboxMode ? (
-        <ContentCheckbox id={id} noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
+        <ContentList id={id} noteItems={noteItems} isEditMode={isEditMode} />
       ) : (
-        <ContentText id={id} noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
+        <ContentText id={id} noteItems={noteItems} isEditMode={isEditMode} />
       )}
     </>
   );

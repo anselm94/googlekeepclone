@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ labels }) {
+export default function({ labels = new Set() }) {
   const classes = useStyles();
   const labelItems = useStoreState(state => state.notes.labels);
 
