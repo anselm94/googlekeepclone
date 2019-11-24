@@ -1,14 +1,16 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Chip } from "@material-ui/core";
+import { useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   labelsWrapper: {
     display: "flex",
-    padding: theme.spacing(0.75, 1.25)
+    flexWrap: "wrap",
+    padding: theme.spacing(0, 1.25)
   },
   labelWrapper: {
-    padding: theme.spacing(0, 0.5)
+    padding: theme.spacing(0.36, 0.5)
   },
   label: {
     ...theme.custom.fontFamily.metropolis,
@@ -19,12 +21,13 @@ const useStyles = makeStyles(theme => ({
 
 export default function({ labels }) {
   const classes = useStyles();
+  const labelItems = useStoreState(state => state.notes.labels);
 
   return (
     <div className={classes.labelsWrapper}>
-      {labels.map(text => (
-        <div key={text} className={classes.labelWrapper}>
-          <Chip label={text} size="small" classes={{root: classes.label}} />
+      {[...labels].map(id => (
+        <div key={id} className={classes.labelWrapper}>
+          <Chip label={labelItems[id]} size="small" classes={{root: classes.label}} />
         </div>
       ))}
     </div>

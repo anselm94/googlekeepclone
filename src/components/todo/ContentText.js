@@ -1,6 +1,7 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { InputBase, Typography } from "@material-ui/core";
+import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -20,7 +21,7 @@ const useStyles = makeStyles(theme => ({
   barClose: {},
   inputNoteRoot: {
     ...theme.custom.fontFamily.roboto,
-    padding: theme.spacing(0.5, 2, 1.5, 2),
+    padding: theme.spacing(0.5, 2, 1.5, 2)
   },
   inputNoteInput: {
     fontWeight: 400,
@@ -34,12 +35,25 @@ const useStyles = makeStyles(theme => ({
     fontWeight: 400,
     fontSize: "0.88rem",
     color: theme.palette.text.primary
-  },
+  }
 }));
 
-export default function({ isEditMode, noteItems }) {
+export default function({ id, isEditMode, noteItems }) {
   const classes = useStyles();
-  const reducedText = noteItems.map(({text}) => text).join("\n");
+  const reducedText = noteItems.map(({ text }) => text).join("\n");
+  const updateNotesItem = useStoreActions(
+    actions => actions.notes.updateNotesItem
+  );
+
+  const onTextChanged = event => {
+    const text = event.target.value;
+    const textParts = text.split("\n");
+    updateNotesItem({
+      id: id,
+      key: "notes",
+      value: textParts.map(text => ({ text: text, isCompleted: false }))
+    });
+  };
 
   return (
     <>
@@ -52,6 +66,7 @@ export default function({ isEditMode, noteItems }) {
           }}
           inputProps={{ "aria-label": "take a note" }}
           value={reducedText}
+          onChange={onTextChanged}
           multiline={true}
         />
       ) : (

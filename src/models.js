@@ -96,6 +96,10 @@ const notesModel = {
   setNoteItem: action((state, noteItem) => {
     state.items[noteItem.id] = noteItem;
   }),
+  setNoteInEditMode: action((state, noteId) => {
+    Object.keys(state.items).forEach(id => state.items[noteId].isEditMode = false);
+    state.items[noteId].isEditMode = true;
+  }),
   refresh: thunk(async actions => {
     actions.setNotesItems(notesItems);
   }),
@@ -113,12 +117,19 @@ const notesModel = {
   }),
   updateNotesItem: thunk(async (actions, {id, key, value}) => {
     const updatedNote = Object.assign({}, notesItems[id]);
-    updatedNote[key] = value; //TODO Check
+    updatedNote[key] = value;
     actions.setNoteItem(updatedNote);
   }),
-  setNoteInEditMode: action((state, noteId) => {
-    Object.keys(state.items).forEach(id => state.items[noteId].isEditMode = false);
-    state.items[noteId].isEditMode = true;
+  copyNote: thunk(async (actions, id) => {
+    const copiedNote = Object.assign({}, notesItems[id]);
+    const newId = Math.random();
+    copiedNote.id = newId;
+    notesItems[newId] = copiedNote;
+    actions.setNotesItems(Object.assign({}, notesItems));
+  }),
+  deleteNote: thunk(async (actions, id) => {
+    delete notesItems[id];
+    actions.setNotesItems(Object.assign({}, notesItems));
   })
 };
 

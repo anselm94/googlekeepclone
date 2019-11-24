@@ -6,11 +6,13 @@ import {
   LabelOutlined as LabelIcon,
   DeleteOutlineOutlined as DeleteIcon,
   FileCopyOutlined as CopyIcon,
-  CheckBoxOutlined as CheckBoxIcon
+  CheckBoxOutlined as CheckBoxIcon,
+  IndeterminateCheckBoxOutlined as HideCheckBoxIcon
 } from "@material-ui/icons";
 import { useTheme } from "@material-ui/core/styles";
 import ColorPopover from "./ColorPopover";
 import LabelPopover from "./LabelPopover";
+import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -30,13 +32,18 @@ const useStyles = makeStyles(theme => ({
   barClose: {}
 }));
 
-export default function({ isCreateMode, onColorSelect }) {
+export default function({ id, isCreateMode, isCheckboxMode, labels }) {
   const classes = useStyles();
   const theme = useTheme();
   const refActionColor = useRef();
   const refActionLabel = useRef();
   const [isColorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [isLabelPopoverOpen, setLabelPopoverOpen] = useState(false);
+  const updateNotesItem = useStoreActions(
+    actions => actions.notes.updateNotesItem
+  );
+  const copyNote = useStoreActions(actions => actions.notes.copyNote);
+  const deleteNote = useStoreActions(actions => actions.notes.deleteNote);
 
   return (
     <>
@@ -58,11 +65,28 @@ export default function({ isCreateMode, onColorSelect }) {
         </div>
         <div className={classes.optionWrapper}>
           <Tooltip title="Show checkboxes">
-            <IconButton size="small" aria-label="show checkboxes">
-              <CheckBoxIcon
-                htmlColor={theme.custom.palette.iconHighlight}
-                fontSize="small"
-              />
+            <IconButton
+              size="small"
+              aria-label="show checkboxes"
+              onClick={() =>
+                updateNotesItem({
+                  id: id,
+                  key: "isCheckboxMode",
+                  value: !isCheckboxMode
+                })
+              }
+            >
+              {isCheckboxMode ? (
+                <HideCheckBoxIcon
+                  htmlColor={theme.custom.palette.iconHighlight}
+                  fontSize="small"
+                />
+              ) : (
+                <CheckBoxIcon
+                  htmlColor={theme.custom.palette.iconHighlight}
+                  fontSize="small"
+                />
+              )}
             </IconButton>
           </Tooltip>
         </div>
@@ -85,7 +109,11 @@ export default function({ isCreateMode, onColorSelect }) {
           <>
             <div className={classes.optionWrapper}>
               <Tooltip title="Make a copy">
-                <IconButton size="small" aria-label="make a copy">
+                <IconButton
+                  size="small"
+                  aria-label="make a copy"
+                  onClick={() => copyNote(id)}
+                >
                   <CopyIcon
                     htmlColor={theme.custom.palette.iconHighlight}
                     fontSize="small"
@@ -96,7 +124,11 @@ export default function({ isCreateMode, onColorSelect }) {
 
             <div className={classes.optionWrapperLast}>
               <Tooltip title="Delete note">
-                <IconButton size="small" aria-label="delete note">
+                <IconButton
+                  size="small"
+                  aria-label="delete note"
+                  onClick={() => deleteNote(id)}
+                >
                   <DeleteIcon
                     htmlColor={theme.custom.palette.iconHighlight}
                     fontSize="small"
@@ -111,11 +143,15 @@ export default function({ isCreateMode, onColorSelect }) {
         anchorEl={refActionColor.current}
         isOpen={isColorPopoverOpen}
         onClose={() => setColorPopoverOpen(false)}
-        onColorSelect={onColorSelect}
+        onColorSelect={color =>
+          updateNotesItem({ id: id, key: "color", value: color })
+        }
       />
       <LabelPopover
+        id={id}
         anchorEl={refActionLabel.current}
         isOpen={isLabelPopoverOpen}
+        selectedLabels={labels}
         onClose={() => setLabelPopoverOpen(false)}
       />
     </>

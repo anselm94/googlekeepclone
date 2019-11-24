@@ -77,13 +77,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function ColorPopover({ anchorEl, isOpen, onClose }) {
+export default function LabelPopover({ id, anchorEl, selectedLabels = new Set(), isOpen, onClose }) {
   const classes = useStyles();
   const theme = useTheme();
-  const id = isOpen ? "color-popover" : undefined;
+  const popoverId = isOpen ? "color-popover" : undefined;
   const [newLabelName, setNewLabelName] = useState("");
   const allLabelItems = useStoreState(state => state.notes.labels);
   const addLabel = useStoreActions(actions => actions.notes.addLabel);
+  const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
   const filteredLabelIds = Object.keys(allLabelItems).filter(labelId =>
     allLabelItems[labelId].includes(newLabelName)
   );
@@ -94,11 +95,14 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
           filterLabels[labelId] = allLabelItems[labelId];
           return filterLabels;
         }, {});
-
+  const updateLabelsForNote = (labelId) => {
+    selectedLabels.has(labelId) ? selectedLabels.delete(labelId) : selectedLabels.add(labelId);
+    updateNotesItem({id: id, key: "labels", value: selectedLabels});
+  };
   return (
     <div>
       <Popover
-        id={id}
+        id={popoverId}
         open={isOpen}
         anchorEl={anchorEl}
         onClose={onClose}
@@ -142,6 +146,7 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
                   button={true}
                   disableGutters={true}
                   classes={{ root: classes.listItemIconRoot }}
+                  onClick={() => updateLabelsForNote(labelId)}
                 >
                   <ListItemIcon classes={{ root: classes.listItemIconRoot }}>
                     <Checkbox
@@ -150,6 +155,7 @@ export default function ColorPopover({ anchorEl, isOpen, onClose }) {
                       checkedIcon={<CheckboxIcon fontSize="small" />}
                       color="default"
                       disableRipple
+                      checked={selectedLabels.has(labelId)}
                       inputProps={{ "aria-labelledby": labelAriaId }}
                       size="small"
                       classes={{ root: classes.checkboxRoot }}

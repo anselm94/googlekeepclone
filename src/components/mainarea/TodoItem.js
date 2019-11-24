@@ -31,11 +31,20 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ id, title, notes, labels, color, isCheckboxMode, isEditMode }) {
+export default function({
+  id,
+  title,
+  notes,
+  labels,
+  color,
+  isCheckboxMode,
+  isEditMode
+}) {
   const classes = useStyles();
   const [isHovered, setHovered] = useState(false);
-  const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
-  const setNoteInMode = useStoreActions(actions => actions.notes.setNoteInEditMode);
+  const setNoteInMode = useStoreActions(
+    actions => actions.notes.setNoteInEditMode
+  );
 
   return (
     <Paper
@@ -43,16 +52,23 @@ export default function({ id, title, notes, labels, color, isCheckboxMode, isEdi
       onMouseLeave={() => setHovered(false)}
       className={classes.wrapper}
       elevation={isHovered ? 2 : 0}
-      style={{backgroundColor: color}}
+      style={{ backgroundColor: color }}
     >
-      <ContentTitle title={title} isEditMode={isEditMode}/>
-      <Content isEditMode={isEditMode} isCheckboxMode={isCheckboxMode} noteItems={notes}/>
-      <LabelsBar labels={labels} />
+      <ContentTitle id={id} title={title} isEditMode={isEditMode} />
+      <Content
+        id={id}
+        isEditMode={isEditMode}
+        isCheckboxMode={isCheckboxMode}
+        noteItems={notes}
+      />
+      <LabelsBar id={id} labels={labels} />
       <Fade in={isHovered || isEditMode}>
         <div className={classes.barWrapper}>
           <ActionsBar
+            id={id}
             isCreateMode={false}
-            onColorSelect={selColor => updateNotesItem({ id: id, key: "color", value: selColor })}
+            isCheckboxMode={isCheckboxMode}
+            labels={labels}
           />
         </div>
       </Fade>

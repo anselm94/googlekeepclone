@@ -10,9 +10,9 @@ export default function({id, isEditMode, isCheckboxMode, noteItems }) {
   return (
     <>
       {isCheckboxMode ? (
-        <ContentCheckbox noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
+        <ContentCheckbox id={id} noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
       ) : (
-        <ContentText noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
+        <ContentText id={id} noteItems={noteItems} isEditMode={isEditMode} onContentChange={onContentChange} />
       )}
     </>
   );
