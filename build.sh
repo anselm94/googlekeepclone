@@ -13,4 +13,9 @@ CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/gkc-server ./cmd/
 echo "Go modules built"
 
 echo "Building Docker image..."
-docker build -t google-keep-clone .
+docker build -t anselm94/google-keep-clone .
+echo "Docker image built"
+
+echo "Trying to push to Dockerhub..."
+docker push anselm94/google-keep-clone:latest
+echo "Pushed to Dockerhub"
