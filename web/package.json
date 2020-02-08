@@ -6,10 +6,10 @@
     "@material-ui/core": "latest",
     "@material-ui/icons": "latest",
     "easy-peasy": "^3.2.3",
-    "react": "^16.10.2",
-    "react-dom": "^16.10.2",
-    "react-helmet": "latest",
-    "react-scripts": "3.2.0"
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "react-scripts": "latest",
+    "react-helmet": "latest"
   },
   "scripts": {
     "start": "react-scripts start",
