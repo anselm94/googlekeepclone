@@ -21,4 +21,4 @@ COPY --from=gobuilder /app/bin/server .
 COPY --from=webbuilder /web/build ./static
 ENV STATIC_DIR=/static
 EXPOSE 80
-CMD ["./server"]
+CMD ["/server"]
