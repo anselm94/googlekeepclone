@@ -18,7 +18,6 @@ RUN npm run build
 FROM scratch
 COPY --from=gobuilder /app/bin/server .
 COPY --from=webbuilder /web/build /static
-ENV PORT=80
 ENV STATIC_DIR=/static
-EXPOSE ${PORT}
+EXPOSE 80
 CMD ["./server"]
