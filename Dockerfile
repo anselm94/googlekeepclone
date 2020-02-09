@@ -16,8 +16,9 @@ RUN npm run build
 
 # Build final image
 FROM scratch
+WORKDIR /
 COPY --from=gobuilder /app/bin/server .
-COPY --from=webbuilder /web/build /static
+COPY --from=webbuilder /web/build ./static
 ENV STATIC_DIR=/static
 EXPOSE 80
 CMD ["./server"]
