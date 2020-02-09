@@ -2,7 +2,7 @@
 
 A minimal *Clone* of [Google Keep](https://keep.google.com) written in [ReactJS](https://reactjs.org/) with [Material UI Components](https://material-ui.com/). The backend is [GraphQL](https://graphql.org/) server written in [Golang](https://golang.org/)
 
-Live demo - http://keep-clone.com.nu
+Live demo - https://googlekeep-anselm94.herokuapp.com/
 
 | Note             |
 |------------------|
