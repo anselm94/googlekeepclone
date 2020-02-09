@@ -15,10 +15,12 @@ RUN npm ci --only=production
 RUN npm run build
 
 # Build final image
-FROM scratch AS final
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
 WORKDIR /
 COPY --from=gobuilder /app/bin/server .
 COPY --from=webbuilder /web/build ./static
 ENV STATIC_DIR=/static
 EXPOSE 80
-CMD ["/server"]
+RUN chmod +x ./server
+CMD ./server
