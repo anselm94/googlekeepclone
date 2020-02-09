@@ -19,7 +19,7 @@ sh build.sh
 2) Run the Docker image as a container
 
 ```
-docker run -p 80:80 -d google-keep-clone
+docker run -p 80:80 -d anselm94/google-keep-clone:latest
 ```
 
 ## License
