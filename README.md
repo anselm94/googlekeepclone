@@ -8,19 +8,70 @@ Live demo - http://keep-clone.com.nu
 |------------------|
 | Work In Progress |
 
-## Build
+## How to Setup and Build
 
-1) Install all the dependencies and then build web resources & go binary and bundle into a Docker image
+### Method 1: Docker
+
+1) Clone the Git repository
+
+```sh
+git clone https://github.com/anselm94/googlekeep-clone.git
+```
+
+2) CD into the folder
+
+```sh
+cd googlekeep-clone
+```
+
+3) Build a docker image containing all the web resources and server executable
+
+```sh
+docker build -t anselm94/googlekeep-clone .
+```
+
+4) Run the Docker image as a container
+
+```sh
+docker run -p 8080:8080 -e PORT=8080 anselm94/googlekeep-clone:latest
+```
+
+5) Open the URL in browser - https://localhost:8080
+
+### Method 2: Manual
+
+1) Clone the Git repository
+
+```sh
+git clone https://github.com/anselm94/googlekeep-clone.git
+```
+
+2) CD into the Web folder
+
+```sh
+cd googlekeep-clone/web
+```
+
+3) Install Node dependencies (Install [NodeJS](https://nodejs.org/en/download/) in prior) and build the resources into `/build` folder
 
 ```
-sh build.sh
+npm install
+npm run build
 ```
 
-2) Run the Docker image as a container
+4) Run the Golang server (Install [golang](https://golang.org/dl/) in prior)
 
 ```
-docker run -p 80:80 -d anselm94/google-keep-clone:latest
+cd ..
+EXPORT PORT=8080
+EXPORT STATIC_DIR=/web/build
+go run server/main.go
 ```
+
+5) Open the URL in browser - https://localhost:8080
 
 ## License
 
+MIT License
+
+Copyright (c) 2020 Merbin J Anselm
