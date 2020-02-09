@@ -15,7 +15,7 @@ RUN npm ci --only=production
 RUN npm run build
 
 # Build final image
-FROM scratch
+FROM scratch AS final
 WORKDIR /
 COPY --from=gobuilder /app/bin/server .
 COPY --from=webbuilder /web/build ./static
