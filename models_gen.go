@@ -2,11 +2,22 @@
 
 package googlekeep_clone
 
+import (
+	"fmt"
+	"io"
+	"strconv"
+)
+
 type Label struct {
 	ID     string  `json:"id"`
 	Name   string  `json:"name"`
-	Todos  []*Todo `gorm:"many2many:todos_labels"`
+	Todos  []*Todo `gorm:"many2many:todos_labels"` // many-to-many
 	UserID string
+}
+
+type LabelAction struct {
+	Action Action `json:"action"`
+	Label  *Label `json:"label"`
 }
 
 type Note struct {
@@ -16,14 +27,24 @@ type Note struct {
 	IsCompleted bool   `json:"isCompleted"`
 }
 
+type NotesInput struct {
+	Text        string `json:"text"`
+	IsCompleted bool   `json:"isCompleted"`
+}
+
 type Todo struct {
 	ID             string   `json:"id"`
 	Title          string   `json:"title"`
-	Notes          []*Note  `json:"notes" gorm:"foreignkey:TodoID"`
-	Labels         []*Label `json:"labels" gorm:"many2many:todos_labels"`
+	Notes          []*Note  `json:"notes" gorm:"foreignkey:TodoID"`       // has-many
+	Labels         []*Label `json:"labels" gorm:"many2many:todos_labels"` // many-to-many
 	Color          string   `json:"color"`
 	IsCheckboxMode bool     `json:"isCheckboxMode"`
 	UserID         string
+}
+
+type TodoAction struct {
+	Action Action `json:"action"`
+	Todo   *Todo  `json:"todo"`
 }
 
 type User struct {
@@ -32,6 +53,49 @@ type User struct {
 	Email    string   `json:"email"`
 	ListMode bool     `json:"listMode"`
 	DarkMode bool     `json:"darkMode"`
-	Todos    []*Todo  `gorm:"foreignkey:UserID"`
-	Labels   []*Label `gorm:"foreignkey:UserID"`
+	Todos    []*Todo  `gorm:"foreignkey:UserID"` // has-many
+	Labels   []*Label `gorm:"foreignkey:UserID"` // has-many
+}
+
+type Action string
+
+const (
+	ActionCreated Action = "CREATED"
+	ActionDeleted Action = "DELETED"
+	ActionUpdated Action = "UPDATED"
+)
+
+var AllAction = []Action{
+	ActionCreated,
+	ActionDeleted,
+	ActionUpdated,
+}
+
+func (e Action) IsValid() bool {
+	switch e {
+	case ActionCreated, ActionDeleted, ActionUpdated:
+		return true
+	}
+	return false
+}
+
+func (e Action) String() string {
+	return string(e)
+}
+
+func (e *Action) UnmarshalGQL(v interface{}) error {
+	str, ok := v.(string)
+	if !ok {
+		return fmt.Errorf("enums must be strings")
+	}
+
+	*e = Action(str)
+	if !e.IsValid() {
+		return fmt.Errorf("%s is not a valid Action", str)
+	}
+	return nil
+}
+
+func (e Action) MarshalGQL(w io.Writer) {
+	fmt.Fprint(w, strconv.Quote(e.String()))
 }

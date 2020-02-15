@@ -49,11 +49,19 @@ type ComplexityRoot struct {
 		Name func(childComplexity int) int
 	}
 
+	LabelAction struct {
+		Action func(childComplexity int) int
+		Label  func(childComplexity int) int
+	}
+
 	Mutation struct {
-		CopyTodo   func(childComplexity int, sourceID string) int
-		CreateTodo func(childComplexity int, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) int
-		DeleteTodo func(childComplexity int, id string) int
-		UpdateTodo func(childComplexity int, id string, title *string, notes []*string, labels []*string, color *string, isCheckboxMode *bool) int
+		CopyTodo    func(childComplexity int, sourceID string) int
+		CreateLabel func(childComplexity int, name string) int
+		CreateTodo  func(childComplexity int, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) int
+		DeleteLabel func(childComplexity int, id string) int
+		DeleteTodo  func(childComplexity int, id string) int
+		UpdateTodo  func(childComplexity int, id string, title *string, notes []*NotesInput, labels []*string, color *string, isCheckboxMode *bool) int
+		UpdateUser  func(childComplexity int, listMode *bool, darkMode *bool) int
 	}
 
 	Note struct {
@@ -68,9 +76,8 @@ type ComplexityRoot struct {
 	}
 
 	Subscription struct {
-		TodoCreated func(childComplexity int) int
-		TodoDeleted func(childComplexity int) int
-		TodoUpdated func(childComplexity int) int
+		LabelStream func(childComplexity int) int
+		TodoStream  func(childComplexity int) int
 	}
 
 	Todo struct {
@@ -80,6 +87,11 @@ type ComplexityRoot struct {
 		Labels         func(childComplexity int) int
 		Notes          func(childComplexity int) int
 		Title          func(childComplexity int) int
+	}
+
+	TodoAction struct {
+		Action func(childComplexity int) int
+		Todo   func(childComplexity int) int
 	}
 
 	User struct {
@@ -93,9 +105,12 @@ type ComplexityRoot struct {
 
 type MutationResolver interface {
 	CreateTodo(ctx context.Context, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error)
-	UpdateTodo(ctx context.Context, id string, title *string, notes []*string, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error)
+	UpdateTodo(ctx context.Context, id string, title *string, notes []*NotesInput, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error)
 	DeleteTodo(ctx context.Context, id string) (*Todo, error)
 	CopyTodo(ctx context.Context, sourceID string) (*Todo, error)
+	CreateLabel(ctx context.Context, name string) (*Label, error)
+	DeleteLabel(ctx context.Context, id string) (*Label, error)
+	UpdateUser(ctx context.Context, listMode *bool, darkMode *bool) (*User, error)
 }
 type QueryResolver interface {
 	Todos(ctx context.Context) ([]*Todo, error)
@@ -103,9 +118,8 @@ type QueryResolver interface {
 	User(ctx context.Context) (*User, error)
 }
 type SubscriptionResolver interface {
-	TodoCreated(ctx context.Context) (<-chan *Todo, error)
-	TodoDeleted(ctx context.Context) (<-chan *Todo, error)
-	TodoUpdated(ctx context.Context) (<-chan *Todo, error)
+	TodoStream(ctx context.Context) (<-chan *TodoAction, error)
+	LabelStream(ctx context.Context) (<-chan *LabelAction, error)
 }
 
 type executableSchema struct {
@@ -137,6 +151,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Label.Name(childComplexity), true
 
+	case "LabelAction.action":
+		if e.complexity.LabelAction.Action == nil {
+			break
+		}
+
+		return e.complexity.LabelAction.Action(childComplexity), true
+
+	case "LabelAction.label":
+		if e.complexity.LabelAction.Label == nil {
+			break
+		}
+
+		return e.complexity.LabelAction.Label(childComplexity), true
+
 	case "Mutation.copyTodo":
 		if e.complexity.Mutation.CopyTodo == nil {
 			break
@@ -149,6 +177,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CopyTodo(childComplexity, args["sourceId"].(string)), true
 
+	case "Mutation.createLabel":
+		if e.complexity.Mutation.CreateLabel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_createLabel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.CreateLabel(childComplexity, args["name"].(string)), true
+
 	case "Mutation.createTodo":
 		if e.complexity.Mutation.CreateTodo == nil {
 			break
@@ -160,6 +200,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.CreateTodo(childComplexity, args["title"].(string), args["notes"].([]string), args["labels"].([]*string), args["color"].(*string), args["isCheckboxMode"].(*bool)), true
+
+	case "Mutation.deleteLabel":
+		if e.complexity.Mutation.DeleteLabel == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_deleteLabel_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.DeleteLabel(childComplexity, args["id"].(string)), true
 
 	case "Mutation.deleteTodo":
 		if e.complexity.Mutation.DeleteTodo == nil {
@@ -183,7 +235,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateTodo(childComplexity, args["id"].(string), args["title"].(*string), args["notes"].([]*string), args["labels"].([]*string), args["color"].(*string), args["isCheckboxMode"].(*bool)), true
+		return e.complexity.Mutation.UpdateTodo(childComplexity, args["id"].(string), args["title"].(*string), args["notes"].([]*NotesInput), args["labels"].([]*string), args["color"].(*string), args["isCheckboxMode"].(*bool)), true
+
+	case "Mutation.updateUser":
+		if e.complexity.Mutation.UpdateUser == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_updateUser_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.UpdateUser(childComplexity, args["listMode"].(*bool), args["darkMode"].(*bool)), true
 
 	case "Note.isCompleted":
 		if e.complexity.Note.IsCompleted == nil {
@@ -220,26 +284,19 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Query.User(childComplexity), true
 
-	case "Subscription.todoCreated":
-		if e.complexity.Subscription.TodoCreated == nil {
+	case "Subscription.labelStream":
+		if e.complexity.Subscription.LabelStream == nil {
 			break
 		}
 
-		return e.complexity.Subscription.TodoCreated(childComplexity), true
+		return e.complexity.Subscription.LabelStream(childComplexity), true
 
-	case "Subscription.todoDeleted":
-		if e.complexity.Subscription.TodoDeleted == nil {
+	case "Subscription.todoStream":
+		if e.complexity.Subscription.TodoStream == nil {
 			break
 		}
 
-		return e.complexity.Subscription.TodoDeleted(childComplexity), true
-
-	case "Subscription.todoUpdated":
-		if e.complexity.Subscription.TodoUpdated == nil {
-			break
-		}
-
-		return e.complexity.Subscription.TodoUpdated(childComplexity), true
+		return e.complexity.Subscription.TodoStream(childComplexity), true
 
 	case "Todo.color":
 		if e.complexity.Todo.Color == nil {
@@ -282,6 +339,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Todo.Title(childComplexity), true
+
+	case "TodoAction.action":
+		if e.complexity.TodoAction.Action == nil {
+			break
+		}
+
+		return e.complexity.TodoAction.Action(childComplexity), true
+
+	case "TodoAction.todo":
+		if e.complexity.TodoAction.Todo == nil {
+			break
+		}
+
+		return e.complexity.TodoAction.Todo(childComplexity), true
 
 	case "User.darkMode":
 		if e.complexity.User.DarkMode == nil {
@@ -428,6 +499,27 @@ type Todo {
   isCheckboxMode: Boolean!
 }
 
+input NotesInput {
+  text: String!
+  isCompleted: Boolean!
+}
+
+enum Action {
+  CREATED
+  DELETED
+  UPDATED
+}
+
+type TodoAction {
+  action: Action!,
+  todo: Todo!
+}
+
+type LabelAction {
+  action: Action!,
+  label: Label!
+}
+
 type User {
   id: ID!
   name: String!
@@ -444,15 +536,17 @@ type Query {
 
 type Mutation {
   createTodo(title: String!, notes: [String!]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
-  updateTodo(id: ID!, title: String, notes: [String]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
+  updateTodo(id: ID!, title: String, notes: [NotesInput], labels: [ID], color: String, isCheckboxMode: Boolean): Todo
   deleteTodo(id: ID!): Todo
   copyTodo(sourceId: ID!): Todo
+  createLabel(name: String!): Label
+  deleteLabel(id: ID!): Label
+  updateUser(listMode: Boolean, darkMode: Boolean): User
 }
 
 type Subscription {
-  todoCreated: Todo!
-  todoDeleted: Todo!
-  todoUpdated: Todo!
+  todoStream: TodoAction!
+  labelStream: LabelAction!
 }`},
 )
 
@@ -471,6 +565,20 @@ func (ec *executionContext) field_Mutation_copyTodo_args(ctx context.Context, ra
 		}
 	}
 	args["sourceId"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createLabel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["name"]; ok {
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["name"] = arg0
 	return args, nil
 }
 
@@ -520,6 +628,20 @@ func (ec *executionContext) field_Mutation_createTodo_args(ctx context.Context, 
 	return args, nil
 }
 
+func (ec *executionContext) field_Mutation_deleteLabel_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
+	return args, nil
+}
+
 func (ec *executionContext) field_Mutation_deleteTodo_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
@@ -553,9 +675,9 @@ func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, 
 		}
 	}
 	args["title"] = arg1
-	var arg2 []*string
+	var arg2 []*NotesInput
 	if tmp, ok := rawArgs["notes"]; ok {
-		arg2, err = ec.unmarshalNString2ᚕᚖstring(ctx, tmp)
+		arg2, err = ec.unmarshalONotesInput2ᚕᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -563,7 +685,7 @@ func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, 
 	args["notes"] = arg2
 	var arg3 []*string
 	if tmp, ok := rawArgs["labels"]; ok {
-		arg3, err = ec.unmarshalNID2ᚕᚖstring(ctx, tmp)
+		arg3, err = ec.unmarshalOID2ᚕᚖstring(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -585,6 +707,28 @@ func (ec *executionContext) field_Mutation_updateTodo_args(ctx context.Context, 
 		}
 	}
 	args["isCheckboxMode"] = arg5
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_updateUser_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *bool
+	if tmp, ok := rawArgs["listMode"]; ok {
+		arg0, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["listMode"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["darkMode"]; ok {
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["darkMode"] = arg1
 	return args, nil
 }
 
@@ -712,6 +856,80 @@ func (ec *executionContext) _Label_name(ctx context.Context, field graphql.Colle
 	return ec.marshalNString2string(ctx, field.Selections, res)
 }
 
+func (ec *executionContext) _LabelAction_action(ctx context.Context, field graphql.CollectedField, obj *LabelAction) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "LabelAction",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(Action)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _LabelAction_label(ctx context.Context, field graphql.CollectedField, obj *LabelAction) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "LabelAction",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Label, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Label)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNLabel2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabel(ctx, field.Selections, res)
+}
+
 func (ec *executionContext) _Mutation_createTodo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
@@ -779,7 +997,7 @@ func (ec *executionContext) _Mutation_updateTodo(ctx context.Context, field grap
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateTodo(rctx, args["id"].(string), args["title"].(*string), args["notes"].([]*string), args["labels"].([]*string), args["color"].(*string), args["isCheckboxMode"].(*bool))
+		return ec.resolvers.Mutation().UpdateTodo(rctx, args["id"].(string), args["title"].(*string), args["notes"].([]*NotesInput), args["labels"].([]*string), args["color"].(*string), args["isCheckboxMode"].(*bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -874,6 +1092,129 @@ func (ec *executionContext) _Mutation_copyTodo(ctx context.Context, field graphq
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalOTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_createLabel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_createLabel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().CreateLabel(rctx, args["name"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Label)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOLabel2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_deleteLabel(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_deleteLabel_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().DeleteLabel(rctx, args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*Label)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOLabel2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabel(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_updateUser(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "Mutation",
+		Field:    field,
+		Args:     nil,
+		IsMethod: true,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_updateUser_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	rctx.Args = args
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().UpdateUser(rctx, args["listMode"].(*bool), args["darkMode"].(*bool))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*User)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalOUser2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Note_text(ctx context.Context, field graphql.CollectedField, obj *Note) (ret graphql.Marshaler) {
@@ -1136,7 +1477,7 @@ func (ec *executionContext) _Query___schema(ctx context.Context, field graphql.C
 	return ec.marshalO__Schema2ᚖgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐSchema(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) _Subscription_todoCreated(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+func (ec *executionContext) _Subscription_todoStream(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1155,7 +1496,7 @@ func (ec *executionContext) _Subscription_todoCreated(ctx context.Context, field
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().TodoCreated(rctx)
+		return ec.resolvers.Subscription().TodoStream(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1168,7 +1509,7 @@ func (ec *executionContext) _Subscription_todoCreated(ctx context.Context, field
 		return nil
 	}
 	return func() graphql.Marshaler {
-		res, ok := <-resTmp.(<-chan *Todo)
+		res, ok := <-resTmp.(<-chan *TodoAction)
 		if !ok {
 			return nil
 		}
@@ -1176,13 +1517,13 @@ func (ec *executionContext) _Subscription_todoCreated(ctx context.Context, field
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
 			w.Write([]byte{':'})
-			ec.marshalNTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx, field.Selections, res).MarshalGQL(w)
+			ec.marshalNTodoAction2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodoAction(ctx, field.Selections, res).MarshalGQL(w)
 			w.Write([]byte{'}'})
 		})
 	}
 }
 
-func (ec *executionContext) _Subscription_todoDeleted(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
+func (ec *executionContext) _Subscription_labelStream(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
 	ctx = ec.Tracer.StartFieldExecution(ctx, field)
 	defer func() {
 		if r := recover(); r != nil {
@@ -1201,7 +1542,7 @@ func (ec *executionContext) _Subscription_todoDeleted(ctx context.Context, field
 	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().TodoDeleted(rctx)
+		return ec.resolvers.Subscription().LabelStream(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1214,7 +1555,7 @@ func (ec *executionContext) _Subscription_todoDeleted(ctx context.Context, field
 		return nil
 	}
 	return func() graphql.Marshaler {
-		res, ok := <-resTmp.(<-chan *Todo)
+		res, ok := <-resTmp.(<-chan *LabelAction)
 		if !ok {
 			return nil
 		}
@@ -1222,53 +1563,7 @@ func (ec *executionContext) _Subscription_todoDeleted(ctx context.Context, field
 			w.Write([]byte{'{'})
 			graphql.MarshalString(field.Alias).MarshalGQL(w)
 			w.Write([]byte{':'})
-			ec.marshalNTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx, field.Selections, res).MarshalGQL(w)
-			w.Write([]byte{'}'})
-		})
-	}
-}
-
-func (ec *executionContext) _Subscription_todoUpdated(ctx context.Context, field graphql.CollectedField) (ret func() graphql.Marshaler) {
-	ctx = ec.Tracer.StartFieldExecution(ctx, field)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = nil
-		}
-		ec.Tracer.EndFieldExecution(ctx)
-	}()
-	rctx := &graphql.ResolverContext{
-		Object:   "Subscription",
-		Field:    field,
-		Args:     nil,
-		IsMethod: true,
-	}
-	ctx = graphql.WithResolverContext(ctx, rctx)
-	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Subscription().TodoUpdated(rctx)
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return nil
-	}
-	if resTmp == nil {
-		if !ec.HasError(rctx) {
-			ec.Errorf(ctx, "must not be null")
-		}
-		return nil
-	}
-	return func() graphql.Marshaler {
-		res, ok := <-resTmp.(<-chan *Todo)
-		if !ok {
-			return nil
-		}
-		return graphql.WriterFunc(func(w io.Writer) {
-			w.Write([]byte{'{'})
-			graphql.MarshalString(field.Alias).MarshalGQL(w)
-			w.Write([]byte{':'})
-			ec.marshalNTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx, field.Selections, res).MarshalGQL(w)
+			ec.marshalNLabelAction2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabelAction(ctx, field.Selections, res).MarshalGQL(w)
 			w.Write([]byte{'}'})
 		})
 	}
@@ -1494,6 +1789,80 @@ func (ec *executionContext) _Todo_isCheckboxMode(ctx context.Context, field grap
 	rctx.Result = res
 	ctx = ec.Tracer.StartFieldChildExecution(ctx)
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TodoAction_action(ctx context.Context, field graphql.CollectedField, obj *TodoAction) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "TodoAction",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Action, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(Action)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐAction(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _TodoAction_todo(ctx context.Context, field graphql.CollectedField, obj *TodoAction) (ret graphql.Marshaler) {
+	ctx = ec.Tracer.StartFieldExecution(ctx, field)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+		ec.Tracer.EndFieldExecution(ctx)
+	}()
+	rctx := &graphql.ResolverContext{
+		Object:   "TodoAction",
+		Field:    field,
+		Args:     nil,
+		IsMethod: false,
+	}
+	ctx = graphql.WithResolverContext(ctx, rctx)
+	ctx = ec.Tracer.StartFieldResolverExecution(ctx, rctx)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Todo, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !ec.HasError(rctx) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*Todo)
+	rctx.Result = res
+	ctx = ec.Tracer.StartFieldChildExecution(ctx)
+	return ec.marshalNTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _User_id(ctx context.Context, field graphql.CollectedField, obj *User) (ret graphql.Marshaler) {
@@ -2832,6 +3201,30 @@ func (ec *executionContext) ___Type_ofType(ctx context.Context, field graphql.Co
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputNotesInput(ctx context.Context, obj interface{}) (NotesInput, error) {
+	var it NotesInput
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "text":
+			var err error
+			it.Text, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "isCompleted":
+			var err error
+			it.IsCompleted, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2872,6 +3265,38 @@ func (ec *executionContext) _Label(ctx context.Context, sel ast.SelectionSet, ob
 	return out
 }
 
+var labelActionImplementors = []string{"LabelAction"}
+
+func (ec *executionContext) _LabelAction(ctx context.Context, sel ast.SelectionSet, obj *LabelAction) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, labelActionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("LabelAction")
+		case "action":
+			out.Values[i] = ec._LabelAction_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "label":
+			out.Values[i] = ec._LabelAction_label(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
 var mutationImplementors = []string{"Mutation"}
 
 func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet) graphql.Marshaler {
@@ -2895,6 +3320,12 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			out.Values[i] = ec._Mutation_deleteTodo(ctx, field)
 		case "copyTodo":
 			out.Values[i] = ec._Mutation_copyTodo(ctx, field)
+		case "createLabel":
+			out.Values[i] = ec._Mutation_createLabel(ctx, field)
+		case "deleteLabel":
+			out.Values[i] = ec._Mutation_deleteLabel(ctx, field)
+		case "updateUser":
+			out.Values[i] = ec._Mutation_updateUser(ctx, field)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3023,12 +3454,10 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	}
 
 	switch fields[0].Name {
-	case "todoCreated":
-		return ec._Subscription_todoCreated(ctx, fields[0])
-	case "todoDeleted":
-		return ec._Subscription_todoDeleted(ctx, fields[0])
-	case "todoUpdated":
-		return ec._Subscription_todoUpdated(ctx, fields[0])
+	case "todoStream":
+		return ec._Subscription_todoStream(ctx, fields[0])
+	case "labelStream":
+		return ec._Subscription_labelStream(ctx, fields[0])
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
@@ -3072,6 +3501,38 @@ func (ec *executionContext) _Todo(ctx context.Context, sel ast.SelectionSet, obj
 			}
 		case "isCheckboxMode":
 			out.Values[i] = ec._Todo_isCheckboxMode(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
+}
+
+var todoActionImplementors = []string{"TodoAction"}
+
+func (ec *executionContext) _TodoAction(ctx context.Context, sel ast.SelectionSet, obj *TodoAction) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.RequestContext, sel, todoActionImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TodoAction")
+		case "action":
+			out.Values[i] = ec._TodoAction_action(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "todo":
+			out.Values[i] = ec._TodoAction_todo(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3378,6 +3839,15 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 
 // region    ***************************** type.gotpl *****************************
 
+func (ec *executionContext) unmarshalNAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐAction(ctx context.Context, v interface{}) (Action, error) {
+	var res Action
+	return res, res.UnmarshalGQL(v)
+}
+
+func (ec *executionContext) marshalNAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐAction(ctx context.Context, sel ast.SelectionSet, v Action) graphql.Marshaler {
+	return v
+}
+
 func (ec *executionContext) unmarshalNBoolean2bool(ctx context.Context, v interface{}) (bool, error) {
 	return graphql.UnmarshalBoolean(v)
 }
@@ -3486,6 +3956,20 @@ func (ec *executionContext) marshalNLabel2ᚖgithubᚗcomᚋanselm94ᚋgooglekee
 	return ec._Label(ctx, sel, v)
 }
 
+func (ec *executionContext) marshalNLabelAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabelAction(ctx context.Context, sel ast.SelectionSet, v LabelAction) graphql.Marshaler {
+	return ec._LabelAction(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNLabelAction2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabelAction(ctx context.Context, sel ast.SelectionSet, v *LabelAction) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._LabelAction(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalNNote2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNote(ctx context.Context, sel ast.SelectionSet, v Note) graphql.Marshaler {
 	return ec._Note(ctx, sel, &v)
 }
@@ -3580,35 +4064,6 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) unmarshalNString2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
-	var vSlice []interface{}
-	if v != nil {
-		if tmp1, ok := v.([]interface{}); ok {
-			vSlice = tmp1
-		} else {
-			vSlice = []interface{}{v}
-		}
-	}
-	var err error
-	res := make([]*string, len(vSlice))
-	for i := range vSlice {
-		res[i], err = ec.unmarshalOString2ᚖstring(ctx, vSlice[i])
-		if err != nil {
-			return nil, err
-		}
-	}
-	return res, nil
-}
-
-func (ec *executionContext) marshalNString2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
-	ret := make(graphql.Array, len(v))
-	for i := range v {
-		ret[i] = ec.marshalOString2ᚖstring(ctx, sel, v[i])
-	}
-
-	return ret
-}
-
 func (ec *executionContext) marshalNTodo2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodo(ctx context.Context, sel ast.SelectionSet, v Todo) graphql.Marshaler {
 	return ec._Todo(ctx, sel, &v)
 }
@@ -3658,6 +4113,20 @@ func (ec *executionContext) marshalNTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeep
 		return graphql.Null
 	}
 	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalNTodoAction2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodoAction(ctx context.Context, sel ast.SelectionSet, v TodoAction) graphql.Marshaler {
+	return ec._TodoAction(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNTodoAction2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐTodoAction(ctx context.Context, sel ast.SelectionSet, v *TodoAction) graphql.Marshaler {
+	if v == nil {
+		if !ec.HasError(graphql.GetResolverContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	return ec._TodoAction(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNUser2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
@@ -3931,6 +4400,38 @@ func (ec *executionContext) marshalOID2string(ctx context.Context, sel ast.Selec
 	return graphql.MarshalID(v)
 }
 
+func (ec *executionContext) unmarshalOID2ᚕᚖstring(ctx context.Context, v interface{}) ([]*string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*string, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalOID2ᚖstring(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalOID2ᚕᚖstring(ctx context.Context, sel ast.SelectionSet, v []*string) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalOID2ᚖstring(ctx, sel, v[i])
+	}
+
+	return ret
+}
+
 func (ec *executionContext) unmarshalOID2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
 	if v == nil {
 		return nil, nil
@@ -3944,6 +4445,49 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	return ec.marshalOID2string(ctx, sel, *v)
+}
+
+func (ec *executionContext) marshalOLabel2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabel(ctx context.Context, sel ast.SelectionSet, v Label) graphql.Marshaler {
+	return ec._Label(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOLabel2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐLabel(ctx context.Context, sel ast.SelectionSet, v *Label) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._Label(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalONotesInput2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx context.Context, v interface{}) (NotesInput, error) {
+	return ec.unmarshalInputNotesInput(ctx, v)
+}
+
+func (ec *executionContext) unmarshalONotesInput2ᚕᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx context.Context, v interface{}) ([]*NotesInput, error) {
+	var vSlice []interface{}
+	if v != nil {
+		if tmp1, ok := v.([]interface{}); ok {
+			vSlice = tmp1
+		} else {
+			vSlice = []interface{}{v}
+		}
+	}
+	var err error
+	res := make([]*NotesInput, len(vSlice))
+	for i := range vSlice {
+		res[i], err = ec.unmarshalONotesInput2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalONotesInput2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx context.Context, v interface{}) (*NotesInput, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalONotesInput2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐNotesInput(ctx, v)
+	return &res, err
 }
 
 func (ec *executionContext) unmarshalOString2string(ctx context.Context, v interface{}) (string, error) {
@@ -3978,6 +4522,17 @@ func (ec *executionContext) marshalOTodo2ᚖgithubᚗcomᚋanselm94ᚋgooglekeep
 		return graphql.Null
 	}
 	return ec._Todo(ctx, sel, v)
+}
+
+func (ec *executionContext) marshalOUser2githubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐUser(ctx context.Context, sel ast.SelectionSet, v User) graphql.Marshaler {
+	return ec._User(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalOUser2ᚖgithubᚗcomᚋanselm94ᚋgooglekeepᚑcloneᚐUser(ctx context.Context, sel ast.SelectionSet, v *User) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	return ec._User(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalO__EnumValue2ᚕgithubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐEnumValueᚄ(ctx context.Context, sel ast.SelectionSet, v []introspection.EnumValue) graphql.Marshaler {

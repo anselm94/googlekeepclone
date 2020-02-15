@@ -17,6 +17,27 @@ type Todo {
   isCheckboxMode: Boolean!
 }
 
+input NotesInput {
+  text: String!
+  isCompleted: Boolean!
+}
+
+enum Action {
+  CREATED
+  DELETED
+  UPDATED
+}
+
+type TodoAction {
+  action: Action!,
+  todo: Todo!
+}
+
+type LabelAction {
+  action: Action!,
+  label: Label!
+}
+
 type User {
   id: ID!
   name: String!
@@ -33,13 +54,15 @@ type Query {
 
 type Mutation {
   createTodo(title: String!, notes: [String!]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
-  updateTodo(id: ID!, title: String, notes: [String]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
+  updateTodo(id: ID!, title: String, notes: [NotesInput], labels: [ID], color: String, isCheckboxMode: Boolean): Todo
   deleteTodo(id: ID!): Todo
   copyTodo(sourceId: ID!): Todo
+  createLabel(name: String!): Label
+  deleteLabel(id: ID!): Label
+  updateUser(listMode: Boolean, darkMode: Boolean): User
 }
 
 type Subscription {
-  todoCreated: Todo!
-  todoDeleted: Todo!
-  todoUpdated: Todo!
+  todoStream: TodoAction!
+  labelStream: LabelAction!
 }
