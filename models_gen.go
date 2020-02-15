@@ -12,7 +12,7 @@ type Label struct {
 	ID     string  `json:"id"`
 	Name   string  `json:"name"`
 	Todos  []*Todo `gorm:"many2many:todos_labels"` // many-to-many
-	UserID string
+	UserID string  `sql:"type:TEXT REFERENCES users(id) ON DELETE CASCADE"`
 }
 
 type LabelAction struct {
@@ -22,7 +22,7 @@ type LabelAction struct {
 
 type Note struct {
 	ID          string `gorm:"primary_key"`
-	TodoID      string `gorm:"primary_key;auto_increment:false"`
+	TodoID      string `gorm:"primary_key;auto_increment:false" sql:"type:TEXT REFERENCES todos(id) ON DELETE CASCADE"`
 	Text        string `json:"text"`
 	IsCompleted bool   `json:"isCompleted"`
 }
@@ -39,7 +39,7 @@ type Todo struct {
 	Labels         []*Label `json:"labels" gorm:"many2many:todos_labels"` // many-to-many
 	Color          string   `json:"color"`
 	IsCheckboxMode bool     `json:"isCheckboxMode"`
-	UserID         string
+	UserID         string   `sql:"type:TEXT REFERENCES users(id) ON DELETE CASCADE"`
 }
 
 type TodoAction struct {

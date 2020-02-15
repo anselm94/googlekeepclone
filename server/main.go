@@ -54,6 +54,7 @@ func setupDB() *gorm.DB {
 	if err != nil {
 		log.Fatalf("Error while setting up DB -> %s", err)
 	}
+	db.Exec("PRAGMA foreign_keys = ON;")
 	db.AutoMigrate(&gkc.Todo{}, &gkc.Note{}, &gkc.Label{}, &gkc.User{})
 	return db
 }

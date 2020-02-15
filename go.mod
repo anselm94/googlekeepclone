@@ -7,6 +7,7 @@ require (
 	github.com/golang/protobuf v1.3.3 // indirect
 	github.com/gorilla/mux v1.7.3
 	github.com/jinzhu/gorm v1.9.12
+	github.com/matoous/go-nanoid v1.1.0
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/vektah/gqlparser v1.2.0
 	github.com/volatiletech/authboss v2.4.0+incompatible

@@ -5,11 +5,13 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
+	gonanoid "github.com/matoous/go-nanoid"
 ) // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 const (
 	MsgNotAuthenticated string = "NotAuthenticated"
 	CtxUserIDKey        string = "userid"
+	IDSize              int    = 4
 )
 
 type Resolver struct {
@@ -31,18 +33,22 @@ type mutationResolver struct{ *Resolver }
 func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
+		newTodoID, _ := gonanoid.Nanoid(IDSize)
 		todo := Todo{
+			ID:             newTodoID,
 			Title:          title,
 			Color:          *color,
 			IsCheckboxMode: *isCheckboxMode,
 			UserID:         userID,
 			Notes:          make([]*Note, len(notes)),
 		}
-		for _, note := range notes {
-			todo.Notes = append(todo.Notes, &Note{
+		for index, note := range notes {
+			newNoteID, _ := gonanoid.Nanoid(IDSize)
+			todo.Notes[index] = &Note{
+				ID:          newNoteID,
 				Text:        note,
 				IsCompleted: false,
-			})
+			}
 		}
 		err := r.DB.Where("id in (?)", labels).Find(&todo.Labels).Error // Load the related labels
 		if err != nil {
@@ -91,11 +97,13 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 
 		if notes != nil {
 			nts := make([]Note, len(notes))
-			for _, note := range notes {
-				nts = append(nts, Note{
+			for index, note := range notes {
+				newNoteID, _ := gonanoid.Nanoid(IDSize)
+				nts[index] = Note{
+					ID:          newNoteID,
 					Text:        note.Text,
 					IsCompleted: note.IsCompleted,
-				})
+				}
 			}
 			r.DB.Model(&todo).Association("Notes").Replace(nts)
 		}
@@ -114,7 +122,12 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (*Todo, er
 		if err != nil {
 			return nil, err
 		}
-		r.DB.Delete(todo)
+		r.DB.Model(&todo).Association("Labels").Clear()
+		err = r.DB.Delete(todo).Error
+		if err != nil {
+			return nil, err
+		}
+		return &todo, nil
 	}
 	return nil, errors.New(MsgNotAuthenticated)
 }
@@ -130,9 +143,9 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 		if err != nil {
 			return nil, err
 		}
-		todo.ID = "" // clear the primary key, so a new record created
+		todo.ID, _ = gonanoid.Nanoid(IDSize)
 		for _, note := range todo.Notes {
-			note.ID = "" // clear the primary key, so a new record created
+			note.ID, _ = gonanoid.Nanoid(IDSize)
 		}
 		err = r.DB.Create(&todo).Error
 		if err != nil {
@@ -145,7 +158,9 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 func (r *mutationResolver) CreateLabel(ctx context.Context, name string) (*Label, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
+		newLabelID, _ := gonanoid.Nanoid(IDSize)
 		label := Label{
+			ID:     newLabelID,
 			Name:   name,
 			UserID: userID,
 		}
