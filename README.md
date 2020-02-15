@@ -8,6 +8,10 @@ Live demo - https://googlekeep-anselm94.herokuapp.com/
 |------------------|
 | Work In Progress |
 
+## Overview
+
+![ER Diagram](./docs/er-diagram.png)
+
 ## How to Setup and Build
 
 ### Method 1: Docker

@@ -1,0 +1,45 @@
+type Note {
+  text: String!
+  isCompleted: Boolean!
+}
+
+type Label {
+  id: ID!
+  name: String!
+}
+
+type Todo {
+  id: ID!
+  title: String!
+  notes: [Note!]!
+  labels: [Label!]!
+  color: String!
+  isCheckboxMode: Boolean!
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  listMode: Boolean!
+  darkMode: Boolean!
+}
+
+type Query {
+  todos: [Todo!]!
+  labels: [Label!]!
+  user: User!
+}
+
+type Mutation {
+  createTodo(title: String!, notes: [String!]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
+  updateTodo(id: ID!, title: String, notes: [String]!, labels: [ID]!, color: String, isCheckboxMode: Boolean): Todo
+  deleteTodo(id: ID!): Todo
+  copyTodo(sourceId: ID!): Todo
+}
+
+type Subscription {
+  todoCreated: Todo!
+  todoDeleted: Todo!
+  todoUpdated: Todo!
+}
