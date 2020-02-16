@@ -4,27 +4,24 @@ import (
 	"context"
 	"log"
 	"net/http"
-	"os"
+	"time"
 
 	"github.com/99designs/gqlgen/handler"
-	gkc "github.com/anselm94/googlekeep-clone"
+	gkc "github.com/anselm94/googlekeepclone"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/volatiletech/authboss"
 	"github.com/volatiletech/authboss/defaults"
 )
 
-func main() {
-	port := os.Getenv("PORT")
-	if port == "" {
-		log.Fatal("The environment variable PORT doesn't exist")
-	}
+var (
+	config *gkc.AppConfig
+)
 
-	staticDir := os.Getenv("STATIC_DIR")
-	if staticDir == "" {
-		log.Fatal("The environment variable STATIC_DIR doesn't exist")
-	}
+func main() {
+	config = gkc.DefaultAppConfig()
 
 	db := setupDB()
 	defer db.Close()
@@ -36,9 +33,17 @@ func main() {
 	})
 
 	router := mux.NewRouter()
-	router.PathPrefix("/query").Handler(middlewareAuth(http.HandlerFunc(handler.GraphQL(graphqlSchema))))
-	router.PathPrefix("/").Handler(http.FileServer(http.Dir(staticDir)))
-	log.Fatalf("Error running server -> %s", http.ListenAndServe(":"+port, router))
+	router.PathPrefix("/query").Handler(middlewareAuth(http.HandlerFunc(handler.GraphQL(graphqlSchema,
+		handler.WebsocketUpgrader(websocket.Upgrader{
+			CheckOrigin: func(r *http.Request) bool {
+				return true
+				// return r.URL.Hostname() == config.AppHost.Hostname() // TODO: Compute
+			},
+		}),
+		handler.WebsocketKeepAliveDuration(10*time.Second), // Don't drop websocket after being idle for few seconds https://github.com/99designs/gqlgen/issues/640
+	))))
+	router.PathPrefix("/").Handler(http.FileServer(http.Dir(config.StaticDir)))
+	log.Fatalf("Error running server -> %s", http.ListenAndServe(":"+config.AppHost.Port(), router))
 }
 
 func middlewareAuth(h http.Handler) http.Handler {
@@ -50,7 +55,7 @@ func middlewareAuth(h http.Handler) http.Handler {
 }
 
 func setupDB() *gorm.DB {
-	db, err := gorm.Open("sqlite3", "keepclone.db")
+	db, err := gorm.Open("sqlite3", config.DBFile)
 	if err != nil {
 		log.Fatalf("Error while setting up DB -> %s", err)
 	}

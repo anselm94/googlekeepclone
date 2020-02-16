@@ -1,4 +1,6 @@
-package googlekeep_clone
+package googlekeepclone
+
+//go:generate go run github.com/99designs/gqlgen
 
 import (
 	"context"
@@ -235,8 +237,90 @@ func (r *queryResolver) User(ctx context.Context) (*User, error) {
 type subscriptionResolver struct{ *Resolver }
 
 func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoAction, error) {
-	panic("not implemented")
+	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+		userID := userID.(string)
+		todoAction := make(chan *TodoAction, 1)
+		callbackCreateID, _ := gonanoid.Nanoid(6)
+		callbackUpdateID, _ := gonanoid.Nanoid(6)
+		callbackDeleteID, _ := gonanoid.Nanoid(6)
+		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
+			createdTodo, ok := scope.Value.(*Todo)
+			if ok && createdTodo.UserID == userID {
+				todoAction <- &TodoAction{
+					Action: ActionCreated,
+					Todo:   createdTodo,
+				}
+			}
+		})
+		r.DB.Callback().Update().Register(callbackUpdateID, func(scope *gorm.Scope) {
+			updatedTodo, ok := scope.Value.(*Todo)
+			if ok && updatedTodo.UserID == userID {
+				todoAction <- &TodoAction{
+					Action: ActionUpdated,
+					Todo:   updatedTodo,
+				}
+			}
+		})
+		r.DB.Callback().Delete().Register(callbackDeleteID, func(scope *gorm.Scope) {
+			deletedTodo, ok := scope.Value.(*Todo)
+			if ok && deletedTodo.UserID == userID {
+				todoAction <- &TodoAction{
+					Action: ActionDeleted,
+					Todo:   deletedTodo,
+				}
+			}
+		})
+		go func() {
+			<-ctx.Done()
+			r.DB.Callback().Create().Remove(callbackCreateID)
+			r.DB.Callback().Update().Remove(callbackUpdateID)
+			r.DB.Callback().Delete().Remove(callbackDeleteID)
+		}()
+		return todoAction, nil
+	}
+	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAction, error) {
-	panic("not implemented")
+	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+		userID := userID.(string)
+		labelAction := make(chan *LabelAction, 1)
+		callbackCreateID, _ := gonanoid.Nanoid(6)
+		callbackUpdateID, _ := gonanoid.Nanoid(6)
+		callbackDeleteID, _ := gonanoid.Nanoid(6)
+		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
+			createdLabel, ok := scope.Value.(*Label)
+			if ok && createdLabel.UserID == userID {
+				labelAction <- &LabelAction{
+					Action: ActionCreated,
+					Label:  createdLabel,
+				}
+			}
+		})
+		r.DB.Callback().Update().Register(callbackUpdateID, func(scope *gorm.Scope) {
+			updatedLabel, ok := scope.Value.(*Label)
+			if ok && updatedLabel.UserID == userID {
+				labelAction <- &LabelAction{
+					Action: ActionUpdated,
+					Label:  updatedLabel,
+				}
+			}
+		})
+		r.DB.Callback().Delete().Register(callbackDeleteID, func(scope *gorm.Scope) {
+			deletedLabel, ok := scope.Value.(*Label)
+			if ok && deletedLabel.UserID == userID {
+				labelAction <- &LabelAction{
+					Action: ActionDeleted,
+					Label:  deletedLabel,
+				}
+			}
+		})
+		go func() {
+			<-ctx.Done()
+			r.DB.Callback().Create().Remove(callbackCreateID)
+			r.DB.Callback().Update().Remove(callbackUpdateID)
+			r.DB.Callback().Delete().Remove(callbackDeleteID)
+		}()
+		return labelAction, nil
+	}
+	return nil, errors.New(MsgNotAuthenticated)
 }

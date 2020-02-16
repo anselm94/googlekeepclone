@@ -12,6 +12,7 @@
             "program": "${workspaceFolder}/server",
             "cwd": "${workspaceFolder}",
             "env": {
+                "HOST": "http://localhost",
                 "PORT": "3000",
                 "STATIC_DIR": "./web/build/"
             },

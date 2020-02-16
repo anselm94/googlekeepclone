@@ -20,7 +20,9 @@ RUN apk --no-cache add ca-certificates
 WORKDIR /
 COPY --from=gobuilder /app/bin/server .
 COPY --from=webbuilder /web/build ./static
+ENV HOST=https://googlekeep-anselm94.herokuapp.com
 ENV STATIC_DIR=/static
+ENV DB_FILE=keepclone.db
 EXPOSE 80
 RUN chmod +x ./server
 CMD ./server

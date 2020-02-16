@@ -19,25 +19,25 @@ Live demo - https://googlekeep-anselm94.herokuapp.com/
 1) Clone the Git repository
 
 ```sh
-git clone https://github.com/anselm94/googlekeep-clone.git
+git clone https://github.com/anselm94/googlekeepclone.git
 ```
 
 2) CD into the folder
 
 ```sh
-cd googlekeep-clone
+cd googlekeepclone
 ```
 
 3) Build a docker image containing all the web resources and server executable
 
 ```sh
-docker build -t anselm94/googlekeep-clone .
+docker build -t anselm94/googlekeepclone .
 ```
 
 4) Run the Docker image as a container
 
 ```sh
-docker run -p 8080:8080 -e PORT=8080 anselm94/googlekeep-clone:latest
+docker run -p 8080:8080 -e PORT=8080 anselm94/googlekeepclone:latest
 ```
 
 5) Open the URL in browser - https://localhost:8080
@@ -47,13 +47,13 @@ docker run -p 8080:8080 -e PORT=8080 anselm94/googlekeep-clone:latest
 1) Clone the Git repository
 
 ```sh
-git clone https://github.com/anselm94/googlekeep-clone.git
+git clone https://github.com/anselm94/googlekeepclone.git
 ```
 
 2) CD into the Web folder
 
 ```sh
-cd googlekeep-clone/web
+cd googlekeepclone/web
 ```
 
 3) Install Node dependencies (Install [NodeJS](https://nodejs.org/en/download/) in prior) and build the resources into `/build` folder
