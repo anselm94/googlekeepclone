@@ -7,12 +7,14 @@ import (
 	"os"
 )
 
+// AppConfig holds the configuration for the application
 type AppConfig struct {
 	AppHost   *url.URL
 	DBFile    string
 	StaticDir string
 }
 
+// DefaultAppConfig creates an instance of AppConfig and populates with default/environment values
 func DefaultAppConfig() *AppConfig {
 	host := os.Getenv("HOST")
 	if host == "" {

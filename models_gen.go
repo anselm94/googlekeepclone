@@ -22,7 +22,7 @@ type LabelAction struct {
 
 type Note struct {
 	ID          string `gorm:"primary_key"`
-	TodoID      string `gorm:"primary_key;auto_increment:false" sql:"type:TEXT REFERENCES todos(id) ON DELETE CASCADE"`
+	TodoID      string `sql:"type:TEXT REFERENCES todos(id) ON DELETE CASCADE"`
 	Text        string `json:"text"`
 	IsCompleted bool   `json:"isCompleted"`
 }

@@ -11,21 +11,30 @@ import (
 ) // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 const (
+	// MsgNotAuthenticated is the constant for Not Authenticated message
 	MsgNotAuthenticated string = "NotAuthenticated"
-	CtxUserIDKey        string = "userid"
-	IDSize              int    = 4
+	// CtxUserIDKey holds the key for 'userid' value
+	CtxUserIDKey string = "userid"
+	// IDSize is the size of the UIDs generated for DB columns
+	IDSize int = 4
 )
 
+// Resolver holds the Query, mutation and subscription resolvers
 type Resolver struct {
 	DB *gorm.DB
 }
 
+// Mutation returns an instance of mutationResolver
 func (r *Resolver) Mutation() MutationResolver {
 	return &mutationResolver{r}
 }
+
+// Query returns an instance of queryResolver
 func (r *Resolver) Query() QueryResolver {
 	return &queryResolver{r}
 }
+
+// Subscription returns an instance of subscriptionResolver
 func (r *Resolver) Subscription() SubscriptionResolver {
 	return &subscriptionResolver{r}
 }
@@ -52,12 +61,10 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes [
 				IsCompleted: false,
 			}
 		}
-		err := r.DB.Where("id in (?)", labels).Find(&todo.Labels).Error // Load the related labels
-		if err != nil {
+		if err := r.DB.Where("id in (?)", labels).Find(&todo.Labels).Error; err != nil { // Load the related labels
 			return nil, err
 		}
-		err = r.DB.Create(&todo).Error
-		if err != nil {
+		if err := r.DB.Create(&todo).Error; err != nil {
 			return nil, err
 		}
 		return &todo, nil
@@ -69,11 +76,11 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 		userID := userID.(string)
 		todo := Todo{
 			ID:     id,
+			UserID: userID,
 			Labels: []*Label{},
 			Notes:  []*Note{},
 		}
-		err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").Find(&todo).Error
-		if err != nil {
+		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").Find(&todo).Error; err != nil {
 			return nil, err
 		}
 
@@ -86,8 +93,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 		if isCheckboxMode != nil {
 			todo.IsCheckboxMode = *isCheckboxMode
 		}
-		err = r.DB.Save(&todo).Error
-		if err != nil {
+		if err := r.DB.Save(&todo).Error; err != nil {
 			return nil, err
 		}
 
@@ -107,6 +113,8 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 					IsCompleted: note.IsCompleted,
 				}
 			}
+			// Updating Association just updates the references, won't clear the data. So, manually deleting the notes
+			r.DB.Delete(todo.Notes)
 			r.DB.Model(&todo).Association("Notes").Replace(nts)
 		}
 		return &todo, nil
@@ -117,16 +125,17 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (*Todo, er
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
 		todo := Todo{
-			ID:    id,
-			Notes: []*Note{},
+			ID:     id,
+			UserID: userID,
+			Notes:  []*Note{},
 		}
-		err := r.DB.Where("user_id = ?", userID).Preload("Notes").Find(&todo).Error // Only load associated notes
-		if err != nil {
+		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Find(&todo).Error; err != nil { // Only load associated notes
 			return nil, err
 		}
-		r.DB.Model(&todo).Association("Labels").Clear()
-		err = r.DB.Delete(todo).Error
-		if err != nil {
+		if err := r.DB.Model(&todo).Association("Labels").Clear().Error; err != nil {
+			return nil, err
+		}
+		if err := r.DB.Delete(todo).Error; err != nil {
 			return nil, err
 		}
 		return &todo, nil
@@ -138,19 +147,18 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 		userID := userID.(string)
 		todo := Todo{
 			ID:     sourceID,
+			UserID: userID,
 			Labels: []*Label{},
 			Notes:  []*Note{},
 		}
-		err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").First(&todo).Error
-		if err != nil {
+		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").First(&todo).Error; err != nil {
 			return nil, err
 		}
 		todo.ID, _ = gonanoid.Nanoid(IDSize)
 		for _, note := range todo.Notes {
 			note.ID, _ = gonanoid.Nanoid(IDSize)
 		}
-		err = r.DB.Create(&todo).Error
-		if err != nil {
+		if err := r.DB.Create(&todo).Error; err != nil {
 			return nil, err
 		}
 		return &todo, nil
@@ -166,8 +174,7 @@ func (r *mutationResolver) CreateLabel(ctx context.Context, name string) (*Label
 			Name:   name,
 			UserID: userID,
 		}
-		err := r.DB.Create(&label).Error
-		if err != nil {
+		if err := r.DB.Create(&label).Error; err != nil {
 			return nil, err
 		}
 		return &label, nil
@@ -185,8 +192,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, listMode *bool, darkM
 			ListMode: *listMode,
 			DarkMode: *darkMode,
 		}
-		err := r.DB.Save(&user).Error
-		if err != nil {
+		if err := r.DB.Save(&user).Error; err != nil {
 			return nil, err
 		}
 		return &user, nil
@@ -200,8 +206,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*Todo, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
 		todos := []*Todo{}
-		err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").Find(&todos).Error
-		if err != nil {
+		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").Find(&todos).Error; err != nil {
 			return nil, err
 		}
 		return todos, nil
@@ -213,8 +218,7 @@ func (r *queryResolver) Labels(ctx context.Context) ([]*Label, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
 		labels := []*Label{}
-		err := r.DB.Where("user_id = ?", userID).Preload("Todos").Find(&labels).Error
-		if err != nil {
+		if err := r.DB.Where("user_id = ?", userID).Preload("Todos").Find(&labels).Error; err != nil {
 			return nil, err
 		}
 		return labels, nil
@@ -225,8 +229,7 @@ func (r *queryResolver) User(ctx context.Context) (*User, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != nil {
 		userID := userID.(string)
 		user := User{}
-		err := r.DB.First(&user, userID).Error
-		if err != nil {
+		if err := r.DB.First(&user, userID).Error; err != nil {
 			return nil, err
 		}
 		return &user, nil
@@ -262,11 +265,11 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 			}
 		})
 		r.DB.Callback().Delete().Register(callbackDeleteID, func(scope *gorm.Scope) {
-			deletedTodo, ok := scope.Value.(*Todo)
+			deletedTodo, ok := scope.Value.(Todo)
 			if ok && deletedTodo.UserID == userID {
 				todoAction <- &TodoAction{
 					Action: ActionDeleted,
-					Todo:   deletedTodo,
+					Todo:   &deletedTodo,
 				}
 			}
 		})
@@ -286,7 +289,6 @@ func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAc
 		labelAction := make(chan *LabelAction, 1)
 		callbackCreateID, _ := gonanoid.Nanoid(6)
 		callbackUpdateID, _ := gonanoid.Nanoid(6)
-		callbackDeleteID, _ := gonanoid.Nanoid(6)
 		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
 			createdLabel, ok := scope.Value.(*Label)
 			if ok && createdLabel.UserID == userID {
@@ -305,20 +307,10 @@ func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAc
 				}
 			}
 		})
-		r.DB.Callback().Delete().Register(callbackDeleteID, func(scope *gorm.Scope) {
-			deletedLabel, ok := scope.Value.(*Label)
-			if ok && deletedLabel.UserID == userID {
-				labelAction <- &LabelAction{
-					Action: ActionDeleted,
-					Label:  deletedLabel,
-				}
-			}
-		})
 		go func() {
 			<-ctx.Done()
 			r.DB.Callback().Create().Remove(callbackCreateID)
 			r.DB.Callback().Update().Remove(callbackUpdateID)
-			r.DB.Callback().Delete().Remove(callbackDeleteID)
 		}()
 		return labelAction, nil
 	}
