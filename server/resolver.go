@@ -1,4 +1,4 @@
-package googlekeepclone
+package server
 
 //go:generate go run github.com/99designs/gqlgen
 
@@ -42,7 +42,7 @@ func (r *Resolver) Subscription() SubscriptionResolver {
 type mutationResolver struct{ *Resolver }
 
 func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		newTodoID, _ := gonanoid.Nanoid(IDSize)
 		todo := Todo{
@@ -72,7 +72,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes [
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *string, notes []*NotesInput, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todo := Todo{
 			ID:     id,
@@ -122,7 +122,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (*Todo, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todo := Todo{
 			ID:     id,
@@ -143,7 +143,7 @@ func (r *mutationResolver) DeleteTodo(ctx context.Context, id string) (*Todo, er
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todo := Todo{
 			ID:     sourceID,
@@ -166,7 +166,7 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *mutationResolver) CreateLabel(ctx context.Context, name string) (*Label, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		newLabelID, _ := gonanoid.Nanoid(IDSize)
 		label := Label{
@@ -185,7 +185,7 @@ func (r *mutationResolver) DeleteLabel(ctx context.Context, id string) (*Label, 
 	panic("not implemented")
 }
 func (r *mutationResolver) UpdateUser(ctx context.Context, listMode *bool, darkMode *bool) (*User, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		user := User{
 			ID:       userID,
@@ -203,7 +203,7 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, listMode *bool, darkM
 type queryResolver struct{ *Resolver }
 
 func (r *queryResolver) Todos(ctx context.Context) ([]*Todo, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todos := []*Todo{}
 		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").Find(&todos).Error; err != nil {
@@ -215,7 +215,7 @@ func (r *queryResolver) Todos(ctx context.Context) ([]*Todo, error) {
 
 }
 func (r *queryResolver) Labels(ctx context.Context) ([]*Label, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		labels := []*Label{}
 		if err := r.DB.Where("user_id = ?", userID).Preload("Todos").Find(&labels).Error; err != nil {
@@ -226,7 +226,7 @@ func (r *queryResolver) Labels(ctx context.Context) ([]*Label, error) {
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *queryResolver) User(ctx context.Context) (*User, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		user := User{}
 		if err := r.DB.First(&user, userID).Error; err != nil {
@@ -240,7 +240,7 @@ func (r *queryResolver) User(ctx context.Context) (*User, error) {
 type subscriptionResolver struct{ *Resolver }
 
 func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoAction, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todoAction := make(chan *TodoAction, 1)
 		callbackCreateID, _ := gonanoid.Nanoid(6)
@@ -284,7 +284,7 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 	return nil, errors.New(MsgNotAuthenticated)
 }
 func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAction, error) {
-	if userID := ctx.Value(CtxUserIDKey); userID != nil {
+	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		labelAction := make(chan *LabelAction, 1)
 		callbackCreateID, _ := gonanoid.Nanoid(6)

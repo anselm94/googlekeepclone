@@ -2,10 +2,12 @@
 FROM golang:1.13 AS gobuilder
 WORKDIR /app
 COPY ./server ./server
+COPY ./cmd ./cmd
+COPY config.go .
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/server ./server
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/server ./cmd/server
 
 # Build Web resources
 FROM node:10 AS webbuilder
