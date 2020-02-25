@@ -64,6 +64,6 @@ func DefaultAppConfig() *AppConfig {
 		StaticDir:         staticDir,
 		CookieStoreKey:    cookieStoreKey,
 		SessionStoreKey:   sessionStoreKey,
-		SessionCookieName: "session",
+		SessionCookieName: "gkc_session",
 	}
 }

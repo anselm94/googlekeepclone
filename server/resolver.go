@@ -228,8 +228,10 @@ func (r *queryResolver) Labels(ctx context.Context) ([]*Label, error) {
 func (r *queryResolver) User(ctx context.Context) (*User, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
-		user := User{}
-		if err := r.DB.First(&user, userID).Error; err != nil {
+		user := User{
+			ID: userID,
+		}
+		if err := r.DB.First(&user).Error; err != nil {
 			return nil, err
 		}
 		return &user, nil

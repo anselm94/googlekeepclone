@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"log"
 	"net/http"
+	"net/url"
 	"regexp"
 	"time"
 
@@ -12,13 +13,17 @@ import (
 	gkc "github.com/anselm94/googlekeepclone"
 	gkcserver "github.com/anselm94/googlekeepclone/server"
 	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
 	"github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/rs/cors"
 	"github.com/volatiletech/authboss"
 	abclientstate "github.com/volatiletech/authboss-clientstate"
+	_ "github.com/volatiletech/authboss/auth" // Adds Login support
 	"github.com/volatiletech/authboss/defaults"
+	_ "github.com/volatiletech/authboss/logout"   // Adds Logout support
+	_ "github.com/volatiletech/authboss/register" // Adds Register support
 )
 
 var (
@@ -38,6 +43,7 @@ func main() {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			userID, _ := ab.CurrentUserID(r)
+			userID = url.QueryEscape(userID) // Encode the email, so it's available as userID
 			ctx = context.WithValue(ctx, gkcserver.CtxUserIDKey, userID)
 			h.ServeHTTP(w, r.WithContext(ctx))
 		})
@@ -94,6 +100,9 @@ func setupAuthboss() *authboss.Authboss {
 	cookieStore.HTTPOnly = config.IsProd
 	cookieStore.Secure = config.IsProd
 	sessionStore := abclientstate.NewSessionStorer(config.SessionCookieName, sessionStoreKey, nil)
+	sessionCookieStore := sessionStore.Store.(*sessions.CookieStore)
+	sessionCookieStore.Options.HttpOnly = config.IsProd
+	sessionCookieStore.Options.Secure = config.IsProd
 	sqliteStorer := gkcserver.NewSQLiteStorer(db)
 
 	ab.Config.Storage.Server = sqliteStorer
@@ -101,16 +110,11 @@ func setupAuthboss() *authboss.Authboss {
 	ab.Config.Storage.CookieState = cookieStore
 	ab.Config.Core.ViewRenderer = defaults.JSONRenderer{}
 
-	ab.Config.Modules.RegisterPreserveFields = []string{"email", "name"}
 	ab.Config.Modules.ResponseOnUnauthed = authboss.RespondRedirect
 
 	defaults.SetCore(&ab.Config, true, false)
 
-	pidRule := defaults.Rules{
-		FieldName: "username", Required: true,
-		MatchError: "Usernames must only start with letters, and contain letters and numbers",
-		MustMatch:  regexp.MustCompile(`(?i)[a-z][a-z0-9]?`),
-	}
+	// Overriding the default bodyreader and making lenient
 	emailRule := defaults.Rules{
 		FieldName: "email", Required: false,
 		MatchError: "Must be a valid e-mail address",
@@ -122,18 +126,18 @@ func setupAuthboss() *authboss.Authboss {
 	}
 	nameRule := defaults.Rules{
 		FieldName: "name", Required: false,
-		MinLength: 2,
+		AllowWhitespace: true,
+		MinLength:       2,
 	}
-
 	ab.Config.Core.BodyReader = defaults.HTTPBodyReader{
-		ReadJSON:    false,
-		UseUsername: true,
+		ReadJSON:    true,
+		UseUsername: false,
 		Rulesets: map[string][]defaults.Rules{
-			"login":    {pidRule},
-			"register": {pidRule, emailRule, passwordRule, nameRule},
+			"login":    {emailRule},
+			"register": {emailRule, passwordRule, nameRule},
 		},
-		Whitelist: map[string][]string{
-			"register": {"username", "email", "name", "password"},
+		Whitelist: map[string][]string{ // for arbitrary values to not get filtered
+			"register": {"email", "name"},
 		},
 	}
 

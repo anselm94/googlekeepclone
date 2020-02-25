@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"net/url"
 
 	"github.com/jinzhu/gorm"
 	"github.com/volatiletech/authboss"
@@ -14,12 +15,12 @@ type SQLiteStorer struct {
 
 func (s SQLiteStorer) Load(ctx context.Context, key string) (authboss.User, error) {
 	user := User{
-		ID: key,
+		ID: url.QueryEscape(key), // Encode the email to userID
 	}
 	if err := s.DB.First(&user).Error; err != nil {
-		return user, authboss.ErrUserNotFound
+		return &user, authboss.ErrUserNotFound
 	}
-	return user, nil
+	return &user, nil
 }
 
 func (s SQLiteStorer) Save(ctx context.Context, user authboss.User) error {
@@ -29,7 +30,7 @@ func (s SQLiteStorer) Save(ctx context.Context, user authboss.User) error {
 }
 
 func (s SQLiteStorer) New(ctx context.Context) authboss.User {
-	return User{
+	return &User{
 		ListMode: false,
 		DarkMode: false,
 	}
@@ -37,10 +38,11 @@ func (s SQLiteStorer) New(ctx context.Context) authboss.User {
 
 func (s SQLiteStorer) Create(ctx context.Context, user authboss.User) error {
 	existingUser := user.(*User)
-	if err := s.DB.First(&existingUser).Error; err != nil {
+	if err := s.DB.First(&existingUser).Error; err == nil {
 		return authboss.ErrUserFound
 	}
-	err := s.DB.Create(&user).Error
+	existingUser.ID = url.QueryEscape(existingUser.ID) // encode the email, so it can be saved as primary key
+	err := s.DB.Create(&existingUser).Error
 	return err
 }
 

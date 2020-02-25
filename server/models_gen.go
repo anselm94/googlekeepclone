@@ -51,40 +51,40 @@ type TodoAction struct {
 
 type User struct {
 	authboss.ArbitraryUser
-	ID       string `json:"id"`
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string
+	ID       string   `json:"id"`
+	Name     string   `json:"name"`
+	Email    string   `json:"email"`
+	Password string   `json:"password"`
 	ListMode bool     `json:"listMode"`
 	DarkMode bool     `json:"darkMode"`
 	Todos    []*Todo  `gorm:"foreignkey:UserID"` // has-many
 	Labels   []*Label `gorm:"foreignkey:UserID"` // has-many
 }
 
-func (u User) GetPID() string {
+func (u *User) GetPID() string {
 	return u.ID
 }
 
-func (u User) putPID(pid string) {
+func (u *User) PutPID(pid string) {
 	u.ID = pid
 }
 
-func (u User) GetPassword() string {
+func (u *User) GetPassword() string {
 	return u.Password
 }
 
-func (u User) PutPassword(password string) {
+func (u *User) PutPassword(password string) {
 	u.Password = password
 }
 
-func (u User) GetArbitrary() map[string]string {
+func (u *User) GetArbitrary() map[string]string {
 	return map[string]string{
 		"name":  u.Name,
 		"email": u.Email,
 	}
 }
 
-func (u User) PutArbitrary(values map[string]string) {
+func (u *User) PutArbitrary(values map[string]string) {
 	if name, ok := values["name"]; ok {
 		u.Name = name
 	}
@@ -93,7 +93,7 @@ func (u User) PutArbitrary(values map[string]string) {
 	}
 }
 
-func (u User) Validate() []error {
+func (u *User) Validate() []error {
 	return nil
 }
 

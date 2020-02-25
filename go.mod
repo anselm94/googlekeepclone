@@ -5,7 +5,7 @@ go 1.13
 require (
 	github.com/99designs/gqlgen v0.10.2
 	github.com/gorilla/mux v1.7.3
-	github.com/gorilla/sessions v1.2.0 // indirect
+	github.com/gorilla/sessions v1.2.0
 	github.com/gorilla/websocket v1.2.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/matoous/go-nanoid v1.1.0
