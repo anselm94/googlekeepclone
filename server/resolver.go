@@ -46,12 +46,16 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes [
 		userID := userID.(string)
 		newTodoID, _ := gonanoid.Nanoid(IDSize)
 		todo := Todo{
-			ID:             newTodoID,
-			Title:          title,
-			Color:          *color,
-			IsCheckboxMode: *isCheckboxMode,
-			UserID:         userID,
-			Notes:          make([]*Note, len(notes)),
+			ID:     newTodoID,
+			Title:  title,
+			UserID: userID,
+			Notes:  make([]*Note, len(notes)),
+		}
+		if color != nil {
+			todo.Color = *color
+		}
+		if isCheckboxMode != nil {
+			todo.IsCheckboxMode = *isCheckboxMode
 		}
 		for index, note := range notes {
 			newNoteID, _ := gonanoid.Nanoid(IDSize)
@@ -188,9 +192,13 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, listMode *bool, darkM
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		user := User{
-			ID:       userID,
-			ListMode: *listMode,
-			DarkMode: *darkMode,
+			ID: userID,
+		}
+		if listMode != nil {
+			user.ListMode = *listMode
+		}
+		if darkMode != nil {
+			user.DarkMode = *darkMode
 		}
 		if err := r.DB.Save(&user).Error; err != nil {
 			return nil, err
