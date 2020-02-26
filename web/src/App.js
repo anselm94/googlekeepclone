@@ -1,13 +1,10 @@
 import React from "react";
 import { Helmet } from "react-helmet";
-import Box from "@material-ui/core/Box";
-import Container from "@material-ui/core/Container";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import theme from "./theme";
-import AppBar from "./components/appbar/AppBar";
-import NavDrawer from "./components/navdrawer/NavDrawer";
-import NotesArea from "./components/mainarea/NotesArea";
+import Main from "./components/Main";
+import { Router } from "@reach/router";
 
 export default function App() {
   return (
@@ -21,13 +18,9 @@ export default function App() {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <AppBar />
-        <NavDrawer />
-        <Container maxWidth={false}>
-          <Box mt={8}>
-            <NotesArea />
-          </Box>
-        </Container>
+        <Router>
+          <Main path="/" />
+        </Router>
       </ThemeProvider>
     </>
   );
