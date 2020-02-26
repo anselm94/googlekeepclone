@@ -1,10 +1,11 @@
 import React from "react";
 import { Helmet } from "react-helmet";
+import { Router } from "@reach/router";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import theme from "./theme";
 import Main from "./components/Main";
-import { Router } from "@reach/router";
+import Login from "./components/Login";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <CssBaseline />
         <Router>
           <Main path="/" />
+          <Login path="/login" />
         </Router>
       </ThemeProvider>
     </>
