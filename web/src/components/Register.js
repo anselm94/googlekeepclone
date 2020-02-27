@@ -90,7 +90,7 @@ export default function () {
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Hello!</Typography>
                         <TextField InputLabelProps={inputLabelProps} InputProps={inputProps} label="Name" type="text" variant="outlined" fullWidth margin="normal" />
-                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Email" type="email" variant="outlined" helperText="Use any dummy email. We don't collect emails" fullWidth margin="normal" />
+                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Email" type="email" variant="outlined" helperText="Use any dummy email. I don't collect emails ;)" fullWidth margin="normal" />
                         <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Password" type="password" variant="outlined" fullWidth margin="normal" />
                         <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Confirm Password" type="password" variant="outlined" fullWidth margin="normal" />
                         <Button classes={{ root: classes.registerButtonRoot, label: classes.registerButtonText }} variant="contained" color="secondary" disableElevation fullWidth size="large">Register</Button>
