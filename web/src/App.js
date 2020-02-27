@@ -6,6 +6,7 @@ import ThemeProvider from "@material-ui/styles/ThemeProvider";
 import theme from "./theme";
 import Main from "./components/Main";
 import Login from "./components/Login";
+import Register from "./components/Register";
 
 export default function App() {
   return (
@@ -22,6 +23,7 @@ export default function App() {
         <Router>
           <Main path="/" />
           <Login path="/login" />
+          <Register path="/register" />
         </Router>
       </ThemeProvider>
     </>
