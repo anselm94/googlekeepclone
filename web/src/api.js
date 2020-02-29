@@ -3,7 +3,7 @@ import { useQuery } from 'urql';
 import { useCallback, useState } from 'react';
 import axios from "axios";
 
-const getTodos = gql`
+const getTodosAndLabels = gql`
     query GetTodos{
         todos {
             id
@@ -19,10 +19,14 @@ const getTodos = gql`
             color
             isCheckboxMode
         }
+        labels {
+            id
+            name
+        }
     }
 `
 
-const handleError = (queryResult, routerNavigateFn) => {
+const handleAuthError = (queryResult, routerNavigateFn) => {
     if (queryResult.error) {
         if (queryResult.error.message.includes("NotAuthenticated")) {
             routerNavigateFn("/login")
@@ -47,15 +51,15 @@ const useAppLogin = () => {
     return [isFetching, isSuccess, doLogin]
 }
 
-const useQueryTodos = () => {
+const useQueryTodosAndLabels = () => {
     const [result] = useQuery({
-        query: getTodos,
+        query: getTodosAndLabels,
     });
     return result;
 }
 
 export {
-    handleError,
+    handleAuthError,
     useAppLogin,
-    useQueryTodos
+    useQueryTodosAndLabels
 }

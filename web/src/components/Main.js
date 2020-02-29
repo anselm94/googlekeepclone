@@ -4,12 +4,14 @@ import NavDrawer from "./navdrawer/NavDrawer";
 import NotesArea from "./mainarea/NotesArea";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
-import { handleError, useQueryTodos } from "../api";
+import { handleAuthError, useQueryTodosAndLabels } from "../api";
 import { Backdrop, CircularProgress } from "@material-ui/core";
 import { useStoreActions } from "easy-peasy";
 
 export default function ({ navigate }) {
-    const result = useQueryTodos();
+    const result = useQueryTodosAndLabels();
+    const setNotesItems = useStoreActions(actions => actions.notes.setNotesItems);
+    const setLabelItems = useStoreActions(actions => actions.notes.setLabelItems);
     if (result.fetching) {
         return (
             <Backdrop open={true} >
@@ -17,11 +19,11 @@ export default function ({ navigate }) {
             </ Backdrop>
         )
     } else if (result.error) {
-        handleError(result, navigate);
+        handleAuthError(result, navigate);
         return (<></>)
     } else {
-        const setNotesItems = useStoreActions(actions => actions.notes.setNotesItems);
         setNotesItems(result.data.todos);
+        setLabelItems(result.data.labels);
         return (
             <>
                 <AppBar />

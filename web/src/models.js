@@ -8,26 +8,9 @@ const newItem = {
   isCheckboxMode: false
 };
 
-const notesItems = [{
-  id: "123",
-  title: "Things to fix",
-  notes: [
-    { text: "In Mobile Chrome,", isCompleted: false },
-    { text: "while in 'Offline' mode for any site,", isCompleted: false },
-    { text: "sharing to Whatsapp shares some file", isCompleted: false }
-  ],
-  labels: [{
-    id: 1,
-    name: Cache
-  }],
-  color: "",
-  isCheckboxMode: false
-}];
+const notesItems = [];
 
-const labelItems = [{
-  id: "1",
-  name: "Cache"
-}];
+const labelItems = [];
 
 const notesModel = {
   new: newItem,           // Holds the new Todo item
