@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function() {
+export default function () {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
@@ -60,31 +60,30 @@ export default function() {
   const numberOfColumns = is4K
     ? 8
     : isLaptopL
-    ? 4
-    : isLaptop
-    ? 3
-    : isTablet
-    ? 2
-    : 1;
+      ? 4
+      : isLaptop
+        ? 3
+        : isTablet
+          ? 2
+          : 1;
   var width = is4K
     ? "100%"
     : isLaptopL
-    ? "1000px"
-    : isLaptop
-    ? "730px"
-    : isTablet
-    ? "480px"
-    : "100%";
+      ? "1000px"
+      : isLaptop
+        ? "730px"
+        : isTablet
+          ? "480px"
+          : "100%";
   const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
   const isListView = !useStoreState(state => state.ui.isGridView);
-  const notesItems = useStoreState(state => state.notes.items);
+  const notesItems = useStoreState(state => state.notes.filteredItems);
   const noteInEditMode = useStoreState(state => state.notes.noteInEditMode);
   width = isListView
     ? isLaptop || isLaptopL
       ? theme.spacing(75)
       : "100%"
     : width;
-  const noteTexts = Object.keys(notesItems).map(id => notesItems[id]);
 
   return (
     <main>
@@ -105,7 +104,7 @@ export default function() {
             width: width
           }}
         >
-          {noteTexts.map(({ id, title, notes, labels, color, isCheckboxMode }) => {
+          {notesItems.map(({ id, title, notes, labels, color, isCheckboxMode }) => {
             return (
               <div
                 key={id}

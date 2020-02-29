@@ -37,16 +37,14 @@ export default function NavDrawer() {
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
   const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
   const labelItems = useStoreState(state => state.notes.labels);
-  const selectedLabelId = useStoreState(state => state.ui.selectedLabelId);
-  const setSelectedLabelId = useStoreActions(actions => actions.ui.setSelectedLabelId);
+  const selectedLabelId = useStoreState(state => state.notes.selectedLabelId);
+  const setSelectedLabelId = useStoreActions(actions => actions.notes.setSelectedLabelId);
   const toggleNavBar = useStoreActions(actions => actions.ui.toggleNavBar);
-  const filterNotesItemsByLabelId = useStoreActions(actions => actions.notes.filterNotesByLabelId);
 
   const onDrawerItemSelected = (labelId) => {
     setSelectedLabelId(labelId);
-    filterNotesItemsByLabelId(labelId);
   }
- 
+
   return (
     <Drawer
       variant={isMobile ? "temporary" : "persistent"}
