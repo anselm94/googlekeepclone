@@ -77,7 +77,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function LabelPopover({ id, anchorEl, selectedLabels = new Set(), isOpen, onClose }) {
+export default function LabelPopover({ id, anchorEl, selectedLabels = [], isOpen, onClose }) {
   const classes = useStyles();
   const theme = useTheme();
   const popoverId = isOpen ? "color-popover" : undefined;
@@ -85,19 +85,17 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = new Set(),
   const allLabelItems = useStoreState(state => state.notes.labels);
   const addLabel = useStoreActions(actions => actions.notes.addLabel);
   const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
-  const filteredLabelIds = Object.keys(allLabelItems).filter(labelId =>
-    allLabelItems[labelId].includes(newLabelName)
+  const filteredLabelItems = allLabelItems.filter(labelItem =>
+    newLabelName === "" || labelItem.name === newLabelName
   );
-  const filteredLabelItems =
-    newLabelName === ""
-      ? allLabelItems
-      : filteredLabelIds.reduce((filterLabels, labelId) => {
-          filterLabels[labelId] = allLabelItems[labelId];
-          return filterLabels;
-        }, {});
-  const updateLabelsForNote = (labelId) => {
-    selectedLabels.has(labelId) ? selectedLabels.delete(labelId) : selectedLabels.add(labelId);
-    updateNotesItem({id: id, key: "labels", value: selectedLabels});
+  const updateLabelsForNote = (labelItem) => {
+    const updatedLabelIndex = selectedLabels.findIndex(selectedLabel => selectedLabel.id === labelItem.id)
+    if (updatedLabelIndex > -1) {
+      selectedLabels.splice(updatedLabelIndex, 1);
+    } else {
+      selectedLabels.push(labelItem)
+    }
+    updateNotesItem({ id: id, key: "labels", value: selectedLabels });
   };
   return (
     <div>
@@ -135,18 +133,18 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = new Set(),
             </div>
           </div>
           <List dense={true} component="div" style={{ width: "100%" }}>
-            {Object.keys(filteredLabelItems).map(labelId => {
-              const labelAriaId = `checkbox-list-label-${labelId}`;
+            {filteredLabelItems.map(labelItem => {
+              const labelAriaId = `checkbox-list-label-${labelItem.id}`;
 
               return (
                 <ListItem
                   alignItems="flex-start"
-                  key={labelId}
+                  key={labelItem.id}
                   dense={true}
                   button={true}
                   disableGutters={true}
                   classes={{ root: classes.listItemIconRoot }}
-                  onClick={() => updateLabelsForNote(labelId)}
+                  onClick={() => updateLabelsForNote(labelItem)}
                 >
                   <ListItemIcon classes={{ root: classes.listItemIconRoot }}>
                     <Checkbox
@@ -155,18 +153,18 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = new Set(),
                       checkedIcon={<CheckboxIcon fontSize="small" />}
                       color="default"
                       disableRipple
-                      checked={selectedLabels.has(labelId)}
+                      checked={selectedLabels.some((label) => label.id === labelItem.id)}
                       inputProps={{ "aria-labelledby": labelAriaId }}
                       size="small"
                       classes={{ root: classes.checkboxRoot }}
                     />
                   </ListItemIcon>
-                  <ListItemText id={labelId} disableTypography>
+                  <ListItemText id={labelItem.id} disableTypography>
                     <Typography
                       variant="body1"
                       classes={{ root: classes.listItemText }}
                     >
-                      {filteredLabelItems[labelId]}
+                      {labelItem.name}
                     </Typography>
                   </ListItemText>
                 </ListItem>

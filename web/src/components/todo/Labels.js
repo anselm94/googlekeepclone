@@ -19,15 +19,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ labels = new Set() }) {
+export default function ({ labels = [] }) {
   const classes = useStyles();
-  const labelItems = useStoreState(state => state.notes.labels);
 
   return (
     <div className={classes.labelsWrapper}>
-      {[...labels].map(id => (
-        <div key={id} className={classes.labelWrapper}>
-          <Chip label={labelItems[id]} size="small" classes={{root: classes.label}} />
+      {labels.map(labelItem => (
+        <div key={labelItem.id} className={classes.labelWrapper}>
+          <Chip label={labelItem.name} size="small" classes={{ root: classes.label }} />
         </div>
       ))}
     </div>

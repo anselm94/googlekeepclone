@@ -3,7 +3,7 @@ import { action, thunk, computed } from "easy-peasy";
 const newItem = {
   title: "",
   notes: [{ text: "", isCompleted: false }],
-  labels: new Set(),
+  labels: [],
   color: "",
   isCheckboxMode: false
 };
@@ -16,14 +16,18 @@ const notesItems = [{
     { text: "while in 'Offline' mode for any site,", isCompleted: false },
     { text: "sharing to Whatsapp shares some file", isCompleted: false }
   ],
-  labels: new Set(["1"]),
+  labels: [{
+    id: 1,
+    name: Cache
+  }],
   color: "",
   isCheckboxMode: false
 }];
 
-const labelItems = {
-  "1": "Cache",
-};
+const labelItems = [{
+  id: "1",
+  name: "Cache"
+}];
 
 const notesModel = {
   new: newItem,           // Holds the new Todo item
@@ -33,8 +37,8 @@ const notesModel = {
   selectedLabelId: "",      // Holds the id of the Label selected
   filteredItems: computed(state => { // Computed property holds the filtered items
     return state.items.filter(item => {
-      if (state.selectedLabel != "") {
-        return item.labels.has(state.selectedLabel);
+      if (state.selectedLabelId !== "") {
+        return item.labels.some((labelItem) => labelItem.id === state.selectedLabelId);
       } else {
         return true;
       }
@@ -69,9 +73,9 @@ const notesModel = {
       state.noteInEditMode = "";
     }
   }),
-  setSelectedLabelId: action(
-    (state, payload) => (state.selectedLabelId = payload)
-  ),
+  setSelectedLabelId: action((state, payload) => {
+    state.selectedLabelId = payload
+  }),
   resetNewItem: action(state => {
     state.new = newItem;
   }),

@@ -4,13 +4,30 @@ import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 import appModel from "./models";
 import { createStore, StoreProvider } from "easy-peasy";
+import { Provider as UrqlProvider, createClient, defaultExchanges, subscriptionExchange } from 'urql';
+import { SubscriptionClient } from 'subscriptions-transport-ws';
 
 const store = createStore(appModel);
+const subscriptionClient = new SubscriptionClient(
+  'ws://localhost:3001/query',
+  {}
+);
+const gqlclient = createClient({
+  url: "/query",
+  exchanges: [
+    ...defaultExchanges,
+    subscriptionExchange({
+      forwardSubscription: operation => subscriptionClient.request(operation)
+    })
+  ]
+})
 
 ReactDOM.render(
-  <StoreProvider store={store}>
-    <App />
-  </StoreProvider>,
+  <UrqlProvider value={gqlclient}>
+    <StoreProvider store={store}>
+      <App />
+    </StoreProvider>
+  </UrqlProvider>,
   document.getElementById("root")
 );
 

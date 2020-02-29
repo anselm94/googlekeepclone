@@ -39,7 +39,7 @@ func main() {
 
 	ab := setupAuthboss()
 
-	handlerAuth := func(h http.Handler) http.Handler {
+	handlerUserContext := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			ctx := r.Context()
 			userID, _ := ab.CurrentUserID(r)
@@ -71,7 +71,7 @@ func main() {
 	)
 
 	router := mux.NewRouter()
-	router.Use(handlerCors, ab.LoadClientStateMiddleware, handlerAuth)
+	router.Use(handlerCors, ab.LoadClientStateMiddleware, handlerUserContext)
 	router.Path("/playground").Handler(handler.Playground("Playground", "/query"))
 	router.PathPrefix("/query").Handler(handlerGraphQL)
 	router.PathPrefix("/auth").Handler(http.StripPrefix("/auth", ab.Config.Core.Router))
@@ -110,9 +110,11 @@ func setupAuthboss() *authboss.Authboss {
 	ab.Config.Storage.CookieState = cookieStore
 	ab.Config.Core.ViewRenderer = defaults.JSONRenderer{}
 
-	ab.Config.Modules.ResponseOnUnauthed = authboss.RespondRedirect
-
 	defaults.SetCore(&ab.Config, true, false)
+
+	redirector := defaults.NewRedirector(ab.Config.Core.ViewRenderer, authboss.FormValueRedirect)
+	redirector.CorceRedirectTo200 = true // Since using in API mode, map redirects to API
+	ab.Config.Core.Redirector = redirector
 
 	// Overriding the default bodyreader and making lenient
 	emailRule := defaults.Rules{

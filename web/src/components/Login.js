@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "@material-ui/core/Container";
 import { Paper, TextField, Box, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link } from "@reach/router";
+import { Link, navigate } from "@reach/router";
+import { useAppLogin } from "../api";
 
 const useStyles = makeStyles(theme => ({
     pageWrapper: {
@@ -67,8 +68,11 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function () {
+export default function ({ navigate }) {
     const classes = useStyles();
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [attempted, setAttempted] = useState(false);
     const inputProps = {
         classes: {
             root: classes.inputRoot,
@@ -82,21 +86,37 @@ export default function () {
             focused: classes.inputFocused
         }
     }
-    return (
-        <div className={classes.pageWrapper}>
-            <Container maxWidth="xs" className={classes.pageContainer}>
-                <Paper elevation={3}>
-                    <Box className={classes.boxWrapper} p={3}>
-                        <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
-                        <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Welcome back!</Typography>
-                        <TextField InputLabelProps={inputLabelProps} InputProps={inputProps} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
-                        <TextField InputLabelProps={inputLabelProps} InputProps={inputProps} label="Password" type="password" variant="outlined" fullWidth margin="normal" />
-                        <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
-                    </Box>
-                </Paper>
-                <Typography className={classes.textRegisterText} color="textSecondary" variant="body2">Don't have an account? <Link className={classes.textRegister} to="/register">Register</Link></Typography>
-            </Container>
-            <Typography className={classes.textAttribution} color="textSecondary" variant="body2">Created by <a className={classes.textCreator} href="https://github.com/anselm94">Merbin J Anselm</a></Typography>
-        </div>
-    )
+    const [isFetching, isSuccess, doLogin] = useAppLogin()
+    const onLoginPress = () => {
+        setAttempted(true)
+        doLogin(email, password);
+    }
+    const onEmailChange = event => {
+        setEmail(event.target.value);
+    };
+    const onPasswordChange = event => {
+        setPassword(event.target.value);
+    };
+    if (isSuccess) {
+        navigate("/");
+        return (<></>)
+    } else {
+        return (
+            <div className={classes.pageWrapper}>
+                <Container maxWidth="xs" className={classes.pageContainer}>
+                    <Paper elevation={3}>
+                        <Box className={classes.boxWrapper} p={3}>
+                            <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
+                            <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Welcome back!</Typography>
+                            <TextField error={!isSuccess && attempted && !isFetching} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={onEmailChange} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
+                            <TextField error={!isSuccess && attempted && !isFetching} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={onPasswordChange} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={(!isSuccess && attempted) ? "Email or Password is wrong" : undefined} />
+                            <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} disabled={isFetching || email === "" || password === ""} onClick={onLoginPress} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
+                        </Box>
+                    </Paper>
+                    <Typography className={classes.textRegisterText} color="textSecondary" variant="body2">Don't have an account? <Link className={classes.textRegister} to="/register">Register</Link></Typography>
+                </Container>
+                <Typography className={classes.textAttribution} color="textSecondary" variant="body2">Created by <a className={classes.textCreator} href="https://github.com/anselm94">Merbin J Anselm</a></Typography>
+            </div>
+        )
+    }
 }

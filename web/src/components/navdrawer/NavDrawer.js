@@ -72,13 +72,13 @@ export default function NavDrawer() {
         </Typography>
       </div>
       <List>
-        {Object.keys(labelItems).map(labelId => (
+        {labelItems.map(labelItem => (
           <DrawerItem
-            key={labelId}
-            text={labelItems[labelId]}
+            key={labelItem.id}
+            text={labelItem.name}
             icon={<LabelIcon />}
-            isSelected={selectedLabelId === labelId}
-            onClick={() => onDrawerItemSelected(labelId)}
+            isSelected={selectedLabelId === labelItem.id}
+            onClick={() => onDrawerItemSelected(labelItem.id)}
           />
         ))}
       </List>
