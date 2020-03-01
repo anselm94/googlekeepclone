@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { useQuery } from 'urql';
+import { useQuery, useSubscription } from 'urql';
 import { useCallback, useState } from 'react';
 import axios from "axios";
 
@@ -31,6 +31,41 @@ const getTodosAndLabels = gql`
         }
     }
 `
+
+const subscribeTodos = gql`
+    subscription SubcribeTodos{
+        todoStream {
+            action
+            todo {
+            id
+            title
+            notes {
+                text
+                isCompleted
+            }
+            labels {
+                id
+                name
+            }
+            color
+            isCheckboxMode
+            }
+        }
+    }
+`
+
+const subscribeLabels = gql`
+    subscription SubcribeLabels{
+        labelStream {
+            action
+            label {
+                id
+                name
+            }
+        }
+    }
+`
+
 
 const handleAuthError = (queryResult, routerNavigateFn) => {
     if (queryResult.error) {
@@ -96,10 +131,62 @@ const useQueryTodosAndLabels = () => {
     return result;
 }
 
+const useSubscribeTodos = (todoAddedFn, todoDeletedFn, todoUpdatedFn) => {
+    const subscriptionCallback = useCallback((_, data) => {
+        if (!data.todoStream) {
+            return
+        }
+        const todoItem = data.todoStream.todo;
+        switch (data.todoStream.action) {
+            case "CREATED":
+                todoAddedFn(todoItem);
+                break;
+            case "DELETED":
+                todoDeletedFn(todoItem);
+                break;
+            case "UPDATED":
+                todoUpdatedFn(todoItem);
+                break;
+            default:
+        }
+    }, [todoAddedFn, todoDeletedFn, todoUpdatedFn]);
+    const [result] = useSubscription({
+        query: subscribeTodos,
+    }, subscriptionCallback);
+    return result;
+}
+
+const useSubscribeLabels = (labelAddedFn, labelDeletedFn, labelUpdatedFn) => {
+    const subscriptionCallback = useCallback((_, data) => {
+        if (!data.labelStream) {
+            return
+        }
+        const labelItem = data.labelStream.todo;
+        switch (data.labelStream.action) {
+            case "CREATED":
+                labelAddedFn(labelItem);
+                break;
+            case "DELETED":
+                labelDeletedFn(labelItem);
+                break;
+            case "UPDATED":
+                labelUpdatedFn(labelItem);
+                break;
+            default:
+        }
+    }, [labelAddedFn, labelDeletedFn, labelUpdatedFn]);
+    const [result] = useSubscription({
+        query: subscribeLabels,
+    }, subscriptionCallback);
+    return result;
+}
+
 export {
     handleAuthError,
     useAppLogin,
     useAppLogout,
     useAppRegister,
-    useQueryTodosAndLabels
+    useQueryTodosAndLabels,
+    useSubscribeTodos,
+    useSubscribeLabels
 }

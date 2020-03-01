@@ -4,7 +4,7 @@ import NavDrawer from "./navdrawer/NavDrawer";
 import NotesArea from "./mainarea/NotesArea";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
-import { handleAuthError, useQueryTodosAndLabels } from "../api";
+import { handleAuthError, useQueryTodosAndLabels, useSubscribeLabels, useSubscribeTodos } from "../api";
 import { Backdrop, CircularProgress } from "@material-ui/core";
 import { useStoreActions } from "easy-peasy";
 
@@ -33,6 +33,14 @@ export default function ({ navigate }) {
 }
 
 function MainComponent() {
+    const addNoteItem = useStoreActions(actions => actions.notes.addNoteItem);
+    const deleteNoteItem = useStoreActions(actions => actions.notes.deleteNoteItem);
+    const updateNoteItem = useStoreActions(actions => actions.notes.updateNoteItem);
+    const addLabelItem = useStoreActions(actions => actions.notes.addLabelItem);
+    const deleteLabelItem = useStoreActions(actions => actions.notes.deleteLabelItem);
+    const updateLabelItem = useStoreActions(actions => actions.notes.updateLabelItem);
+    useSubscribeTodos(addNoteItem, deleteNoteItem, updateNoteItem);
+    useSubscribeLabels(addLabelItem, deleteLabelItem, updateLabelItem);
     return (
         <>
             <AppBar />

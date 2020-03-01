@@ -30,8 +30,30 @@ const notesModel = {
   setNotesItems: action((state, allNotesItems) => {
     state.items = allNotesItems;
   }),
-  setNoteItem: action((state, noteItem) => {
-    state.items[noteItem.id] = noteItem;
+  addNoteItem: action((state, noteItem) => {
+    state.items.push(noteItem);
+  }),
+  deleteNoteItem: action((state, id) => {
+    const deleteIndex = state.items.findIndex((item) => item.id === id);
+    state.items.splice(deleteIndex, 1);
+  }),
+  updateNoteItem: action((state, updatedItem) => {
+    const updateIndex = state.items.findIndex((item) => item.id === updatedItem.id);
+    state.items[updateIndex] = updatedItem;
+  }),
+  setLabelItems: action((state, allLabelItems) => {
+    state.labels = allLabelItems;
+  }),
+  addLabelItem: action((state, labelItem) => {
+    state.labels.push(labelItem);
+  }),
+  deleteLabelItem: action((state, id) => {
+    const deleteIndex = state.labels.findIndex((label) => label.id === id);
+    state.labels.splice(deleteIndex, 1);
+  }),
+  updateLabelItem: action((state, updatedLabel) => {
+    const updateIndex = state.labels.findIndex((label) => label.id === updatedLabel.id);
+    state.labels[updateIndex] = updatedLabel;
   }),
   updateNotesItem: action((state, { id, key, value }) => {
     if (id) {
@@ -45,9 +67,6 @@ const notesModel = {
       updatedNew[key] = value;
       state.new = updatedNew;
     }
-  }),
-  setLabelItems: action((state, allLabelItems) => {
-    state.labels = allLabelItems;
   }),
   setNoteInEditMode: action((state, noteId) => {
     if (noteId) {
@@ -76,14 +95,14 @@ const notesModel = {
       const newId = Math.random();
       noteItem.id = newId;
       actions.resetNewItem();
-      actions.setNoteItem(noteItem);
+      // actions.setNoteItem(noteItem);
     }
   }),
   copyNote: thunk(async (actions, id) => {
     const copiedNote = Object.assign({}, notesItems[id]);
     const newId = Math.random();
     copiedNote.id = newId;
-    actions.setNoteItem(copiedNote);
+    // actions.setNoteItem(copiedNote);
   }),
   deleteNote: thunk(async (actions, id) => {
     delete notesItems[id];
