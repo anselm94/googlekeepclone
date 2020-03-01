@@ -1,5 +1,5 @@
 import gql from 'graphql-tag';
-import { useQuery, useSubscription } from 'urql';
+import { useQuery, useSubscription, useMutation } from 'urql';
 import { useCallback, useState } from 'react';
 import axios from "axios";
 
@@ -29,6 +29,15 @@ const getTodosAndLabels = gql`
             listMode
             darkMode
         }
+    }
+`
+
+const createLabel = gql`
+    mutation CreateLabel ($name: String!) {
+        createLabel (name: $name) {
+            id
+            name
+        } 
     }
 `
 
@@ -131,6 +140,11 @@ const useQueryTodosAndLabels = () => {
     return result;
 }
 
+const useMutateCreateLabel = () => {
+    const [, addLabel] = useMutation(createLabel);
+    return addLabel;
+}
+
 const useSubscribeTodos = (todoAddedFn, todoDeletedFn, todoUpdatedFn) => {
     const subscriptionCallback = useCallback((_, data) => {
         if (!data || !data.todoStream) {
@@ -187,6 +201,7 @@ export {
     useAppLogout,
     useAppRegister,
     useQueryTodosAndLabels,
+    useMutateCreateLabel,
     useSubscribeTodos,
     useSubscribeLabels
 }

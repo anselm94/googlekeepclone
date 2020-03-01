@@ -20,6 +20,7 @@ import {
   SearchOutlined as SearchIcon
 } from "@material-ui/icons";
 import { useStoreState } from "easy-peasy";
+import { useMutateCreateLabel } from "../../api";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -86,6 +87,7 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
   const filteredLabelItems = allLabelItems.filter(labelItem =>
     newLabelName === "" || labelItem.name.includes(newLabelName)
   );
+  const addLabel = useMutateCreateLabel();
   const updateLabelsForNote = (labelItem) => {
     const updatedLabelIndex = labels.findIndex(selectedLabel => selectedLabel.id === labelItem.id);
     if (updatedLabelIndex > -1) {
@@ -95,6 +97,10 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
     }
     setLabels(Object.assign([], labels));
   };
+  const createLabel = () => {
+    addLabel({ name: newLabelName });
+    setNewLabelName("");
+  }
   return (
     <div>
       <Popover
@@ -172,7 +178,7 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
           {newLabelName !== "" ? (
             <>
               <Divider />
-              <Button size="small" classes={{ root: classes.footer }} onClick={() => alert(newLabelName)}>
+              <Button size="small" classes={{ root: classes.footer }} onClick={() => createLabel()}>
                 <AddIcon fontSize="small" />
                 <Typography classes={{ root: classes.footerText }}>
                   Create "<b>{newLabelName}</b>"
