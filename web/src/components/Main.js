@@ -12,6 +12,8 @@ export default function ({ navigate }) {
     const result = useQueryTodosAndLabels();
     const setNotesItems = useStoreActions(actions => actions.notes.setNotesItems);
     const setLabelItems = useStoreActions(actions => actions.notes.setLabelItems);
+    const setNameAndEmail = useStoreActions(actions => actions.user.setNameAndEmail);
+    const setSettings = useStoreActions(actions => actions.ui.setSettings);
     if (result.fetching) {
         return (
             <Backdrop open={true} >
@@ -24,16 +26,22 @@ export default function ({ navigate }) {
     } else {
         setNotesItems(result.data.todos);
         setLabelItems(result.data.labels);
-        return (
-            <>
-                <AppBar />
-                <NavDrawer />
-                <Container maxWidth={false}>
-                    <Box mt={8}>
-                        <NotesArea />
-                    </Box>
-                </Container>
-            </>
-        )
+        setNameAndEmail(result.data.user);
+        setSettings(result.data.user);
+        return (<MainComponent />)
     }
+}
+
+function MainComponent() {
+    return (
+        <>
+            <AppBar />
+            <NavDrawer />
+            <Container maxWidth={false}>
+                <Box mt={8}>
+                    <NotesArea />
+                </Box>
+            </Container>
+        </>
+    )
 }

@@ -1,6 +1,12 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { Popover, Typography, Avatar, Divider, Button } from "@material-ui/core";
+import {
+  FaceOutlined as FaceIcon,
+} from "@material-ui/icons";
+import { useStoreState } from "easy-peasy";
+import { useAppLogout } from "../../api";
+import { useNavigate } from "@reach/router";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -14,9 +20,10 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center"
   },
   avatar: {
-    width: theme.spacing(10),
-    height: theme.spacing(10),
-    margin: theme.spacing(1)
+    width: theme.spacing(6),
+    height: theme.spacing(6),
+    margin: theme.spacing(1),
+    background: theme.palette.background.default
   },
   userInfo: {
     display: "flex",
@@ -28,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     ...theme.custom.fontFamily.metropolis,
     fontSize: "1rem",
     fontWeight: 500
-  }, 
+  },
   userEmail: {
     ...theme.custom.fontFamily.roboto,
     fontSize: "0.9rem",
@@ -52,6 +59,15 @@ const useStyles = makeStyles(theme => ({
 export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
   const classes = useStyles();
   const id = isOpen ? "profile-popover" : undefined;
+  const userName = useStoreState(state => state.user.userName);
+  const userEmail = useStoreState(state => state.user.userEmail);
+  const navigate = useNavigate();
+  const [isLoggingOut, isSuccess, doLogout] = useAppLogout();
+
+  if (isSuccess) {
+    navigate("/login");
+    return (<></>);
+  }
 
   return (
     <div>
@@ -75,21 +91,22 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
         <div className={classes.container}>
           <Avatar
             alt="Merbin J Anselm"
-            src="https://lh3.googleusercontent.com/-YnIFxRVf-Kc/AAAAAAAAAAI/AAAAAAAAAAA/ACHi3rfQhyNIh4WKlkTmRVl1PlQX63Ma9g.CMID/s96-c/photo.jpg"
             className={classes.avatar}
-          />
+          >
+            <FaceIcon fontSize="large" color="action" />
+          </Avatar>
           <div className={classes.userInfo}>
             <Typography className={classes.userName} variant="h6" component="span" color="textPrimary">
-              Merbin J Anselm
+              {userName}
             </Typography>
             <Typography className={classes.userEmail} variant="body1" component="span" color="textSecondary">
-              merbinjanselm@gmail.com
+              {userEmail}
             </Typography>
           </div>
         </div>
-        <Divider/>
+        <Divider />
         <div className={classes.bar}>
-          <Button variant="outlined" size="small" classes={{root: classes.buttonSignout}}>Sign out</Button>
+          <Button disabled={isLoggingOut} variant="outlined" size="small" onClick={doLogout} classes={{ root: classes.buttonSignout }}>Sign out</Button>
         </div>
       </Popover>
     </div>

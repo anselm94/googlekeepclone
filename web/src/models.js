@@ -98,13 +98,21 @@ const notesModel = {
 const userModel = {
   isLoggedIn: true,
   userName: "",
-  userEmail: ""
+  userEmail: "",
+  setNameAndEmail: action((state, payload) => {
+    state.userName = payload.name;
+    state.userEmail = payload.email;
+  })
 };
 
 const uiModel = {
   isDarkMode: false,
   isNavBarOpen: true,
   isGridView: true,
+  setSettings: action((state, payload) => {
+    state.isDarkMode = payload.darkMode;
+    state.isGridView = !payload.listMode;
+  }),
   toggleNavBar: action(state => (state.isNavBarOpen = !state.isNavBarOpen)),
   toggleDarkMode: action(state => (state.isDarkMode = !state.isDarkMode)),
   toggleView: action(state => (state.isGridView = !state.isGridView))

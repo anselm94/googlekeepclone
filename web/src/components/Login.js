@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Container from "@material-ui/core/Container";
 import { Paper, TextField, Box, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
-import { Link, navigate } from "@reach/router";
+import { Link } from "@reach/router";
 import { useAppLogin } from "../api";
 
 const useStyles = makeStyles(theme => ({

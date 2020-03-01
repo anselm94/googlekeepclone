@@ -112,6 +112,8 @@ func setupAuthboss() *authboss.Authboss {
 
 	defaults.SetCore(&ab.Config, true, false)
 
+	ab.Config.Modules.LogoutMethod = "POST"
+
 	redirector := defaults.NewRedirector(ab.Config.Core.ViewRenderer, authboss.FormValueRedirect)
 	redirector.CorceRedirectTo200 = true // Since using in API mode, map redirects to API
 	ab.Config.Core.Redirector = redirector

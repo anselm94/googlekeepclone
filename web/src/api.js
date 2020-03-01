@@ -23,6 +23,12 @@ const getTodosAndLabels = gql`
             id
             name
         }
+        user {
+            name
+            email
+            listMode
+            darkMode
+        }
     }
 `
 
@@ -47,8 +53,40 @@ const useAppLogin = () => {
         })
         setSuccess(success)
         setIsFetching(false)
-    })
+    }, [setSuccess, setIsFetching])
     return [isFetching, isSuccess, doLogin]
+}
+
+const useAppLogout = () => {
+    const [isFetching, setIsFetching] = useState(false)
+    const [isSuccess, setSuccess] = useState(false);
+    const doLogout = useCallback(async () => {
+        setIsFetching(true);
+        const success = await axios.post("/auth/logout", {}).then((data) => {
+            return data.data.status === "success"
+        })
+        setSuccess(success)
+        setIsFetching(false)
+    }, [setSuccess, setIsFetching])
+    return [isFetching, isSuccess, doLogout]
+}
+
+const useAppRegister = () => {
+    const [isFetching, setIsFetching] = useState(false)
+    const [isSuccess, setSuccess] = useState(false);
+    const doRegister = useCallback(async (name, email, password) => {
+        setIsFetching(true);
+        const success = await axios.post("/auth/register", {
+            name,
+            email,
+            password
+        }).then((data) => {
+            return data.data.status === "success"
+        })
+        setSuccess(success)
+        setIsFetching(false)
+    }, [setSuccess, setIsFetching])
+    return [isFetching, isSuccess, doRegister]
 }
 
 const useQueryTodosAndLabels = () => {
@@ -61,5 +99,7 @@ const useQueryTodosAndLabels = () => {
 export {
     handleAuthError,
     useAppLogin,
+    useAppLogout,
+    useAppRegister,
     useQueryTodosAndLabels
 }

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Helmet } from "react-helmet";
 import { Router } from "@reach/router";
 import CssBaseline from "@material-ui/core/CssBaseline";
