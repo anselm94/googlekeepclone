@@ -133,7 +133,7 @@ const useQueryTodosAndLabels = () => {
 
 const useSubscribeTodos = (todoAddedFn, todoDeletedFn, todoUpdatedFn) => {
     const subscriptionCallback = useCallback((_, data) => {
-        if (!data.todoStream) {
+        if (!data || !data.todoStream) {
             return
         }
         const todoItem = data.todoStream.todo;
@@ -158,10 +158,10 @@ const useSubscribeTodos = (todoAddedFn, todoDeletedFn, todoUpdatedFn) => {
 
 const useSubscribeLabels = (labelAddedFn, labelDeletedFn, labelUpdatedFn) => {
     const subscriptionCallback = useCallback((_, data) => {
-        if (!data.labelStream) {
+        if (!data || !data.labelStream) {
             return
         }
-        const labelItem = data.labelStream.todo;
+        const labelItem = data.labelStream.label;
         switch (data.labelStream.action) {
             case "CREATED":
                 labelAddedFn(labelItem);
