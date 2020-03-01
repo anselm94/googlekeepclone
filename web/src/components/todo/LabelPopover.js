@@ -86,7 +86,7 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = [], isOpen
   const addLabel = useStoreActions(actions => actions.notes.addLabel);
   const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
   const filteredLabelItems = allLabelItems.filter(labelItem =>
-    newLabelName === "" || labelItem.name === newLabelName
+    newLabelName === "" || labelItem.name.includes(newLabelName)
   );
   const updateLabelsForNote = (labelItem) => {
     const updatedLabelIndex = selectedLabels.findIndex(selectedLabel => selectedLabel.id === labelItem.id)
