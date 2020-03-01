@@ -32,16 +32,13 @@ const useStyles = makeStyles(theme => ({
   barClose: {}
 }));
 
-export default function({ id, isCreateMode, isCheckboxMode, labels }) {
+export default function ({ id, labels, setLabels, color, setColor, setCheckboxMode, isCreateMode, isCheckboxMode }) {
   const classes = useStyles();
   const theme = useTheme();
   const refActionColor = useRef();
   const refActionLabel = useRef();
   const [isColorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [isLabelPopoverOpen, setLabelPopoverOpen] = useState(false);
-  const updateNotesItem = useStoreActions(
-    actions => actions.notes.updateNotesItem
-  );
   const copyNote = useStoreActions(actions => actions.notes.copyNote);
   const deleteNote = useStoreActions(actions => actions.notes.deleteNote);
 
@@ -68,13 +65,7 @@ export default function({ id, isCreateMode, isCheckboxMode, labels }) {
             <IconButton
               size="small"
               aria-label="show checkboxes"
-              onClick={() =>
-                updateNotesItem({
-                  id: id,
-                  key: "isCheckboxMode",
-                  value: !isCheckboxMode
-                })
-              }
+              onClick={() => setCheckboxMode(!isCheckboxMode)}
             >
               {isCheckboxMode ? (
                 <HideCheckBoxIcon
@@ -82,11 +73,11 @@ export default function({ id, isCreateMode, isCheckboxMode, labels }) {
                   fontSize="small"
                 />
               ) : (
-                <CheckBoxIcon
-                  htmlColor={theme.custom.palette.iconHighlight}
-                  fontSize="small"
-                />
-              )}
+                  <CheckBoxIcon
+                    htmlColor={theme.custom.palette.iconHighlight}
+                    fontSize="small"
+                  />
+                )}
             </IconButton>
           </Tooltip>
         </div>
@@ -143,15 +134,14 @@ export default function({ id, isCreateMode, isCheckboxMode, labels }) {
         anchorEl={refActionColor.current}
         isOpen={isColorPopoverOpen}
         onClose={() => setColorPopoverOpen(false)}
-        onColorSelect={color =>
-          updateNotesItem({ id: id, key: "color", value: color })
-        }
+        currentColor={color}
+        onColorSelect={color => setColor(color)}
       />
       <LabelPopover
-        id={id}
         anchorEl={refActionLabel.current}
         isOpen={isLabelPopoverOpen}
-        selectedLabels={labels}
+        setLabels={setLabels}
+        labels={labels}
         onClose={() => setLabelPopoverOpen(false)}
       />
     </>

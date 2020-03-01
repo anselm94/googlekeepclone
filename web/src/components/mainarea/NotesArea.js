@@ -104,21 +104,16 @@ export default function () {
             width: width
           }}
         >
-          {notesItems.map(({ id, title, notes, labels, color, isCheckboxMode }) => {
+          {notesItems.map((noteItem) => {
             return (
               <div
-                key={id}
+                key={noteItem.id}
                 className={classes.todoWrapper}
                 style={{ width: isMobile || isListView ? "100%" : null }}
               >
                 <TodoItem
-                  id={id}
-                  title={title}
-                  notes={notes}
-                  labels={labels}
-                  color={color}
-                  isCheckboxMode={isCheckboxMode}
-                  isEditMode={id === noteInEditMode}
+                  noteItem={noteItem}
+                  isEditMode={noteInEditMode === noteItem.id}
                 />
               </div>
             );

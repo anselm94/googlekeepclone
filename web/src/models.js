@@ -8,14 +8,10 @@ const newItem = {
   isCheckboxMode: false
 };
 
-const notesItems = [];
-
-const labelItems = [];
-
 const notesModel = {
   new: newItem,           // Holds the new Todo item
-  items: notesItems,      // Holds the Todo items
-  labels: labelItems,     // Holds all the Label items
+  items: [],      // Holds the Todo items
+  labels: [],     // Holds all the Label items
   noteInEditMode: "",     // Holds the id of Todo item, which is in edit mode
   selectedLabelId: "",      // Holds the id of the Label selected
   filteredItems: computed(state => { // Computed property holds the filtered items
@@ -55,63 +51,15 @@ const notesModel = {
     const updateIndex = state.labels.findIndex((label) => label.id === updatedLabel.id);
     state.labels[updateIndex] = updatedLabel;
   }),
-  updateNotesItem: action((state, { id, key, value }) => {
-    if (id) {
-      // update the existing item
-      const updatedNote = Object.assign({}, state.items[id]);
-      updatedNote[key] = value;
-      state.items[id] = updatedNote;
-    } else {
-      // update the new item
-      const updatedNew = Object.assign({}, state.new);
-      updatedNew[key] = value;
-      state.new = updatedNew;
-    }
-  }),
   setNoteInEditMode: action((state, noteId) => {
-    if (noteId) {
-      state.noteInEditMode = noteId;
-    } else {
-      state.noteInEditMode = "";
-    }
+    state.noteInEditMode = noteId || "";
   }),
   setSelectedLabelId: action((state, payload) => {
     state.selectedLabelId = payload
   }),
-  resetNewItem: action(state => {
-    state.new = newItem;
-  }),
-  refresh: thunk(async actions => {
-    actions.setNotesItems(notesItems);
-  }),
   search: thunk(async (actions, searchTerm) => {
 
   }),
-  createNote: thunk(async (actions, noteItem) => {
-    if (
-      (noteItem.notes.length > 0 && noteItem.notes[0].text) ||
-      noteItem.title
-    ) {
-      const newId = Math.random();
-      noteItem.id = newId;
-      actions.resetNewItem();
-      // actions.setNoteItem(noteItem);
-    }
-  }),
-  copyNote: thunk(async (actions, id) => {
-    const copiedNote = Object.assign({}, notesItems[id]);
-    const newId = Math.random();
-    copiedNote.id = newId;
-    // actions.setNoteItem(copiedNote);
-  }),
-  deleteNote: thunk(async (actions, id) => {
-    delete notesItems[id];
-    actions.setNotesItems(Object.assign({}, notesItems));
-  }),
-  addLabel: thunk(async (actions, labelText) => {
-    labelItems[Math.random()] = labelText;
-    actions.setLabelItems(labelItems);
-  })
 };
 
 const userModel = {

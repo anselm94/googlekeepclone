@@ -36,6 +36,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ColorPopover({
   anchorEl,
+  currentColor,
   isOpen,
   onClose,
   onColorSelect
@@ -43,9 +44,7 @@ export default function ColorPopover({
   const classes = useStyles();
   const theme = useTheme();
   const id = isOpen ? "color-popover" : undefined;
-  const [selectedColor, setSelectedColor] = useState(
-    theme.custom.palette.noteBackground[0]
-  );
+  const [selectedColor, setSelectedColor] = useState(currentColor);
 
   const onSelectColor = color => {
     setSelectedColor(color);

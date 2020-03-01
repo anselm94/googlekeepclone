@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/styles";
 import { InputBase, Typography } from "@material-ui/core";
-import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   inputTitleRoot: {
@@ -28,9 +27,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ id, title, isEditMode }) {
+export default function ({ title, setTitle, isEditMode }) {
   const classes = useStyles();
-  const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
 
   return (
     <>
@@ -44,13 +42,13 @@ export default function({ id, title, isEditMode }) {
           inputProps={{ "aria-label": "note title" }}
           value={title}
           multiline={true}
-          onChange={(event) => updateNotesItem({id: id, key: "title", value: event.target.value})}
+          onChange={(event) => setTitle(event.target.value)}
         />
       ) : (
-        <Typography className={classes.textTitle} variant="subtitle1">
-          {title}
-        </Typography>
-      )}
+          <Typography className={classes.textTitle} variant="subtitle1">
+            {title}
+          </Typography>
+        )}
     </>
   );
 }

@@ -90,7 +90,7 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
       >
         <div className={classes.container}>
           <Avatar
-            alt="Merbin J Anselm"
+            alt={userName}
             className={classes.avatar}
           >
             <FaceIcon fontSize="large" color="action" />

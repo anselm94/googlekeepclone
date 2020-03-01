@@ -1,7 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import { InputBase, Typography } from "@material-ui/core";
-import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -29,30 +28,25 @@ const useStyles = makeStyles(theme => ({
     padding: 0,
     color: theme.palette.text.primary
   },
+  textContainer: {
+    padding: theme.spacing(0.5, 2, 1.5, 2),
+  },
   textNote: {
     ...theme.custom.fontFamily.roboto,
-    padding: theme.spacing(0.5, 2, 1.5, 2),
     fontWeight: 400,
     fontSize: "0.88rem",
     color: theme.palette.text.primary
   }
 }));
 
-export default function({ id, isEditMode, noteItems = [] }) {
+export default function ({ notes, setNotes, isEditMode }) {
   const classes = useStyles();
-  const reducedText = noteItems.map(({ text }) => text).join("\n");
-  const updateNotesItem = useStoreActions(
-    actions => actions.notes.updateNotesItem
-  );
+  const reducedText = notes.map(({ text }) => text).join("\n");
 
   const onTextChanged = event => {
     const text = event.target.value;
-    const textParts = text.split("\n");
-    updateNotesItem({
-      id: id,
-      key: "notes",
-      value: textParts.map(text => ({ text: text, isCompleted: false }))
-    });
+    const textParts = text.split("\n").map(text => ({ text: text, isCompleted: false }));
+    setNotes(textParts)
   };
 
   return (
@@ -70,10 +64,14 @@ export default function({ id, isEditMode, noteItems = [] }) {
           multiline={true}
         />
       ) : (
-        <Typography className={classes.textNote} variant="body1">
-          {reducedText}
-        </Typography>
-      )}
+          <div className={classes.textContainer}>
+            {notes.map(({ text }, index) => (
+              <Typography key={index} className={classes.textNote} variant="body1">
+                {text}
+              </Typography>
+            ))}
+          </div>
+        )}
     </>
   );
 }

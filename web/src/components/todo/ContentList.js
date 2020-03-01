@@ -11,7 +11,6 @@ import {
   CheckBoxOutlined as CheckboxIcon,
   CloseOutlined as CloseIcon
 } from "@material-ui/icons";
-import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   itemContainerWithBorder: {
@@ -63,34 +62,38 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({ id, noteItems, isEditMode }) {
-  const updateNotesItem = useStoreActions(
-    actions => actions.notes.updateNotesItem
-  );
-
+export default function ({ notes, setNotes, isEditMode }) {
   const onTextChange = (index, text) => {
-    const updatedNoteItems = Object.assign([], noteItems);
+    const updatedNoteItems = Object.assign([], notes);
     updatedNoteItems[index].text = text;
-    updateNotesItem({ id: id, key: "notes", value: updatedNoteItems });
+    setNotes(updatedNoteItems);
   };
   const onMarkCompleted = (index, isCompleted) => {
-    const updatedNoteItems = Object.assign([], noteItems);
+    const updatedNoteItems = Object.assign([], notes);
     updatedNoteItems[index].isCompleted = isCompleted;
-    updateNotesItem({ id: id, key: "notes", value: updatedNoteItems });
+    setNotes(updatedNoteItems);
   };
   const onDeletePressed = index => {
-    const updatedNoteItems = Object.assign([], noteItems);
+    const updatedNoteItems = Object.assign([], notes);
     updatedNoteItems.splice(index, 1);
-    updateNotesItem({ id: id, key: "notes", value: updatedNoteItems });
+    setNotes(updatedNoteItems);
+  };
+  const onKeyPressed = (index, keyCode) => {
+    if (keyCode === 13) { // Enter pressed, create a new row item
+      var updatedNoteItems = Object.assign([], notes);
+      updatedNoteItems = updatedNoteItems.filter(note => note.text !== "")
+      updatedNoteItems.splice(index + 1, 0, { text: "", isCompleted: false });
+      setNotes(updatedNoteItems);
+    }
   };
 
-  if (noteItems.length === 0) {
-    noteItems = [{text: "", isCompleted: false}]
+  if (notes.length === 0) {
+    notes = [{ text: "", isCompleted: false }]
   }
 
   return (
     <>
-      {noteItems.map(({ text, isCompleted }, index) => (
+      {notes.map(({ text, isCompleted }, index) => (
         <ContentListItem
           key={index}
           index={index}
@@ -100,6 +103,7 @@ export default function({ id, noteItems, isEditMode }) {
           onTextChange={onTextChange}
           onMarkCompleted={onMarkCompleted}
           onDeletePressed={onDeletePressed}
+          onKeyPressed={onKeyPressed}
         />
       ))}
     </>
@@ -113,7 +117,8 @@ function ContentListItem({
   isEditMode,
   onTextChange,
   onMarkCompleted,
-  onDeletePressed
+  onDeletePressed,
+  onKeyPressed
 }) {
   const classes = useStyles();
   const [isFocussed, setFocussed] = useState(false);
@@ -135,8 +140,8 @@ function ContentListItem({
             (isEmpty && isEditMode) ? (
               <AddIcon fontSize="small" />
             ) : (
-              <CheckboxBlankIcon fontSize="small" />
-            )
+                <CheckboxBlankIcon fontSize="small" />
+              )
           }
           checkedIcon={<CheckboxIcon fontSize="small" />}
           color="default"
@@ -151,16 +156,18 @@ function ContentListItem({
             input: isEmpty
               ? classes.textEmpty
               : isCompleted
-              ? classes.textComplete
-              : classes.textIncomplete
+                ? classes.textComplete
+                : classes.textIncomplete
           }}
           value={text}
           placeholder={isEditMode ? "List Item" : ""}
           onChange={event => onTextChange(index, event.target.value)}
+          onKeyDown={event => onKeyPressed(index, event.keyCode)}
           onFocus={() => setFocussed(true)}
           onBlur={() => setFocussed(false)}
+          autoFocus={isEmpty}
           readOnly={!isEditMode}
-          multiline={true}
+          multiline={false}
         />
         {isEditMode ? (
           isHovered ? (
@@ -170,8 +177,8 @@ function ContentListItem({
               </IconButton>
             </div>
           ) : (
-            <div style={{ width: "26px" }} />
-          )
+              <div style={{ width: "26px" }} />
+            )
         ) : null}
       </div>
     </div>

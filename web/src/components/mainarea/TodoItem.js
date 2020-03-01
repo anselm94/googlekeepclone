@@ -31,17 +31,14 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function({
-  id,
-  title,
-  notes,
-  labels,
-  color,
-  isCheckboxMode,
-  isEditMode
-}) {
+export default function ({ noteItem, isEditMode }) {
   const classes = useStyles();
   const [isHovered, setHovered] = useState(false);
+  const [title, setTitle] = useState(noteItem.title);
+  const [notes, setNotes] = useState(noteItem.notes);
+  const [color, setColor] = useState(noteItem.color);
+  const [isCheckboxMode, setCheckboxMode] = useState(noteItem.isCheckboxMode);
+  const [labels, setLabels] = useState(noteItem.labels);
   const setNoteInMode = useStoreActions(
     actions => actions.notes.setNoteInEditMode
   );
@@ -54,25 +51,29 @@ export default function({
       elevation={isHovered || isEditMode ? 2 : 0}
       style={{ backgroundColor: color }}
     >
-      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInMode("")) : () => {}}>
-        <div onClick={() => setNoteInMode(id)}>
-          <ContentTitle id={id} title={title} isEditMode={isEditMode} />
+      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInMode("")) : () => { }}>
+        <div onClick={() => setNoteInMode(noteItem.id)}>
+          <ContentTitle title={title} setTitle={setTitle} isEditMode={isEditMode} />
           <Content
-            id={id}
+            notes={notes}
+            setNotes={setNotes}
             isEditMode={isEditMode}
             isCheckboxMode={isCheckboxMode}
-            noteItems={notes}
           />
         </div>
       </ClickAwayListener>
-      <LabelsBar id={id} labels={labels} />
+      <LabelsBar labels={labels} />
       <Fade in={isHovered || isEditMode}>
         <div className={classes.barWrapper}>
           <ActionsBar
-            id={id}
+            id={noteItem.id}
+            color={color}
+            setColor={setColor}
+            labels={labels}
+            setLabels={setLabels}
+            setCheckboxMode={setCheckboxMode}
             isCreateMode={false}
             isCheckboxMode={isCheckboxMode}
-            labels={labels}
           />
         </div>
       </Fade>

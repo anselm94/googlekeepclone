@@ -19,7 +19,7 @@ import {
   AddOutlined as AddIcon,
   SearchOutlined as SearchIcon
 } from "@material-ui/icons";
-import { useStoreState, useStoreActions } from "easy-peasy";
+import { useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -77,25 +77,23 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function LabelPopover({ id, anchorEl, selectedLabels = [], isOpen, onClose }) {
+export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onClose }) {
   const classes = useStyles();
   const theme = useTheme();
   const popoverId = isOpen ? "color-popover" : undefined;
   const [newLabelName, setNewLabelName] = useState("");
   const allLabelItems = useStoreState(state => state.notes.labels);
-  const addLabel = useStoreActions(actions => actions.notes.addLabel);
-  const updateNotesItem = useStoreActions(actions => actions.notes.updateNotesItem);
   const filteredLabelItems = allLabelItems.filter(labelItem =>
     newLabelName === "" || labelItem.name.includes(newLabelName)
   );
   const updateLabelsForNote = (labelItem) => {
-    const updatedLabelIndex = selectedLabels.findIndex(selectedLabel => selectedLabel.id === labelItem.id)
+    const updatedLabelIndex = labels.findIndex(selectedLabel => selectedLabel.id === labelItem.id);
     if (updatedLabelIndex > -1) {
-      selectedLabels.splice(updatedLabelIndex, 1);
+      labels.splice(updatedLabelIndex, 1);
     } else {
-      selectedLabels.push(labelItem)
+      labels.push(labelItem);
     }
-    updateNotesItem({ id: id, key: "labels", value: selectedLabels });
+    setLabels(Object.assign([], labels));
   };
   return (
     <div>
@@ -153,7 +151,7 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = [], isOpen
                       checkedIcon={<CheckboxIcon fontSize="small" />}
                       color="default"
                       disableRipple
-                      checked={selectedLabels.some((label) => label.id === labelItem.id)}
+                      checked={labels.some((label) => label.id === labelItem.id)}
                       inputProps={{ "aria-labelledby": labelAriaId }}
                       size="small"
                       classes={{ root: classes.checkboxRoot }}
@@ -174,7 +172,7 @@ export default function LabelPopover({ id, anchorEl, selectedLabels = [], isOpen
           {newLabelName !== "" ? (
             <>
               <Divider />
-              <Button size="small" classes={{ root: classes.footer }} onClick={() => addLabel(newLabelName)}>
+              <Button size="small" classes={{ root: classes.footer }} onClick={() => alert(newLabelName)}>
                 <AddIcon fontSize="small" />
                 <Typography classes={{ root: classes.footerText }}>
                   Create "<b>{newLabelName}</b>"

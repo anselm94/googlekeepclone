@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { makeStyles } from "@material-ui/core/styles";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { Paper, InputBase, Collapse, Button } from "@material-ui/core";
 import TodoActions from "../todo/Actions";
 import TodoLabels from "../todo/Labels";
 import TodoContent from "../todo/Content";
-import { useStoreActions, useStoreState } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   paperWrapper: {
@@ -47,16 +46,21 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function() {
+export default function () {
   const classes = useStyles();
+  const theme = useTheme();
   const [isFocussed, setFocussed] = useState(false);
-  const newNoteItem = useStoreState(state => state.notes.new);
-  const updateNotesItem = useStoreActions(
-    actions => actions.notes.updateNotesItem
-  );
-  const createNote = useStoreActions(actions => actions.notes.createNote);
+  const [title, setTitle] = useState("");
+  const [notes, setNotes] = useState([]);
+  const [color, setColor] = useState(theme.custom.palette.noteBackground[0]);
+  const [isCheckboxMode, setCheckboxMode] = useState(false);
+  const [labels, setLabels] = useState([]);
   const onCloseClick = () => {
-    createNote(newNoteItem);
+    // createNote(newNoteItem);
+    setTitle("");
+    setNotes([]);
+    setColor(theme.custom.palette.noteBackground[0]);
+    setLabels([]);
     setFocussed(false);
   }
 
@@ -64,7 +68,7 @@ export default function() {
     <Paper
       elevation={2}
       classes={{ root: classes.paperWrapper }}
-      style={{ backgroundColor: newNoteItem.color }}
+      style={{ backgroundColor: color }}
     >
       <Collapse
         classes={{ wrapperInner: classes.wrapper }}
@@ -79,26 +83,28 @@ export default function() {
           }}
           onFocus={() => setFocussed(true)}
           inputProps={{ "aria-label": "note title" }}
-          value={newNoteItem.title}
-          onChange={event =>
-            updateNotesItem({ id: "", key: "title", value: event.target.value })
-          }
+          value={title}
+          onChange={event => setTitle(event.target.value)}
         />
         {isFocussed ? (
           <TodoContent
-            id={""}
-            noteItems={newNoteItem.notes}
+            notes={notes}
+            setNotes={setNotes}
             isEditMode={true}
-            isCheckboxMode={newNoteItem.isCheckboxMode}
+            isCheckboxMode={isCheckboxMode}
           />
         ) : null}
-        <TodoLabels labels={newNoteItem.labels} />
+        <TodoLabels labels={labels} />
         <div className={classes.barWrapper}>
           <TodoActions
             id={""}
+            color={color}
+            setColor={setColor}
+            labels={labels}
+            setLabels={setLabels}
+            setCheckboxMode={setCheckboxMode}
             isCreateMode={true}
-            isCheckboxMode={newNoteItem.isCheckboxMode}
-            labels={newNoteItem.labels}
+            isCheckboxMode={isCheckboxMode}
           />
           <div>
             <Button size="small" onClick={onCloseClick}>
