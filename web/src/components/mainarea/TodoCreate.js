@@ -4,6 +4,7 @@ import { Paper, InputBase, Collapse, Button } from "@material-ui/core";
 import TodoActions from "../todo/Actions";
 import TodoLabels from "../todo/Labels";
 import TodoContent from "../todo/Content";
+import { useMutateCreateTodo } from "../../api";
 
 const useStyles = makeStyles(theme => ({
   paperWrapper: {
@@ -49,6 +50,7 @@ const useStyles = makeStyles(theme => ({
 export default function () {
   const classes = useStyles();
   const theme = useTheme();
+  const addTodo = useMutateCreateTodo();
   const [isFocussed, setFocussed] = useState(false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState([]);
@@ -56,7 +58,9 @@ export default function () {
   const [isCheckboxMode, setCheckboxMode] = useState(false);
   const [labels, setLabels] = useState([]);
   const onCloseClick = () => {
-    // createNote(newNoteItem);
+    const noteTexts = notes.map(noteItem => noteItem.text);
+    const labelIds = labels.map(labelItem => labelItem.id);
+    addTodo({ title, notes: noteTexts, labels: labelIds, color, isCheckboxMode });
     setTitle("");
     setNotes([]);
     setColor(theme.custom.palette.noteBackground[0]);

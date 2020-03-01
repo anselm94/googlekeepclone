@@ -12,7 +12,7 @@ import {
 import { useTheme } from "@material-ui/core/styles";
 import ColorPopover from "./ColorPopover";
 import LabelPopover from "./LabelPopover";
-import { useStoreActions } from "easy-peasy";
+import { useMutateDeleteTodo, useMutateCopyTodo } from "../../api";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -39,8 +39,8 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
   const refActionLabel = useRef();
   const [isColorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [isLabelPopoverOpen, setLabelPopoverOpen] = useState(false);
-  const copyNote = useStoreActions(actions => actions.notes.copyNote);
-  const deleteNote = useStoreActions(actions => actions.notes.deleteNote);
+  const copyNote = useMutateCopyTodo();
+  const deleteNote = useMutateDeleteTodo();
 
   return (
     <>
@@ -103,7 +103,7 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
                 <IconButton
                   size="small"
                   aria-label="make a copy"
-                  onClick={() => copyNote(id)}
+                  onClick={() => copyNote({ id })}
                 >
                   <CopyIcon
                     htmlColor={theme.custom.palette.iconHighlight}
@@ -118,7 +118,7 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
                 <IconButton
                   size="small"
                   aria-label="delete note"
-                  onClick={() => deleteNote(id)}
+                  onClick={() => deleteNote({ id })}
                 >
                   <DeleteIcon
                     htmlColor={theme.custom.palette.iconHighlight}

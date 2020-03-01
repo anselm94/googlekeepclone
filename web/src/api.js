@@ -36,7 +36,30 @@ const createLabel = gql`
     mutation CreateLabel ($name: String!) {
         createLabel (name: $name) {
             id
-            name
+        } 
+    }
+`
+
+const createTodo = gql`
+    mutation CreateTodo ($title: String!, $notes: [String!]!, $labels: [ID]!, $color: String, $isCheckboxMode: Boolean) {
+        createTodo (title: $title, notes: $notes, labels: $labels, color: $color, isCheckboxMode: $isCheckboxMode) {
+            id
+        } 
+    }
+`
+
+const deleteTodo = gql`
+    mutation DeleteTodo ($id: ID!) {
+        deleteTodo (id: $id) {
+            id
+        } 
+    }
+`
+
+const copyTodo = gql`
+    mutation CopyTodo ($id: ID!) {
+        copyTodo (sourceId: $id) {
+            id
         } 
     }
 `
@@ -74,7 +97,6 @@ const subscribeLabels = gql`
         }
     }
 `
-
 
 const handleAuthError = (queryResult, routerNavigateFn) => {
     if (queryResult.error) {
@@ -145,6 +167,21 @@ const useMutateCreateLabel = () => {
     return addLabel;
 }
 
+const useMutateCreateTodo = () => {
+    const [, addTodo] = useMutation(createTodo);
+    return addTodo;
+}
+
+const useMutateDeleteTodo = () => {
+    const [, delTodo] = useMutation(deleteTodo);
+    return delTodo;
+}
+
+const useMutateCopyTodo = () => {
+    const [, cpyTodo] = useMutation(copyTodo);
+    return cpyTodo;
+}
+
 const useSubscribeTodos = (todoAddedFn, todoDeletedFn, todoUpdatedFn) => {
     const subscriptionCallback = useCallback((_, data) => {
         if (!data || !data.todoStream) {
@@ -202,6 +239,9 @@ export {
     useAppRegister,
     useQueryTodosAndLabels,
     useMutateCreateLabel,
+    useMutateCreateTodo,
+    useMutateDeleteTodo,
+    useMutateCopyTodo,
     useSubscribeTodos,
     useSubscribeLabels
 }
