@@ -5,8 +5,9 @@ import NotesArea from "./mainarea/NotesArea";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
 import { handleAuthError, useQueryTodosAndLabels, useSubscribeLabels, useSubscribeTodos } from "../api";
-import { Backdrop, CircularProgress } from "@material-ui/core";
+
 import { useStoreActions } from "easy-peasy";
+import Loading from "./Loading";
 
 export default function ({ navigate }) {
     const result = useQueryTodosAndLabels();
@@ -16,9 +17,7 @@ export default function ({ navigate }) {
     const setSettings = useStoreActions(actions => actions.ui.setSettings);
     if (result.fetching) {
         return (
-            <Backdrop open={true} >
-                <CircularProgress color="inherit" />
-            </ Backdrop>
+            <Loading />
         )
     } else if (result.error) {
         handleAuthError(result, navigate);
