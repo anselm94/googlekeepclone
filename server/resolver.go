@@ -194,6 +194,9 @@ func (r *mutationResolver) UpdateUser(ctx context.Context, listMode *bool, darkM
 		user := User{
 			ID: userID,
 		}
+		if err := r.DB.First(&user).Error; err != nil {
+			return nil, err
+		}
 		if listMode != nil {
 			user.ListMode = *listMode
 		}

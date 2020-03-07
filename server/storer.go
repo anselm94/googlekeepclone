@@ -38,10 +38,10 @@ func (s SQLiteStorer) New(ctx context.Context) authboss.User {
 
 func (s SQLiteStorer) Create(ctx context.Context, user authboss.User) error {
 	existingUser := user.(*User)
+	existingUser.ID = url.QueryEscape(existingUser.ID)
 	if err := s.DB.First(&existingUser).Error; err == nil {
 		return authboss.ErrUserFound
 	}
-	existingUser.ID = url.QueryEscape(existingUser.ID) // encode the email, so it can be saved as primary key
 	err := s.DB.Create(&existingUser).Error
 	return err
 }
