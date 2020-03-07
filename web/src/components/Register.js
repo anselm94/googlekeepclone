@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import Container from "@material-ui/core/Container";
 import { Paper, TextField, Box, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "@reach/router";
+import useAxios from "axios-hooks";
+import Loading from "./Loading";
 
 const useStyles = makeStyles(theme => ({
     pageWrapper: {
@@ -67,8 +69,11 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function () {
+export default function ({ navigate }) {
     const classes = useStyles();
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
     const inputProps = {
         classes: {
             root: classes.inputRoot,
@@ -82,6 +87,20 @@ export default function () {
             focused: classes.inputFocused
         }
     }
+
+    const [{ data: result = {}, loading }, doRegister] = useAxios({
+        url: "/auth/register",
+        method: "POST",
+        data: {
+            name, email, password
+        }
+    }, { manual: true });
+    if (result.status === "success") {
+        navigate("/");
+        return (<></>)
+    } else if (loading) {
+        return (<Loading />)
+    }
     return (
         <div className={classes.pageWrapper}>
             <Container maxWidth="xs" className={classes.pageContainer}>
@@ -89,11 +108,10 @@ export default function () {
                     <Box className={classes.boxWrapper} p={3}>
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Hello!</Typography>
-                        <TextField InputLabelProps={inputLabelProps} InputProps={inputProps} label="Name" type="text" variant="outlined" fullWidth margin="normal" />
-                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Email" type="email" variant="outlined" helperText="Use any dummy email. I don't collect emails ;)" fullWidth margin="normal" />
-                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Password" type="password" variant="outlined" fullWidth margin="normal" />
-                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Confirm Password" type="password" variant="outlined" fullWidth margin="normal" />
-                        <Button classes={{ root: classes.registerButtonRoot, label: classes.registerButtonText }} variant="contained" color="secondary" disableElevation fullWidth size="large">Register</Button>
+                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Name" type="text" variant="outlined" value={name} onChange={event => setName(event.target.value)} error={result.status === "failure"} helperText={result.errors && result.errors["name"] && result.errors["name"][0]} fullWidth margin="normal" />
+                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Email" type="email" variant="outlined" value={email} error={result.status === "failure"} helperText={(result.errors && ((result.errors["email"] && result.errors["email"][0]) || (result.errors[""] && result.errors[""][0]))) || "Use any dummy email. I don't collect emails ;)"} onChange={event => setEmail(event.target.value)} fullWidth margin="normal" />
+                        <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} label="Password" type="password" variant="outlined" value={password} error={result.status === "failure"} helperText={result.errors && result.errors["password"] && result.errors["password"][0]} onChange={event => setPassword(event.target.value)} fullWidth margin="normal" />
+                        <Button classes={{ root: classes.registerButtonRoot, label: classes.registerButtonText }} disabled={email === "" || password === ""} variant="contained" onClick={doRegister} color="secondary" disableElevation fullWidth size="large">Register</Button>
                     </Box>
                 </Paper>
                 <Typography className={classes.textLoginText} color="textSecondary" variant="body2">Already have an account? <Link className={classes.textLogin} to="/login">Log In</Link></Typography>

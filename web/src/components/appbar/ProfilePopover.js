@@ -4,9 +4,9 @@ import { Popover, Typography, Avatar, Divider, Button } from "@material-ui/core"
 import {
   FaceOutlined as FaceIcon,
 } from "@material-ui/icons";
-import { useAppLogout } from "../../api";
 import { useNavigate } from "@reach/router";
 import { useUserStore } from "../../store";
+import useAxios from "axios-hooks";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -61,9 +61,13 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
   const id = isOpen ? "profile-popover" : undefined;
   const [{ name, email }] = useUserStore();
   const navigate = useNavigate();
-  const [isLoggingOut, isSuccess, doLogout] = useAppLogout();
+  const [{ data: result = {}, loading }, doLogout] = useAxios({
+    url: "/auth/logout",
+    method: "POST",
+    data: {}
+  }, { manual: true });
 
-  if (isSuccess) {
+  if (result.status === "success") {
     navigate("/login");
     return (<></>);
   }
@@ -105,7 +109,7 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
         </div>
         <Divider />
         <div className={classes.bar}>
-          <Button disabled={isLoggingOut} variant="outlined" size="small" onClick={doLogout} classes={{ root: classes.buttonSignout }}>Sign out</Button>
+          <Button disabled={loading} variant="outlined" size="small" onClick={doLogout} classes={{ root: classes.buttonSignout }}>Sign out</Button>
         </div>
       </Popover>
     </div>

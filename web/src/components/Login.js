@@ -3,8 +3,8 @@ import Container from "@material-ui/core/Container";
 import { Paper, TextField, Box, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "@reach/router";
-import { useAppLogin } from "../api";
 import Loading from "./Loading";
+import useAxios from "axios-hooks";
 
 const useStyles = makeStyles(theme => ({
     pageWrapper: {
@@ -73,7 +73,6 @@ export default function ({ navigate }) {
     const classes = useStyles();
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const [attempted, setAttempted] = useState(false);
     const inputProps = {
         classes: {
             root: classes.inputRoot,
@@ -87,21 +86,17 @@ export default function ({ navigate }) {
             focused: classes.inputFocused
         }
     }
-    const [isFetching, isSuccess, doLogin] = useAppLogin()
-    const onLoginPress = () => {
-        setAttempted(true)
-        doLogin(email, password);
-    }
-    const onEmailChange = event => {
-        setEmail(event.target.value);
-    };
-    const onPasswordChange = event => {
-        setPassword(event.target.value);
-    };
-    if (isSuccess) {
+    const [{ data: result = {}, loading }, doLogin] = useAxios({
+        url: "/auth/login",
+        method: "POST",
+        data: {
+            email, password
+        }
+    }, { manual: true });
+    if (result.status === "success") {
         navigate("/");
         return (<></>)
-    } else if (isFetching) {
+    } else if (loading) {
         return (<Loading />)
     }
     return (
@@ -111,9 +106,9 @@ export default function ({ navigate }) {
                     <Box className={classes.boxWrapper} p={3}>
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Welcome back!</Typography>
-                        <TextField error={!isSuccess && attempted && !isFetching} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={onEmailChange} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
-                        <TextField error={!isSuccess && attempted && !isFetching} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={onPasswordChange} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={(!isSuccess && attempted) ? "Email or Password is wrong" : undefined} />
-                        <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} disabled={isFetching || email === "" || password === ""} onClick={onLoginPress} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
+                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={event => setEmail(event.target.value)} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
+                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={event => setPassword(event.target.value)} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={result.error} />
+                        <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} disabled={loading || email === "" || password === ""} onClick={doLogin} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
                     </Box>
                 </Paper>
                 <Typography className={classes.textRegisterText} color="textSecondary" variant="body2">Don't have an account? <Link className={classes.textRegister} to="/register">Register</Link></Typography>

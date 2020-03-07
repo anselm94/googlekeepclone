@@ -27,9 +27,15 @@ export default function ({ navigate }) {
 
 function MainComponent({ todosQ, labelsQ, userQ }) {
     const handleSubscribeTodos = useCallback((todos = todosQ, data) => {
+        if (!data || !data.todoStream) {
+            return todos
+        }
         return updateItemsReducer(todos, data.todoStream.todo, data.todoStream.action)
     }, [todosQ]);
     const handleSubscribeLabels = useCallback((labels = labelsQ, data) => {
+        if (!data || !data.labelStream) {
+            return labels
+        }
         return updateItemsReducer(labels, data.labelStream.label, data.labelStream.action)
     }, [labelsQ]);
     const [todosResult] = useSubscription({ query: subscribeTodos }, handleSubscribeTodos)
