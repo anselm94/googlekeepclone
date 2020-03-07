@@ -39,9 +39,7 @@ export default function ({ noteItem, isEditMode }) {
   const [color, setColor] = useState(noteItem.color);
   const [isCheckboxMode, setCheckboxMode] = useState(noteItem.isCheckboxMode);
   const [labels, setLabels] = useState(noteItem.labels);
-  const setNoteInMode = useStoreActions(
-    actions => actions.notes.setNoteInEditMode
-  );
+  const setNoteInMode = useStoreActions(actions => actions.notes.setNoteInEditMode);
 
   return (
     <Paper

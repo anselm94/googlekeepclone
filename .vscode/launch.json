@@ -16,7 +16,8 @@
                 "PORT": "3000",
                 "STATIC_DIR": "./web/build/",
                 "COOKIE_STORE_KEY": "NpEPi8pEjKVjLGJ6kYCS+VTCzi6BUuDzU0wrwXyf5uDPArtlofn2AG6aTMiPmN3C909rsEWMNqJqhIVPGP3Exg==",
-                "SESSION_STORE_KEY": "AbfYwmmt8UCwUuhd9qvfNA9UCuN1cVcKJN1ofbiky6xCyyBj20whe40rJa3Su0WOWLWcPpO1taqJdsEI/65+JA=="
+                "SESSION_STORE_KEY": "AbfYwmmt8UCwUuhd9qvfNA9UCuN1cVcKJN1ofbiky6xCyyBj20whe40rJa3Su0WOWLWcPpO1taqJdsEI/65+JA==",
+                "REACT_APP_WEBSOCKET_ENDPOINT": "ws://localhost:3000/query"
             },
             "args": []
         }

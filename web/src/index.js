@@ -9,7 +9,7 @@ import { SubscriptionClient } from 'subscriptions-transport-ws';
 
 const store = createStore(appModel);
 const subscriptionClient = new SubscriptionClient(
-  'ws://localhost:3000/query',
+  process.env.REACT_APP_WEBSOCKET_ENDPOINT,
   {}
 );
 const gqlclient = createClient({
