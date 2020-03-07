@@ -13,7 +13,7 @@ import {
   LabelOutlined as LabelIcon
 } from "@material-ui/icons";
 import DrawerItem from "./DrawerItem";
-import { useStoreState, useStoreActions } from "easy-peasy";
+import { useUiStore, useLabelsStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   drawer: {
@@ -35,11 +35,8 @@ export default function NavDrawer() {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
-  const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
-  const labelItems = useStoreState(state => state.notes.labels);
-  const selectedLabelId = useStoreState(state => state.notes.selectedLabelId);
-  const setSelectedLabelId = useStoreActions(actions => actions.notes.setSelectedLabelId);
-  const toggleNavBar = useStoreActions(actions => actions.ui.toggleNavBar);
+  const labelItems = useLabelsStore();
+  const [{ selectedLabelId, isNavBarOpen }, { toggleNavBar, setSelectedLabelId }] = useUiStore();
 
   const onDrawerItemSelected = (labelId) => {
     setSelectedLabelId(labelId);

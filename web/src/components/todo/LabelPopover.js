@@ -19,8 +19,9 @@ import {
   AddOutlined as AddIcon,
   SearchOutlined as SearchIcon
 } from "@material-ui/icons";
-import { useStoreState } from "easy-peasy";
-import { useMutateCreateLabel } from "../../api";
+import { useMutation } from "urql";
+import { createLabel } from "../../gql";
+import { useLabelsStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -83,11 +84,11 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
   const theme = useTheme();
   const popoverId = isOpen ? "color-popover" : undefined;
   const [newLabelName, setNewLabelName] = useState("");
-  const allLabelItems = useStoreState(state => state.notes.labels);
+  const allLabelItems = useLabelsStore();
   const filteredLabelItems = allLabelItems.filter(labelItem =>
     newLabelName === "" || labelItem.name.includes(newLabelName)
   );
-  const addLabel = useMutateCreateLabel();
+  const [, createLabelExecute] = useMutation(createLabel);
   const updateLabelsForNote = (labelItem) => {
     const updatedLabelIndex = labels.findIndex(selectedLabel => selectedLabel.id === labelItem.id);
     if (updatedLabelIndex > -1) {
@@ -97,8 +98,8 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
     }
     setLabels(Object.assign([], labels));
   };
-  const createLabel = () => {
-    addLabel({ name: newLabelName });
+  const onCreateTodoClick = () => {
+    createLabelExecute({ name: newLabelName });
     setNewLabelName("");
   }
   return (
@@ -178,7 +179,7 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
           {newLabelName !== "" ? (
             <>
               <Divider />
-              <Button size="small" classes={{ root: classes.footer }} onClick={() => createLabel()}>
+              <Button size="small" classes={{ root: classes.footer }} onClick={onCreateTodoClick}>
                 <AddIcon fontSize="small" />
                 <Typography classes={{ root: classes.footerText }}>
                   Create "<b>{newLabelName}</b>"

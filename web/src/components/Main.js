@@ -1,54 +1,75 @@
-import React from "react";
+import React, { useCallback } from "react";
 import AppBar from "./appbar/AppBar";
 import NavDrawer from "./navdrawer/NavDrawer";
 import NotesArea from "./mainarea/NotesArea";
 import Box from "@material-ui/core/Box";
 import Container from "@material-ui/core/Container";
-import { handleAuthError, useQueryTodosAndLabels, useSubscribeLabels, useSubscribeTodos } from "../api";
-
-import { useStoreActions } from "easy-peasy";
 import Loading from "./Loading";
+import { useSubscription, useQuery } from "urql";
+import { subscribeTodos, getTodosAndLabels, subscribeLabels } from "../gql";
+import { TodosProvider, LabelsProvider, UiProvider, UserProvider } from "../store";
 
 export default function ({ navigate }) {
-    const result = useQueryTodosAndLabels();
-    const setNotesItems = useStoreActions(actions => actions.notes.setNotesItems);
-    const setLabelItems = useStoreActions(actions => actions.notes.setLabelItems);
-    const setNameAndEmail = useStoreActions(actions => actions.user.setNameAndEmail);
-    const setSettings = useStoreActions(actions => actions.ui.setSettings);
+    const [result] = useQuery({ query: getTodosAndLabels });
     if (result.fetching) {
         return (
             <Loading />
         )
     } else if (result.error) {
-        handleAuthError(result, navigate);
+        if (result.error.message.includes("NotAuthenticated")) {
+            navigate("/login")
+        }
         return (<></>)
-    } else {
-        setNotesItems(result.data.todos);
-        setLabelItems(result.data.labels);
-        setNameAndEmail(result.data.user);
-        setSettings(result.data.user);
-        return (<MainComponent />)
+    } else if (result.data) {
+        return (<MainComponent todosQ={result.data.todos} labelsQ={result.data.labels} userQ={result.data.user} />)
     }
 }
 
-function MainComponent() {
-    const addNoteItem = useStoreActions(actions => actions.notes.addNoteItem);
-    const deleteNoteItem = useStoreActions(actions => actions.notes.deleteNoteItem);
-    const updateNoteItem = useStoreActions(actions => actions.notes.updateNoteItem);
-    const addLabelItem = useStoreActions(actions => actions.notes.addLabelItem);
-    const deleteLabelItem = useStoreActions(actions => actions.notes.deleteLabelItem);
-    const updateLabelItem = useStoreActions(actions => actions.notes.updateLabelItem);
-    useSubscribeTodos(addNoteItem, deleteNoteItem, updateNoteItem);
-    useSubscribeLabels(addLabelItem, deleteLabelItem, updateLabelItem);
+function MainComponent({ todosQ, labelsQ, userQ }) {
+    const handleSubscribeTodos = useCallback((todos = todosQ, data) => {
+        return updateItemsReducer(todos, data.todoStream.todo, data.todoStream.action)
+    }, [todosQ]);
+    const handleSubscribeLabels = useCallback((labels = labelsQ, data) => {
+        return updateItemsReducer(labels, data.labelStream.label, data.labelStream.action)
+    }, [labelsQ]);
+    const [todosResult] = useSubscription({ query: subscribeTodos }, handleSubscribeTodos)
+    const [labelsResult] = useSubscription({ query: subscribeLabels }, handleSubscribeLabels)
+
     return (
         <>
-            <AppBar />
-            <NavDrawer />
-            <Container maxWidth={false}>
-                <Box mt={8}>
-                    <NotesArea />
-                </Box>
-            </Container>
+            <TodosProvider todos={todosResult.data || todosQ}>
+                <LabelsProvider labels={labelsResult.data || labelsQ}>
+                    <UserProvider user={userQ}>
+                        <UiProvider>
+                            <AppBar />
+                            <NavDrawer />
+                            <Container maxWidth={false}>
+                                <Box mt={8}>
+                                    <NotesArea />
+                                </Box>
+                            </Container>
+                        </UiProvider>
+                    </UserProvider>
+                </LabelsProvider>
+            </TodosProvider>
         </>
     )
+}
+
+function updateItemsReducer(itemsArray, mutatedItem, action) {
+    switch (action) {
+        case "CREATED":
+            itemsArray.push(mutatedItem)
+            break;
+        case "DELETED":
+            const deleteIndex = itemsArray.findIndex((item) => item.id === mutatedItem.id);
+            itemsArray.splice(deleteIndex, 1);
+            break;
+        case "UPDATED":
+            const updateIndex = itemsArray.findIndex((item) => item.id === mutatedItem.id);
+            itemsArray[updateIndex] = mutatedItem;
+            break;
+        default:
+    }
+    return Object.assign([], itemsArray);
 }

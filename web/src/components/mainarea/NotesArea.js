@@ -3,7 +3,7 @@ import { makeStyles, useTheme } from "@material-ui/core/styles";
 import TodoCreate from "./TodoCreate";
 import TodoItem from "./TodoItem";
 import { useMediaQuery } from "@material-ui/core";
-import { useStoreState } from "easy-peasy";
+import { useUiStore, useTodosStore, useUserStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   content: {
@@ -75,10 +75,16 @@ export default function () {
         : isTablet
           ? "480px"
           : "100%";
-  const isNavBarOpen = useStoreState(state => state.ui.isNavBarOpen);
-  const isListView = !useStoreState(state => state.ui.isGridView);
-  const notesItems = useStoreState(state => state.notes.filteredItems);
-  const noteInEditMode = useStoreState(state => state.notes.noteInEditMode);
+  const [{ isListView }] = useUserStore();
+  const [{ isNavBarOpen, noteInEditMode, selectedLabelId }] = useUiStore();
+  const notesItems = useTodosStore();
+  const filteredItems = notesItems.filter(item => {
+    if (selectedLabelId !== "") {
+      return item.labels.some((labelItem) => labelItem.id === selectedLabelId);
+    } else {
+      return true;
+    }
+  });
   width = isListView
     ? isLaptop || isLaptopL
       ? theme.spacing(75)
@@ -104,7 +110,7 @@ export default function () {
             width: width
           }}
         >
-          {notesItems.map((noteItem) => {
+          {filteredItems.map((noteItem) => {
             return (
               <div
                 key={noteItem.id}

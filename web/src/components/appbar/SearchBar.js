@@ -4,9 +4,8 @@ import {
   Search as SearchIcon,
   CloseOutlined as CloseOutlinedIcon
 } from "@material-ui/icons";
-import { Box, InputBase, IconButton, ClickAwayListener } from "@material-ui/core";
+import { Box, InputBase, IconButton, Snackbar, ClickAwayListener } from "@material-ui/core";
 import { useTheme } from "@material-ui/styles";
-import { useStoreActions } from "easy-peasy";
 
 const useStyles = makeStyles(theme => ({
   search: {
@@ -35,13 +34,13 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const SearchBar = ({onSearchClose}) => {
+const SearchBar = ({ onSearchClose }) => {
   const classes = useStyles();
   const theme = useTheme();
 
   const [isFocussed, setFocussed] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const searchAction = useStoreActions(actions => actions.notes.search);
+  const [isShowingToast, showToast] = useState(false);
   const onSearchCancel = () => {
     setSearchTerm("");
     setFocussed(false);
@@ -50,7 +49,7 @@ const SearchBar = ({onSearchClose}) => {
   const onSearch = (event) => {
     setFocussed(true);
     if (event.key === "Enter") {
-      searchAction(searchTerm);
+      showToast(true);
       setFocussed(false);
       onSearchClose();
     }
@@ -58,6 +57,9 @@ const SearchBar = ({onSearchClose}) => {
   const onFocusLoss = () => {
     onSearchClose();
     setFocussed(false);
+  }
+  const handleToastClose = () => {
+    showToast(false);
   }
 
   return (
@@ -93,6 +95,7 @@ const SearchBar = ({onSearchClose}) => {
             <CloseOutlinedIcon />
           </IconButton>
         ) : null}
+        <Snackbar open={isShowingToast} message={"Search not implemented ;)"} autoHideDuration={2000} onClose={handleToastClose} />
       </Box>
     </ClickAwayListener>
   );

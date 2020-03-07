@@ -2,12 +2,9 @@ import React from "react";
 import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
-import appModel from "./models";
-import { createStore, StoreProvider } from "easy-peasy";
 import { Provider as UrqlProvider, createClient, defaultExchanges, subscriptionExchange } from 'urql';
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 
-const store = createStore(appModel);
 const subscriptionClient = new SubscriptionClient(
   process.env.REACT_APP_WEBSOCKET_ENDPOINT,
   {}
@@ -24,9 +21,7 @@ const gqlclient = createClient({
 
 ReactDOM.render(
   <UrqlProvider value={gqlclient}>
-    <StoreProvider store={store}>
-      <App />
-    </StoreProvider>
+    <App />
   </UrqlProvider>,
   document.getElementById("root")
 );

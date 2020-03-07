@@ -4,9 +4,9 @@ import { Popover, Typography, Avatar, Divider, Button } from "@material-ui/core"
 import {
   FaceOutlined as FaceIcon,
 } from "@material-ui/icons";
-import { useStoreState } from "easy-peasy";
 import { useAppLogout } from "../../api";
 import { useNavigate } from "@reach/router";
+import { useUserStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   popover: {
@@ -59,8 +59,7 @@ const useStyles = makeStyles(theme => ({
 export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
   const classes = useStyles();
   const id = isOpen ? "profile-popover" : undefined;
-  const userName = useStoreState(state => state.user.userName);
-  const userEmail = useStoreState(state => state.user.userEmail);
+  const [{ name, email }] = useUserStore();
   const navigate = useNavigate();
   const [isLoggingOut, isSuccess, doLogout] = useAppLogout();
 
@@ -90,17 +89,17 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
       >
         <div className={classes.container}>
           <Avatar
-            alt={userName}
+            alt={name}
             className={classes.avatar}
           >
             <FaceIcon fontSize="large" color="action" />
           </Avatar>
           <div className={classes.userInfo}>
             <Typography className={classes.userName} variant="h6" component="span" color="textPrimary">
-              {userName}
+              {name}
             </Typography>
             <Typography className={classes.userEmail} variant="body1" component="span" color="textSecondary">
-              {userEmail}
+              {email}
             </Typography>
           </div>
         </div>

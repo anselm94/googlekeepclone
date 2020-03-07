@@ -5,7 +5,7 @@ import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
 import ContentTitle from "../todo/ContentTitle";
 import Content from "../todo/Content";
-import { useStoreActions } from "easy-peasy";
+import { useUiStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   wrapper: {
@@ -39,7 +39,7 @@ export default function ({ noteItem, isEditMode }) {
   const [color, setColor] = useState(noteItem.color);
   const [isCheckboxMode, setCheckboxMode] = useState(noteItem.isCheckboxMode);
   const [labels, setLabels] = useState(noteItem.labels);
-  const setNoteInMode = useStoreActions(actions => actions.notes.setNoteInEditMode);
+  const [, { setNoteInEditMode }] = useUiStore();
 
   return (
     <Paper
@@ -49,8 +49,8 @@ export default function ({ noteItem, isEditMode }) {
       elevation={isHovered || isEditMode ? 2 : 0}
       style={{ backgroundColor: color }}
     >
-      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInMode("")) : () => { }}>
-        <div onClick={() => setNoteInMode(noteItem.id)}>
+      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInEditMode("")) : () => { }}>
+        <div onClick={() => setNoteInEditMode(noteItem.id)}>
           <ContentTitle title={title} setTitle={setTitle} isEditMode={isEditMode} />
           <Content
             notes={notes}

@@ -12,7 +12,8 @@ import {
 import { useTheme } from "@material-ui/core/styles";
 import ColorPopover from "./ColorPopover";
 import LabelPopover from "./LabelPopover";
-import { useMutateDeleteTodo, useMutateCopyTodo } from "../../api";
+import { copyTodo, deleteTodo } from "../../gql";
+import { useMutation } from "urql";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -39,8 +40,8 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
   const refActionLabel = useRef();
   const [isColorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [isLabelPopoverOpen, setLabelPopoverOpen] = useState(false);
-  const copyNote = useMutateCopyTodo();
-  const deleteNote = useMutateDeleteTodo();
+  const [, copyNote] = useMutation(copyTodo);
+  const [, deleteNote] = useMutation(deleteTodo)
 
   return (
     <>
