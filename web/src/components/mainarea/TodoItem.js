@@ -6,6 +6,8 @@ import LabelsBar from "../todo/Labels";
 import ContentTitle from "../todo/ContentTitle";
 import Content from "../todo/Content";
 import { useUiStore } from "../../store";
+import { useMutation } from "urql";
+import { updateTodo } from "../../gql";
 
 const useStyles = makeStyles(theme => ({
   wrapper: {
@@ -35,11 +37,60 @@ export default function ({ noteItem, isEditMode }) {
   const classes = useStyles();
   const [isHovered, setHovered] = useState(false);
   const [title, setTitle] = useState(noteItem.title);
-  const [notes, setNotes] = useState(noteItem.notes);
+  const [noteinputs, setNotes] = useState(noteItem.notes);
   const [color, setColor] = useState(noteItem.color);
   const [isCheckboxMode, setCheckboxMode] = useState(noteItem.isCheckboxMode);
   const [labels, setLabels] = useState(noteItem.labels);
   const [, { setNoteInEditMode }] = useUiStore();
+  const [, updateTodoExecute] = useMutation(updateTodo);
+
+  const updateColor = (color) => {
+    setColor(color);
+    updateTodoExecute({
+      id: noteItem.id,
+      title,
+      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
+      color,
+      isCheckboxMode,
+      labels: labels.map((label) => label.id)
+    });
+  }
+
+  const updateLabels = (labels) => {
+    setLabels(labels);
+    updateTodoExecute({
+      id: noteItem.id,
+      title,
+      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
+      color,
+      isCheckboxMode,
+      labels: labels.map((label) => label.id)
+    });
+  }
+
+  const updateCheckboxMode = (isCheckboxMode) => {
+    setCheckboxMode(isCheckboxMode);
+    updateTodoExecute({
+      id: noteItem.id,
+      title,
+      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
+      color,
+      isCheckboxMode,
+      labels: labels.map((label) => label.id)
+    });
+  }
+
+  const onAfterEdit = () => {
+    updateTodoExecute({
+      id: noteItem.id,
+      title,
+      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
+      color,
+      isCheckboxMode,
+      labels: labels.map((label) => label.id)
+    });
+    setNoteInEditMode("")
+  }
 
   return (
     <Paper
@@ -49,11 +100,11 @@ export default function ({ noteItem, isEditMode }) {
       elevation={isHovered || isEditMode ? 2 : 0}
       style={{ backgroundColor: color }}
     >
-      <ClickAwayListener onClickAway={isEditMode ? (() => setNoteInEditMode("")) : () => { }}>
+      <ClickAwayListener onClickAway={isEditMode ? (() => onAfterEdit()) : () => { }}>
         <div onClick={() => setNoteInEditMode(noteItem.id)}>
           <ContentTitle title={title} setTitle={setTitle} isEditMode={isEditMode} />
           <Content
-            notes={notes}
+            notes={noteinputs}
             setNotes={setNotes}
             isEditMode={isEditMode}
             isCheckboxMode={isCheckboxMode}
@@ -66,10 +117,10 @@ export default function ({ noteItem, isEditMode }) {
           <ActionsBar
             id={noteItem.id}
             color={color}
-            setColor={setColor}
+            setColor={updateColor}
             labels={labels}
-            setLabels={setLabels}
-            setCheckboxMode={setCheckboxMode}
+            setLabels={updateLabels}
+            setCheckboxMode={updateCheckboxMode}
             isCreateMode={false}
             isCheckboxMode={isCheckboxMode}
           />

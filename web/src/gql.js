@@ -61,6 +61,14 @@ mutation CopyTodo ($id: ID!) {
 }
 `
 
+const updateTodo = gql`
+mutation UpdateTodo ($id: ID!, $title: String, $notes: [NotesInput], $labels: [ID], $color: String, $isCheckboxMode: Boolean) {
+    updateTodo (id: $id, title: $title, notes: $notes, labels: $labels, color: $color, isCheckboxMode: $isCheckboxMode) {
+        id
+    } 
+}
+`
+
 const updateUser = gql`
 mutation UpdateUser ($listMode: Boolean, $darkMode: Boolean) {
     updateUser (listMode: $listMode, darkMode: $darkMode) {
@@ -110,6 +118,7 @@ export {
     createTodo,
     deleteTodo,
     copyTodo,
+    updateTodo,
     updateUser,
     subscribeTodos,
     subscribeLabels

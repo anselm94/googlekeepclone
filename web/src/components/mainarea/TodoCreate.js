@@ -61,7 +61,9 @@ export default function () {
   const onCloseClick = () => {
     const noteTexts = notes.map(noteItem => noteItem.text);
     const labelIds = labels.map(labelItem => labelItem.id);
-    createTodoExecute({ title, notes: noteTexts, labels: labelIds, color, isCheckboxMode });
+    if (title || noteTexts.length > 0) {
+      createTodoExecute({ title, notes: noteTexts, labels: labelIds, color, isCheckboxMode });
+    }
     setTitle("");
     setNotes([]);
     setColor(theme.custom.palette.noteBackground[0]);
