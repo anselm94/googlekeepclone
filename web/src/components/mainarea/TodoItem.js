@@ -46,50 +46,33 @@ export default function ({ noteItem, isEditMode }) {
 
   const updateColor = (color) => {
     setColor(color);
-    updateTodoExecute({
-      id: noteItem.id,
-      title,
-      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
-      color,
-      isCheckboxMode,
-      labels: labels.map((label) => label.id)
-    });
+    updateTodoItem({ color })
   }
 
   const updateLabels = (labels) => {
     setLabels(labels);
-    updateTodoExecute({
-      id: noteItem.id,
-      title,
-      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
-      color,
-      isCheckboxMode,
-      labels: labels.map((label) => label.id)
-    });
+    updateTodoItem({ labels: labels.map((label) => label.id) })
   }
 
   const updateCheckboxMode = (isCheckboxMode) => {
     setCheckboxMode(isCheckboxMode);
-    updateTodoExecute({
-      id: noteItem.id,
-      title,
-      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
-      color,
-      isCheckboxMode,
-      labels: labels.map((label) => label.id)
-    });
+    updateTodoItem({ isCheckboxMode })
   }
 
   const onAfterEdit = () => {
+    updateTodoItem({});
+    setNoteInEditMode("")
+  }
+
+  const updateTodoItem = (todoItem) => {
     updateTodoExecute({
       id: noteItem.id,
-      title,
-      notes: noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
-      color,
-      isCheckboxMode,
-      labels: labels.map((label) => label.id)
+      title: todoItem.title || title,
+      notes: todoItem.notes || noteinputs.map((note) => { return { text: note.text, isCompleted: note.isCompleted } }),
+      color: todoItem.color || color,
+      isCheckboxMode: todoItem.isCheckboxMode || isCheckboxMode,
+      labels: todoItem.labels || labels.map((label) => label.id)
     });
-    setNoteInEditMode("")
   }
 
   return (

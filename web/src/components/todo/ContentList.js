@@ -167,7 +167,7 @@ function ContentListItem({
           onBlur={() => setFocussed(false)}
           autoFocus={isEmpty}
           readOnly={!isEditMode}
-          multiline={false}
+          multiline={true}
         />
         {isEditMode ? (
           isHovered ? (
