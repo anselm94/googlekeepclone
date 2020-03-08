@@ -14,6 +14,7 @@ const useStyles = makeStyles(theme => ({
   label: {
     ...theme.custom.fontFamily.metropolis,
     fontSize: theme.typography.overline.fontSize,
+    color: theme.palette.text.primary,
     backgroundColor: theme.custom.palette.labelBackground
   }
 }));

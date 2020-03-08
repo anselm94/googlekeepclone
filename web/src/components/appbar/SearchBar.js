@@ -92,7 +92,7 @@ const SearchBar = ({ onSearchClose }) => {
         />
         {isFocussed ? (
           <IconButton hidden={!isFocussed} onClick={onSearchCancel}>
-            <CloseOutlinedIcon />
+            <CloseOutlinedIcon htmlColor={theme.custom.palette.iconColor} />
           </IconButton>
         ) : null}
         <Snackbar open={isShowingToast} message={"Search not implemented ;)"} autoHideDuration={2000} onClose={handleToastClose} />

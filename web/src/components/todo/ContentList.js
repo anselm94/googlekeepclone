@@ -3,7 +3,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import {
   InputBase,
   Checkbox,
-  IconButton
+  IconButton,
+  useTheme
 } from "@material-ui/core";
 import {
   AddOutlined as AddIcon,
@@ -52,7 +53,7 @@ const useStyles = makeStyles(theme => ({
   },
   textComplete: {
     textDecoration: "line-through",
-    textDecorationColor: theme.palette.text.disabled,
+    textDecorationColor: theme.palette.text.secondary,
     fontWeight: 400,
     fontSize: "0.875rem",
     verticalAlign: "middle"
@@ -121,6 +122,7 @@ function ContentListItem({
   onKeyPressed
 }) {
   const classes = useStyles();
+  const theme = useTheme();
   const [isFocussed, setFocussed] = useState(false);
   const [isHovered, setHovered] = useState(false);
   const isEmpty = text === "";
@@ -173,7 +175,7 @@ function ContentListItem({
           isHovered ? (
             <div className={classes.closeButtonWrapper}>
               <IconButton size="small" onClick={() => onDeletePressed(index)}>
-                <CloseIcon fontSize="small" />
+                <CloseIcon htmlColor={theme.custom.palette.iconColor} fontSize="small" />
               </IconButton>
             </div>
           ) : (

@@ -26,7 +26,8 @@ import { useLabelsStore } from "../../store";
 const useStyles = makeStyles(theme => ({
   popover: {
     width: theme.spacing(28),
-    borderRadius: theme.spacing(0.5)
+    borderRadius: theme.spacing(0.5),
+    background: theme.palette.background.default
   },
   container: {
     display: "flex",

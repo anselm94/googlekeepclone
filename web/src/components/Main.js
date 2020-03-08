@@ -7,7 +7,9 @@ import Container from "@material-ui/core/Container";
 import Loading from "./Loading";
 import { useSubscription, useQuery } from "urql";
 import { subscribeTodos, getTodosAndLabels, subscribeLabels } from "../gql";
-import { TodosProvider, LabelsProvider, UiProvider, UserProvider } from "../store";
+import { TodosProvider, LabelsProvider, UiProvider, UserProvider, useUserStore } from "../store";
+import { ThemeProvider, CssBaseline } from "@material-ui/core";
+import { dark, light } from "../theme";
 
 export default function ({ navigate }) {
     const [result] = useQuery({ query: getTodosAndLabels });
@@ -47,19 +49,30 @@ function MainComponent({ todosQ, labelsQ, userQ }) {
                 <LabelsProvider labels={labelsResult.data || labelsQ}>
                     <UserProvider user={userQ}>
                         <UiProvider>
-                            <AppBar />
-                            <NavDrawer />
-                            <Container maxWidth={false}>
-                                <Box mt={8}>
-                                    <NotesArea />
-                                </Box>
-                            </Container>
+                            <ThemeControlledComponent />
                         </UiProvider>
                     </UserProvider>
                 </LabelsProvider>
             </TodosProvider>
         </>
     )
+}
+
+function ThemeControlledComponent() {
+    const [{ isDarkMode }] = useUserStore();
+    return (
+        <ThemeProvider theme={isDarkMode ? dark : light}>
+            {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+            <CssBaseline />
+            <AppBar />
+            <NavDrawer />
+            <Container maxWidth={false}>
+                <Box mt={8}>
+                    <NotesArea />
+                </Box>
+            </Container>
+        </ThemeProvider>
+    );
 }
 
 function updateItemsReducer(itemsArray, mutatedItem, action) {

@@ -14,11 +14,11 @@ export function LabelsProvider({ children, labels }) {
 }
 
 export function UserProvider({ children, user }) {
-    const [isDarkMode, setDarkMode] = useState(!!user.darkMode);
-    const [isListView, setListView] = useState(!!user.listMode);
+    const [isDarkMode, setDarkMode] = useState(user && user.darkMode);
+    const [isListView, setListView] = useState(user && user.listMode);
     const userValue = [{
-        name: user.name,
-        email: user.email,
+        name: user && user.name,
+        email: user && user.email,
         isDarkMode,
         isListView
     }, {

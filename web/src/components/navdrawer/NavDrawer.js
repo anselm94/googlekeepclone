@@ -21,6 +21,7 @@ const useStyles = makeStyles(theme => ({
     flexShrink: 0
   },
   drawerPaper: {
+    background: theme.palette.background.default,
     width: theme.mixins.drawer.minWidth,
     border: 0
   },
@@ -58,7 +59,7 @@ export default function NavDrawer() {
         <DrawerItem
           text={"Notes"}
           isSelected={selectedLabelId === ""}
-          icon={<IdeaIcon />}
+          icon={<IdeaIcon htmlColor={theme.custom.palette.iconColor} />}
           onClick={() => onDrawerItemSelected("")}
         />
       </List>
@@ -73,7 +74,7 @@ export default function NavDrawer() {
           <DrawerItem
             key={labelItem.id}
             text={labelItem.name}
-            icon={<LabelIcon />}
+            icon={<LabelIcon htmlColor={theme.custom.palette.iconColor} />}
             isSelected={selectedLabelId === labelItem.id}
             onClick={() => onDrawerItemSelected(labelItem.id)}
           />

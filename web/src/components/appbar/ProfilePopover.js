@@ -1,6 +1,6 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Popover, Typography, Avatar, Divider, Button } from "@material-ui/core";
+import { Popover, Typography, Avatar, Divider, Button, useTheme } from "@material-ui/core";
 import {
   FaceOutlined as FaceIcon,
 } from "@material-ui/icons";
@@ -10,6 +10,7 @@ import useAxios from "axios-hooks";
 
 const useStyles = makeStyles(theme => ({
   popover: {
+    background: theme.custom.palette.profilePopColor,
     width: theme.spacing(40),
     borderRadius: theme.shape.borderRadius
   },
@@ -58,6 +59,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
   const classes = useStyles();
+  const theme = useTheme();
   const id = isOpen ? "profile-popover" : undefined;
   const [{ name, email }] = useUserStore();
   const navigate = useNavigate();
@@ -96,7 +98,7 @@ export default function ProfilePopover({ anchorEl, isOpen, onClose }) {
             alt={name}
             className={classes.avatar}
           >
-            <FaceIcon fontSize="large" color="action" />
+            <FaceIcon htmlColor={theme.custom.palette.iconColor} fontSize="large" />
           </Avatar>
           <div className={classes.userInfo}>
             <Typography className={classes.userName} variant="h6" component="span" color="textPrimary">

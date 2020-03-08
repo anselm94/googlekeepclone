@@ -105,7 +105,7 @@ export default function () {
             aria-label="open drawer"
             onClick={toggleNavBar}
           >
-            <MenuIcon />
+            <MenuIcon htmlColor={theme.custom.palette.iconColor} />
           </IconButton>
           {isMobile ? (
             isSearchShowingInMobile ? (
@@ -127,7 +127,7 @@ export default function () {
                 aria-controls={menuId}
                 onClick={() => setSearchShowing(true)}
               >
-                <SearchIcon />
+                <SearchIcon htmlColor={theme.custom.palette.iconColor} />
               </IconButton>
             </div>
           ) : null}
@@ -146,7 +146,7 @@ export default function () {
               aria-controls={menuId}
               onClick={onDarkModeToggle}
             >
-              {isDarkMode ? <ToggleLightModeIcon /> : <ToggleDarkModeIcon />}
+              {isDarkMode ? <ToggleLightModeIcon htmlColor={theme.custom.palette.iconColor} /> : <ToggleDarkModeIcon htmlColor={theme.custom.palette.iconColor} />}
             </IconButton>
           </div>
           {isMobile ? null : (
@@ -158,7 +158,7 @@ export default function () {
                 aria-controls={menuId}
                 onClick={onViewToggle}
               >
-                {isListView ? <TileViewIcon /> : <ListIcon />}
+                {isListView ? <TileViewIcon htmlColor={theme.custom.palette.iconColor} /> : <ListIcon htmlColor={theme.custom.palette.iconColor} />}
               </IconButton>
             </div>
           )}
@@ -171,7 +171,7 @@ export default function () {
               aria-haspopup="true"
               onClick={() => setProfilePopoverOpen(true)}
             >
-              <AccountsIcon />
+              <AccountsIcon htmlColor={theme.custom.palette.iconColor} />
             </IconButton>
           </div>
         </Toolbar>

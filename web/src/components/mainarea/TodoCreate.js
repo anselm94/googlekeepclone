@@ -12,7 +12,10 @@ const useStyles = makeStyles(theme => ({
     transition: theme.transitions.create("all", {
       easing: theme.transitions.easing.easeIn,
       duration: theme.transitions.duration.short
-    })
+    }),
+    borderColor: theme.custom.palette.itemBorderColor,
+    borderWidth: theme.spacing(0.1),
+    borderStyle: "solid"
   },
   wrapper: {
     display: "flex",
@@ -55,7 +58,7 @@ export default function () {
   const [isFocussed, setFocussed] = useState(false);
   const [title, setTitle] = useState("");
   const [notes, setNotes] = useState([]);
-  const [color, setColor] = useState(theme.custom.palette.noteBackground[0]);
+  const [color, setColor] = useState("default");
   const [isCheckboxMode, setCheckboxMode] = useState(false);
   const [labels, setLabels] = useState([]);
   const onCloseClick = () => {
@@ -66,7 +69,7 @@ export default function () {
     }
     setTitle("");
     setNotes([]);
-    setColor(theme.custom.palette.noteBackground[0]);
+    setColor("default");
     setLabels([]);
     setFocussed(false);
   }
@@ -75,7 +78,7 @@ export default function () {
     <Paper
       elevation={2}
       classes={{ root: classes.paperWrapper }}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: theme.custom.palette.noteBackground[color] }}
     >
       <Collapse
         classes={{ wrapperInner: classes.wrapper }}

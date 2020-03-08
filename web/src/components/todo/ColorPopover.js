@@ -8,7 +8,8 @@ const useStyles = makeStyles(theme => ({
   popover: {
     width: theme.spacing(17),
     height: theme.spacing(13.5),
-    borderRadius: theme.spacing(0.5)
+    borderRadius: theme.spacing(0.5),
+    background: theme.palette.background.default
   },
   container: {
     margin: theme.spacing(0.8),
@@ -72,12 +73,12 @@ export default function ColorPopover({
         }}
       >
         <div className={classes.container}>
-          {theme.custom.palette.noteBackground.map((color, index) => (
+          {Object.keys(theme.custom.palette.noteBackground).map((colorkey) => (
             <ColorItem
-              key={index}
-              color={color}
-              isChecked={selectedColor === color}
-              onClick={selColor => onSelectColor(selColor)}
+              key={colorkey}
+              color={theme.custom.palette.noteBackground[colorkey]}
+              isChecked={selectedColor === colorkey}
+              onClick={() => onSelectColor(colorkey)}
             />
           ))}
         </div>

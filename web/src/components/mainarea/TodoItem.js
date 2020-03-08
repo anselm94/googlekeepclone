@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import { Paper, Fade, ClickAwayListener } from "@material-ui/core";
+import { Paper, Fade, ClickAwayListener, useTheme } from "@material-ui/core";
 import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
 import ContentTitle from "../todo/ContentTitle";
@@ -13,8 +13,8 @@ const useStyles = makeStyles(theme => ({
   wrapper: {
     display: "flex",
     flexDirection: "column",
-    border: "1px",
-    borderColor: theme.palette.divider,
+    borderColor: theme.custom.palette.itemBorderColor,
+    borderWidth: theme.spacing(0.1),
     borderStyle: "solid"
   },
   textTitle: {
@@ -35,6 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ noteItem, isEditMode }) {
   const classes = useStyles();
+  const theme = useTheme();
   const [isHovered, setHovered] = useState(false);
   const [title, setTitle] = useState(noteItem.title);
   const [noteinputs, setNotes] = useState(noteItem.notes);
@@ -81,7 +82,7 @@ export default function ({ noteItem, isEditMode }) {
       onMouseLeave={() => setHovered(false)}
       className={classes.wrapper}
       elevation={isHovered || isEditMode ? 2 : 0}
-      style={{ backgroundColor: color }}
+      style={{ backgroundColor: theme.custom.palette.noteBackground[color] }}
     >
       <ClickAwayListener onClickAway={isEditMode ? (() => onAfterEdit()) : () => { }}>
         <div onClick={() => setNoteInEditMode(noteItem.id)}>

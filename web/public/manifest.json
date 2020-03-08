@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Google Keep Clone",
+  "name": "A Clone of Google Keep",
   "icons": [
     {
       "src": "favicon.ico",
