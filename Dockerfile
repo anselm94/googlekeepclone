@@ -7,24 +7,23 @@ COPY config.go .
 COPY go.mod .
 COPY go.sum .
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o bin/server ./cmd/server
+RUN go build -o bin/server ./cmd/server
 
 # Build Web resources
-FROM node:10 AS webbuilder
+FROM node:13 AS webbuilder
 WORKDIR /web
 COPY /web .
 RUN npm ci --only=production
 RUN npm run build
 
 # Build final image
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+FROM golang:1.13
 WORKDIR /
-COPY --from=gobuilder /app/bin/server .
+COPY --from=gobuilder /app/bin/ ./
 COPY --from=webbuilder /web/build ./static
 ENV HOST=https://googlekeep-anselm94.herokuapp.com
 ENV STATIC_DIR=/static
 ENV DB_FILE=keepclone.db
+ENV REACT_APP_WEBSOCKET_ENDPOINT="ws://googlekeep-anselm94.herokuapp.com/query"
 EXPOSE 80
-RUN chmod +x ./server
 CMD ./server
