@@ -64,7 +64,7 @@ func main() {
 		}),
 		handler.WebsocketUpgrader(websocket.Upgrader{
 			CheckOrigin: func(r *http.Request) bool {
-				return r.Host == config.AppHost.Host
+				return true
 			},
 		}),
 		handler.WebsocketKeepAliveDuration(10*time.Second), // Don't drop websocket after being idle for few seconds https://github.com/99designs/gqlgen/issues/640
