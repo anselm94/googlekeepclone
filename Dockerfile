@@ -13,6 +13,7 @@ RUN go build -o bin/server ./cmd/server
 FROM node:13 AS webbuilder
 WORKDIR /web
 COPY /web .
+ENV REACT_APP_WEBSOCKET_ENDPOINT="ws://googlekeep-anselm94.herokuapp.com/query"
 RUN npm ci --only=production
 RUN npm run build
 
@@ -24,6 +25,5 @@ COPY --from=webbuilder /web/build ./static
 ENV HOST=https://googlekeep-anselm94.herokuapp.com
 ENV STATIC_DIR=/static
 ENV DB_FILE=keepclone.db
-ENV REACT_APP_WEBSOCKET_ENDPOINT="ws://googlekeep-anselm94.herokuapp.com/query"
 EXPOSE 80
 CMD ./server
