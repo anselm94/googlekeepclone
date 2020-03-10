@@ -97,29 +97,33 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 		if isCheckboxMode != nil {
 			todo.IsCheckboxMode = *isCheckboxMode
 		}
-		if err := r.DB.Save(&todo).Error; err != nil {
-			return nil, err
-		}
-
-		if labels != nil {
-			lbls := []Label{}
-			r.DB.Where("id in (?)", labels).Find(&lbls)
-			r.DB.Model(&todo).Association("Labels").Replace(lbls)
-		}
-
 		if notes != nil {
-			nts := make([]Note, len(notes))
+			nts := make([]*Note, len(notes))
 			for index, note := range notes {
 				newNoteID, _ := gonanoid.Nanoid(IDSize)
-				nts[index] = Note{
+				nts[index] = &Note{
 					ID:          newNoteID,
 					Text:        note.Text,
 					IsCompleted: note.IsCompleted,
 				}
 			}
 			// Updating Association just updates the references, won't clear the data. So, manually deleting the notes
-			r.DB.Delete(todo.Notes)
-			r.DB.Model(&todo).Association("Notes").Replace(nts)
+			if len(todo.Notes) > 0 {
+				notesIDs := make([]string, len(todo.Notes))
+				for index, noteItem := range todo.Notes {
+					notesIDs[index] = noteItem.ID
+				}
+				r.DB.Where("id in (?)", notesIDs).Delete(Note{})
+			}
+			todo.Notes = nts
+		}
+		if labels != nil {
+			lbls := []*Label{}
+			r.DB.Where("id in (?)", labels).Find(&lbls)
+			todo.Labels = lbls
+		}
+		if err := r.DB.Save(&todo).Error; err != nil {
+			return nil, err
 		}
 		return &todo, nil
 	}
@@ -261,7 +265,7 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 		callbackDeleteID, _ := gonanoid.Nanoid(6)
 		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
 			createdTodo, ok := scope.Value.(*Todo)
-			if ok && createdTodo.UserID == userID {
+			if ok && scope.TableName() == "todos" && createdTodo.UserID == userID {
 				todoAction <- &TodoAction{
 					Action: ActionCreated,
 					Todo:   createdTodo,
@@ -270,7 +274,7 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 		})
 		r.DB.Callback().Update().Register(callbackUpdateID, func(scope *gorm.Scope) {
 			updatedTodo, ok := scope.Value.(*Todo)
-			if ok && updatedTodo.UserID == userID {
+			if ok && scope.TableName() == "todos" && updatedTodo.UserID == userID {
 				todoAction <- &TodoAction{
 					Action: ActionUpdated,
 					Todo:   updatedTodo,
@@ -279,7 +283,7 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 		})
 		r.DB.Callback().Delete().Register(callbackDeleteID, func(scope *gorm.Scope) {
 			deletedTodo, ok := scope.Value.(Todo)
-			if ok && deletedTodo.UserID == userID {
+			if ok && scope.TableName() == "todos" && deletedTodo.UserID == userID {
 				todoAction <- &TodoAction{
 					Action: ActionDeleted,
 					Todo:   &deletedTodo,
@@ -304,7 +308,7 @@ func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAc
 		callbackUpdateID, _ := gonanoid.Nanoid(6)
 		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
 			createdLabel, ok := scope.Value.(*Label)
-			if ok && createdLabel.UserID == userID {
+			if ok && scope.TableName() == "labels" && createdLabel.UserID == userID {
 				labelAction <- &LabelAction{
 					Action: ActionCreated,
 					Label:  createdLabel,
@@ -313,7 +317,7 @@ func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAc
 		})
 		r.DB.Callback().Update().Register(callbackUpdateID, func(scope *gorm.Scope) {
 			updatedLabel, ok := scope.Value.(*Label)
-			if ok && updatedLabel.UserID == userID {
+			if ok && scope.TableName() == "labels" && updatedLabel.UserID == userID {
 				labelAction <- &LabelAction{
 					Action: ActionUpdated,
 					Label:  updatedLabel,
