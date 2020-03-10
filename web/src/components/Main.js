@@ -90,5 +90,5 @@ function updateItemsReducer(itemsArray, mutatedItem, action) {
             break;
         default:
     }
-    return Object.assign([], itemsArray);
+    return [...itemsArray];
 }
