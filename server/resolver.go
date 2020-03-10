@@ -120,6 +120,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 		if labels != nil {
 			lbls := []*Label{}
 			r.DB.Where("id in (?)", labels).Find(&lbls)
+			r.DB.Model(&todo).Association("Labels").Clear()
 			todo.Labels = lbls
 		}
 		if err := r.DB.Save(&todo).Error; err != nil {
