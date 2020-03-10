@@ -13,7 +13,7 @@ RUN go build -o bin/server ./cmd/server
 FROM node:13 AS webbuilder
 WORKDIR /web
 COPY /web .
-ENV REACT_APP_WEBSOCKET_ENDPOINT="ws://googlekeep-anselm94.herokuapp.com/query"
+ENV REACT_APP_WEBSOCKET_ENDPOINT="wss://googlekeep-anselm94.herokuapp.com/query"
 RUN npm ci --only=production
 RUN npm run build
 
