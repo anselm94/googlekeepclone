@@ -36,6 +36,12 @@ const useStyles = makeStyles(theme => ({
         ...theme.custom.fontFamily.metropolis,
         paddingTop: theme.spacing(3)
     },
+    textNotice: {
+        ...theme.custom.fontFamily.roboto,
+        lineHeight: "unset",
+        textAlign: "center",
+        paddingTop: theme.spacing(2)
+    },
     textAttribution: {
         padding: theme.spacing(0, 2, 2, 0),
         textAlign: "right"
@@ -113,6 +119,7 @@ export default function ({ navigate }) {
                         <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} name="email" label="Email" type="email" variant="outlined" value={email} error={result.status === "failure"} helperText={(result.errors && ((result.errors["email"] && result.errors["email"][0]) || (result.errors[""] && result.errors[""][0]))) || "Use any dummy email. I don't collect emails ;)"} onChange={event => setEmail(event.target.value)} fullWidth margin="normal" />
                         <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} name="password" label="Password" type="password" variant="outlined" value={password} error={result.status === "failure"} helperText={result.errors && result.errors["password"] && result.errors["password"][0]} onChange={event => setPassword(event.target.value)} fullWidth margin="normal" />
                         <Button classes={{ root: classes.registerButtonRoot, label: classes.registerButtonText }} type="submit" disabled={email === "" || password === ""} variant="contained" color="secondary" disableElevation fullWidth size="large">Register</Button>
+                        <Typography className={classes.textNotice} color="textSecondary" variant="caption">Your user login &amp; data will be deleted<br />so often, on container restart <br /></Typography>
                     </form>
                 </Paper>
                 <Typography className={classes.textLoginText} color="textSecondary" variant="body2">Already have an account? <Link className={classes.textLogin} to="/login">Log In</Link></Typography>

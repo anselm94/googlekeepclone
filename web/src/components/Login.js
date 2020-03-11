@@ -36,6 +36,12 @@ const useStyles = makeStyles(theme => ({
         ...theme.custom.fontFamily.metropolis,
         paddingTop: theme.spacing(3)
     },
+    textNotice: {
+        ...theme.custom.fontFamily.roboto,
+        lineHeight: "unset",
+        textAlign: "center",
+        paddingTop: theme.spacing(2)
+    },
     textAttribution: {
         padding: theme.spacing(0, 2, 2, 0),
         textAlign: "right"
@@ -110,6 +116,7 @@ export default function ({ navigate }) {
                         <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} name="email" onChange={event => setEmail(event.target.value)} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
                         <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} name="password" onChange={event => setPassword(event.target.value)} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={result.error} />
                         <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} type="submit" disabled={loading || email === "" || password === ""} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
+                        <Typography className={classes.textNotice} color="textSecondary" variant="caption">Your user login &amp; data will be deleted<br />so often, on container restart <br /></Typography>
                     </form>
                 </Paper>
                 <Typography className={classes.textRegisterText} color="textSecondary" variant="body2">Don't have an account? <Link className={classes.textRegister} to="/register">Register</Link></Typography>
