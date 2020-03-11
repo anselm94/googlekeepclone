@@ -12,7 +12,7 @@ import { ThemeProvider, CssBaseline } from "@material-ui/core";
 import { dark, light } from "../theme";
 
 export default function ({ navigate }) {
-    const [result] = useQuery({ query: getTodosAndLabels });
+    const [result] = useQuery({ query: getTodosAndLabels, requestPolicy: "network-only" });
     if (result.fetching) {
         return (
             <Loading />

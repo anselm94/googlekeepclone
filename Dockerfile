@@ -18,6 +18,8 @@ RUN npm ci --only=production
 RUN npm run build
 
 # Build final image
+# Need to use Golang image, as SQLite requires CGO,
+# and cannot be created a standalone executable
 FROM golang:1.13
 WORKDIR /
 COPY --from=gobuilder /app/bin/ ./
