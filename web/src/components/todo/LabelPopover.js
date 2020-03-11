@@ -85,7 +85,7 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
   const theme = useTheme();
   const popoverId = isOpen ? "color-popover" : undefined;
   const [newLabelName, setNewLabelName] = useState("");
-  const allLabelItems = useLabelsStore();
+  const [allLabelItems, dispatchLabel] = useLabelsStore();
   const filteredLabelItems = allLabelItems.filter(labelItem =>
     newLabelName === "" || labelItem.name.includes(newLabelName)
   );
@@ -100,7 +100,9 @@ export default function LabelPopover({ anchorEl, labels, setLabels, isOpen, onCl
     setLabels(Object.assign([], labels));
   };
   const onCreateTodoClick = () => {
-    createLabelExecute({ name: newLabelName });
+    createLabelExecute({ name: newLabelName }).then(({ data }) => {
+      dispatchLabel({ type: "CREATED", payload: data.createLabel });
+    });
     setNewLabelName("");
   }
   return (

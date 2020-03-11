@@ -6,6 +6,7 @@ import TodoLabels from "../todo/Labels";
 import TodoContent from "../todo/Content";
 import { useMutation } from "urql";
 import { createTodo } from "../../gql";
+import { useTodosStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   paperWrapper: {
@@ -61,11 +62,14 @@ export default function () {
   const [color, setColor] = useState("default");
   const [isCheckboxMode, setCheckboxMode] = useState(false);
   const [labels, setLabels] = useState([]);
+  const [, dispatchTodo] = useTodosStore();
   const onCloseClick = () => {
     const noteTexts = notes.map(noteItem => noteItem.text);
     const labelIds = labels.map(labelItem => labelItem.id);
     if (title || noteTexts.length > 0) {
-      createTodoExecute({ title, notes: noteTexts, labels: labelIds, color, isCheckboxMode });
+      createTodoExecute({ title, notes: noteTexts, labels: labelIds, color, isCheckboxMode }).then(({ data }) => {
+        dispatchTodo({ type: "CREATED", payload: data.createTodo });
+      });
     }
     setTitle("");
     setNotes([]);

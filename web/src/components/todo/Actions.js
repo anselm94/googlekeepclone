@@ -14,6 +14,7 @@ import ColorPopover from "./ColorPopover";
 import LabelPopover from "./LabelPopover";
 import { copyTodo, deleteTodo } from "../../gql";
 import { useMutation } from "urql";
+import { useTodosStore } from "../../store";
 
 const useStyles = makeStyles(theme => ({
   optionsWrapper: {
@@ -40,8 +41,21 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
   const refActionLabel = useRef();
   const [isColorPopoverOpen, setColorPopoverOpen] = useState(false);
   const [isLabelPopoverOpen, setLabelPopoverOpen] = useState(false);
-  const [, copyNote] = useMutation(copyTodo);
-  const [, deleteNote] = useMutation(deleteTodo)
+  const [, dispatchTodo] = useTodosStore();
+  const [, copyNoteExecute] = useMutation(copyTodo);
+  const [, deleteNoteExecute] = useMutation(deleteTodo);
+
+  const copyNote = () => {
+    copyNoteExecute({ id }).then(({ data }) => {
+      dispatchTodo({ type: "CREATED", payload: data.copyTodo });
+    });
+  }
+
+  const deleteNote = () => {
+    deleteNoteExecute({ id }).then(({ data }) => {
+      dispatchTodo({ type: "DELETED", payload: data.deleteTodo });
+    });
+  }
 
   return (
     <>
@@ -104,7 +118,7 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
                 <IconButton
                   size="small"
                   aria-label="make a copy"
-                  onClick={() => copyNote({ id })}
+                  onClick={copyNote}
                 >
                   <CopyIcon
                     htmlColor={theme.custom.palette.iconHighlight}
@@ -119,7 +133,7 @@ export default function ({ id, labels, setLabels, color, setColor, setCheckboxMo
                 <IconButton
                   size="small"
                   aria-label="delete note"
-                  onClick={() => deleteNote({ id })}
+                  onClick={deleteNote}
                 >
                   <DeleteIcon
                     htmlColor={theme.custom.palette.iconHighlight}

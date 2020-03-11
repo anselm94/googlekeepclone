@@ -5,7 +5,7 @@ import ActionsBar from "../todo/Actions";
 import LabelsBar from "../todo/Labels";
 import ContentTitle from "../todo/ContentTitle";
 import Content from "../todo/Content";
-import { useUiStore } from "../../store";
+import { useUiStore, useTodosStore } from "../../store";
 import { useMutation } from "urql";
 import { updateTodo } from "../../gql";
 
@@ -43,6 +43,7 @@ export default function ({ noteItem, isEditMode }) {
   const [isCheckboxMode, setCheckboxMode] = useState(noteItem.isCheckboxMode);
   const [labels, setLabels] = useState(noteItem.labels);
   const [, { setNoteInEditMode }] = useUiStore();
+  const [, dispatchTodo] = useTodosStore();
   const [, updateTodoExecute] = useMutation(updateTodo);
 
   const updateColor = (color) => {
@@ -73,6 +74,8 @@ export default function ({ noteItem, isEditMode }) {
       color: todoItem.color || color,
       isCheckboxMode: todoItem.isCheckboxMode || isCheckboxMode,
       labels: todoItem.labels || labels.map((label) => label.id)
+    }).then(({ data }) => {
+      dispatchTodo({ type: "UPDATED", payload: data.updateTodo });
     });
   }
 

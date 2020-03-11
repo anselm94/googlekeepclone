@@ -1,16 +1,40 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useReducer } from 'react';
 
 const TodosContext = createContext([]);
 const LabelsContext = createContext([]);
 const UserContext = createContext(null);
 const UiContext = createContext(null);
 
+const reducer = (state = [], action = {}) => {
+    const mutatedItem = action.payload;
+    const mutatedIndex = state.findIndex((item) => item.id === mutatedItem.id);
+    switch (action.type) {
+        case "CREATED":
+            if (mutatedIndex < 0) {
+                state.push(mutatedItem);
+            }
+            break;
+        case "DELETED":
+            if (mutatedIndex >= 0) {
+                state.splice(mutatedIndex, 1);
+            }
+            break;
+        case "UPDATED":
+            state[mutatedIndex] = mutatedItem;
+            break;
+        default:
+    }
+    return [...state];
+}
+
 export function TodosProvider({ children, todos }) {
-    return <TodosContext.Provider value={todos}>{children}</TodosContext.Provider>;
+    const [state, dispatch] = useReducer(reducer, todos);
+    return <TodosContext.Provider value={[state, dispatch]}>{children}</TodosContext.Provider>;
 }
 
 export function LabelsProvider({ children, labels }) {
-    return <LabelsContext.Provider value={labels}>{children}</LabelsContext.Provider>;
+    const [state, dispatch] = useReducer(reducer, labels);
+    return <LabelsContext.Provider value={[state, dispatch]}>{children}</LabelsContext.Provider>;
 }
 
 export function UserProvider({ children, user }) {

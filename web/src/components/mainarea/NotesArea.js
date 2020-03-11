@@ -77,7 +77,7 @@ export default function () {
           : "100%";
   const [{ isListView }] = useUserStore();
   const [{ isNavBarOpen, noteInEditMode, selectedLabelId }] = useUiStore();
-  const notesItems = useTodosStore();
+  const [notesItems] = useTodosStore();
   const filteredItems = notesItems.filter(item => {
     if (selectedLabelId !== "") {
       return item.labels.some((labelItem) => labelItem.id === selectedLabelId);

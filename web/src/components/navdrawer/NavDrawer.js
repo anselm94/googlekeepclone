@@ -36,7 +36,7 @@ export default function NavDrawer() {
   const classes = useStyles();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
-  const labelItems = useLabelsStore();
+  const [labelItems] = useLabelsStore();
   const [{ selectedLabelId, isNavBarOpen }, { toggleNavBar, setSelectedLabelId }] = useUiStore();
 
   const onDrawerItemSelected = (labelId) => {
