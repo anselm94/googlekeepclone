@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Container from "@material-ui/core/Container";
-import { Paper, TextField, Box, Button, Typography } from "@material-ui/core";
+import { Paper, TextField, Button, Typography } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 import { Link } from "@reach/router";
 import Loading from "./Loading";
@@ -23,6 +23,7 @@ const useStyles = makeStyles(theme => ({
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
+        padding: theme.spacing(3)
     },
     textWelcome: {
         ...theme.custom.fontFamily.metropolis
@@ -101,15 +102,15 @@ export default function ({ navigate }) {
     }
     return (
         <div className={classes.pageWrapper}>
-            <Container maxWidth="xs" className={classes.pageContainer}>
+            <Container maxWidth="md" className={classes.pageContainer}>
                 <Paper elevation={3}>
-                    <Box className={classes.boxWrapper} p={3}>
+                    <form className={classes.boxWrapper} onSubmit={doLogin}>
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Welcome back!</Typography>
-                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={event => setEmail(event.target.value)} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
-                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} onChange={event => setPassword(event.target.value)} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={result.error} />
-                        <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} disabled={loading || email === "" || password === ""} onClick={doLogin} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
-                    </Box>
+                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} name="email" onChange={event => setEmail(event.target.value)} label="Email" type="email" variant="outlined" fullWidth margin="normal" />
+                        <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} name="password" onChange={event => setPassword(event.target.value)} label="Password" type="password" variant="outlined" fullWidth margin="normal" helperText={result.error} />
+                        <Button classes={{ root: classes.loginButtonRoot, label: classes.loginButtonText }} type="submit" disabled={loading || email === "" || password === ""} variant="contained" color="secondary" disableElevation fullWidth size="large">Log In</Button>
+                    </form>
                 </Paper>
                 <Typography className={classes.textRegisterText} color="textSecondary" variant="body2">Don't have an account? <Link className={classes.textRegister} to="/register">Register</Link></Typography>
             </Container>
