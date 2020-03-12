@@ -1,12 +1,14 @@
-# Google Keep Clone
+# ![Logo](./docs/logo.ico) A Clone of Google Keep
 
 A minimal *Clone* of [Google Keep](https://keep.google.com) written in [ReactJS](https://reactjs.org/) with [Material UI Components](https://material-ui.com/). The backend is [GraphQL](https://graphql.org/) server written in [Golang](https://golang.org/)
 
-**Live demo** - https://googlekeep-anselm94.herokuapp.com/
+[![Preview Button](./docs/preview-button.png)](https://googlekeep-anselm94.herokuapp.com/)
 
-| Note             |
-|------------------|
-| Work In Progress |
+![Light and Dark theme demo](./docs/dark-light-theme.gif)
+<br/>*Light and Dark theme*
+
+![Mobile demo](./docs/mobile-add-todo.gif)
+<br/>*Toggling themes, adding todo with color and attaching label to it. Later marking it as complete*
 
 ## Overview
 
