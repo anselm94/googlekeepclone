@@ -79,8 +79,9 @@ export default function ({ notes, setNotes, isEditMode }) {
     updatedNoteItems.splice(index, 1);
     setNotes(updatedNoteItems);
   };
-  const onKeyPressed = (index, keyCode) => {
-    if (keyCode === 13) { // Enter pressed, create a new row item
+  const onKeyPressed = (index, event) => {
+    if (event.keyCode === 13) { // Enter pressed, create a new row item
+      event.preventDefault();
       var updatedNoteItems = Object.assign([], notes);
       updatedNoteItems = updatedNoteItems.filter(note => note.text !== "")
       updatedNoteItems.splice(index + 1, 0, { text: "", isCompleted: false });
@@ -164,7 +165,7 @@ function ContentListItem({
           value={text}
           placeholder={isEditMode ? "List Item" : ""}
           onChange={event => onTextChange(index, event.target.value)}
-          onKeyDown={event => onKeyPressed(index, event.keyCode)}
+          onKeyDown={event => onKeyPressed(index, event)}
           onFocus={() => setFocussed(true)}
           onBlur={() => setFocussed(false)}
           autoFocus={isEmpty}
