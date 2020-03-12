@@ -24,8 +24,8 @@ FROM golang:1.13
 WORKDIR /
 COPY --from=gobuilder /app/bin/ ./
 COPY --from=webbuilder /web/build ./static
+COPY run.sh .
+RUN apt-get update && apt-get install -y uuid-runtime
 ENV HOST=https://googlekeep-anselm94.herokuapp.com
-ENV STATIC_DIR=/static
-ENV DB_FILE=keepclone.db
 EXPOSE 80
-CMD ./server
+CMD ["sh", "run.sh"]

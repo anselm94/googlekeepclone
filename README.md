@@ -37,9 +37,7 @@ docker build -t anselm94/googlekeepclone .
 4) Run the Docker image as a container
 
 ```sh
-docker run -p 8080:8080 -e PORT=8080 \ 
-                        -e COOKIE_STORE_KEY=$(uuidgen) \
-                        -e SESSION_STORE_KEY=$(uuidgen) anselm94/googlekeepclone:latest
+docker run -p 8080:8080 -e PORT=8080 anselm94/googlekeepclone:latest
 ```
 
 5) Open the URL in browser - https://localhost:8080
