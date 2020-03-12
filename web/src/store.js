@@ -7,6 +7,7 @@ const UiContext = createContext(null);
 
 const reducer = (state = [], action = {}) => {
     const mutatedItem = action.payload;
+    if (!mutatedItem) { return }
     const mutatedIndex = state.findIndex((item) => item.id === mutatedItem.id);
     switch (action.type) {
         case "CREATED":
