@@ -74,6 +74,7 @@ export default function () {
     setTitle("");
     setNotes([]);
     setColor("default");
+    setCheckboxMode(false);
     setLabels([]);
     setFocussed(false);
   }
