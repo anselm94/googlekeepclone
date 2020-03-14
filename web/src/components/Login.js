@@ -100,6 +100,10 @@ export default function ({ navigate }) {
             email, password
         }
     }, { manual: true });
+    const onLoginClick = (event) => {
+        event.preventDefault();
+        doLogin();
+    }
     if (result.status === "success") {
         navigate("/");
         return (<></>)
@@ -110,7 +114,7 @@ export default function ({ navigate }) {
         <div className={classes.pageWrapper}>
             <Container maxWidth="md" className={classes.pageContainer}>
                 <Paper elevation={3}>
-                    <form className={classes.boxWrapper} onSubmit={doLogin}>
+                    <form className={classes.boxWrapper} onSubmit={onLoginClick}>
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Welcome back!</Typography>
                         <TextField error={result.status === "failure"} InputLabelProps={inputLabelProps} InputProps={inputProps} name="email" onChange={event => setEmail(event.target.value)} label="Email" type="email" variant="outlined" fullWidth margin="normal" />

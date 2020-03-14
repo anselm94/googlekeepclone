@@ -94,7 +94,6 @@ export default function ({ navigate }) {
             focused: classes.inputFocused
         }
     }
-
     const [{ data: result = {}, loading }, doRegister] = useAxios({
         url: "/auth/register",
         method: "POST",
@@ -102,6 +101,10 @@ export default function ({ navigate }) {
             name, email, password
         }
     }, { manual: true });
+    const onRegisterClick = (event) => {
+        event.preventDefault();
+        doRegister();
+    }
     if (result.status === "success") {
         navigate("/");
         return (<></>)
@@ -112,7 +115,7 @@ export default function ({ navigate }) {
         <div className={classes.pageWrapper}>
             <Container maxWidth="md" className={classes.pageContainer}>
                 <Paper elevation={3}>
-                    <form className={classes.boxWrapper} onSubmit={doRegister}>
+                    <form className={classes.boxWrapper} onSubmit={onRegisterClick}>
                         <img className={classes.logo} src={`../logo.png`} alt={"logo"} />
                         <Typography className={classes.textWelcome} color="textSecondary" variant="subtitle1">Hello!</Typography>
                         <TextField required InputLabelProps={inputLabelProps} InputProps={inputProps} name="name" label="Name" type="text" variant="outlined" value={name} onChange={event => setName(event.target.value)} error={result.status === "failure"} helperText={result.errors && result.errors["name"] && result.errors["name"][0]} fullWidth margin="normal" />
