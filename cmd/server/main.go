@@ -75,6 +75,8 @@ func main() {
 	router.Path("/playground").Handler(handler.Playground("Playground", "/query"))
 	router.PathPrefix("/query").Handler(handlerGraphQL)
 	router.PathPrefix("/auth").Handler(http.StripPrefix("/auth", ab.Config.Core.Router))
+	router.PathPrefix("/login").Handler(http.RedirectHandler("/", http.StatusMovedPermanently))    // handled by SPA client router
+	router.PathPrefix("/register").Handler(http.RedirectHandler("/", http.StatusMovedPermanently)) // handled by SPA client router
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(config.StaticDir)))
 	log.Fatalf("Error running server -> %s", http.ListenAndServe(":"+config.AppHost.Port(), router))
 }
