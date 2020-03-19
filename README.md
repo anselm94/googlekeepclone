@@ -61,6 +61,7 @@ cd googlekeepclone/web
 3) Install Node dependencies (Install [NodeJS](https://nodejs.org/en/download/) in prior) and build the resources into `/build` folder
 
 ```
+EXPORT REACT_APP_WEBSOCKET_ENDPOINT=ws://localhost:8080/query
 npm install
 npm run build
 ```
@@ -71,6 +72,9 @@ npm run build
 cd ..
 EXPORT PORT=8080
 EXPORT STATIC_DIR=/web/build
+EXPORT DB_FILE=keepclone.db
+EXPORT COOKIE_STORE_KEY=$(uuidgen | base64)
+EXPORT SESSION_STORE_KEY=$(uuidgen | base64)
 go run server/main.go
 ```
 
