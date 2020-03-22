@@ -11,6 +11,8 @@ A minimal *Clone* of [Google Keep](https://keep.google.com) written in [ReactJS]
 
 ## Features
 
+* 🔐 **Login** & 🔏 **Register** for creating a new user
+
 * 🌈 **Colors**, 📐 **Sizes**, ❮❯ **Margins**, ❯❮ **Paddings** etc., matches exactly that of *Google Keep*'s Web App
 
 * 📲 **Responsive Design** - Adapts all screen sizes from mobile screens up to 4k displays
@@ -116,7 +118,29 @@ A minimal *Clone* of [Google Keep](https://keep.google.com) written in [ReactJS]
 
 ![Architecture](./docs/architecture.png)
 
+This diagram explains the high-level architecture design of this project. This stack is a *Monolith*, with frontend-backend-database all packed into one single *container* deployment. Frontend is a *ReactJS* stack. 
+
+The **Frontend** is built with *ReactJS* using *Material UI React* components. The state management is through *React's Hooks for State, Context & Reducer* (see [`store.js`](web/src/store.js)). The main application is available at root `/`, which on load tries to load the noteitems. 
+
+Since the user will not authenticated by this time, the *Router* navigates the user to `/login` where the user can enter `email` & `password` to login. To register for a new user, the user clicks on the 'Register' link to navigate to `/register` route. The user may enter any `name`, `email` (no email verification in place) and `password`. All Login & Registration HTTP calls are REST and are made via *Axios* React *Hooks* API.
+
+Once logged in, a session cookie will be set in the browser. Now, the *GraphQL* API is available at `/query` and *URQL* client loads all the *Notes*, *Labels* & *User* information, in a single *query* (However, has to be optimised, as URQL's caching mechanism, makes involuntary calls, whenever any of the *mutation* happens). UI displays the items. User may create, update, delete *note* items, and may also create & assign/unassign labels to note items. The *labels* may be added, but update/delete hasn't be implemented now. User can sign out, by clicking the 'Profile' icon and then 'Sign Out' button.
+
+The **Backend** is built with *Golang* and no server framework is used, except *Gorilla Mux*, which provides utils for *routing*. The router consists for 3 major routes:
+
+* `/` - handles UI resources
+
+* `/query` - handles GraphQL requests and will be delegated to *gqlgen* generated GraphQL handlers. Throws `NotAuthenticated` error, if user is unauthenticated. Also, understands user information, via session cookie.
+
+* `/auth` - handles all authentication related requests and will be delegated to *AuthBoss* framework. The `/auth/register`, `/auth/login` & `/auth/logout` routes handle Registration, Login & Logout respectively.
+
+The DB is a *SQLite* DB and the persistence is a `file` based API. *GORM* allows quick and easy Database modelling. The database tables are generated as per the modelling defined as *Go Structs* (see [models_gen.go](./server/models_gen.go)). The database modelling is done as per this *ER Diagram*
+
 ![ER Diagram](./docs/er-diagram.png)
+
+Both *gqlgen* & *AuthBoss* has resolvers. *gqlgen*'s resolvers (see [`resolver.go`](./server/resolver.go)) helps in resolving Notes related data from database. While *AuthBoss*'s resolvers (see [`storer.go`](./server/storer.go)) help in resolving user related information.
+
+The **Deployment** is through a muti-stage Docker build, which facilitates building Go binary and ReactJS artifacts in one single command. The *Docker image* generated is a *Monolith*, which can be deployed & run, without any other external setup.
 
 ## How to Setup and Build
 
