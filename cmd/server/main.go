@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"encoding/base64"
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -68,6 +69,7 @@ func main() {
 		handler.WebsocketKeepAliveDuration(10*time.Second), // Don't drop websocket after being idle for few seconds https://github.com/99designs/gqlgen/issues/640
 	)
 
+	log.Println("Setting up routes ...")
 	router := mux.NewRouter()
 	router.Use(handlerCors, ab.LoadClientStateMiddleware, handlerUserContext)
 	router.Path("/playground").Handler(handler.Playground("Playground", "/query"))
@@ -76,20 +78,27 @@ func main() {
 	router.PathPrefix("/login").Handler(http.RedirectHandler("/", http.StatusMovedPermanently))    // handled by SPA client router
 	router.PathPrefix("/register").Handler(http.RedirectHandler("/", http.StatusMovedPermanently)) // handled by SPA client router
 	router.PathPrefix("/").Handler(http.FileServer(http.Dir(config.StaticDir)))
-	log.Fatalf("Error running server -> %s", http.ListenAndServe(":"+config.AppHost.Port(), router))
+	log.Println("Route setup complete")
+
+	log.Printf("Starting and listening server at %s", config.AppHost)
+	log.Fatalf("Error running server -> %s", http.ListenAndServe(fmt.Sprintf(":%s", config.AppHost.Port()), router))
 }
 
 func setupDB() *gorm.DB {
+	log.Println("Setting up SQLite 3 database ...")
 	db, err := gorm.Open("sqlite3", config.DBFile)
 	if err != nil {
 		log.Fatalf("Error while setting up DB -> %s", err)
 	}
 	db.Exec("PRAGMA foreign_keys = ON;")
+	log.Println("Database initialised")
 	db.AutoMigrate(&gkcserver.Todo{}, &gkcserver.Note{}, &gkcserver.Label{}, &gkcserver.User{})
+	log.Println("Database migration complete")
 	return db
 }
 
 func setupAuthboss() *authboss.Authboss {
+	log.Println("Setting up authentication ...")
 	ab := authboss.New()
 	ab.Config.Paths.Mount = "/auth"
 	ab.Config.Paths.RootURL = config.AppHost.String()
@@ -140,5 +149,6 @@ func setupAuthboss() *authboss.Authboss {
 	if err := ab.Init(); err != nil {
 		log.Fatalf("Error while initialising Authboss -> %s", err)
 	}
+	log.Println("Authentication setup complete")
 	return ab
 }
