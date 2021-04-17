@@ -10,18 +10,18 @@
     "axios-hooks": "^1.9.0",
     "graphql": "^14.6.0",
     "graphql-tag": "^2.10.3",
+    "http-proxy": "^1.18.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-helmet": "latest",
-    "react-scripts": "latest",
+    "react-helmet": "^6.1.0",
+    "snowpack": "^3.3.3",
     "subscriptions-transport-ws": "^0.9.16",
     "urql": "^1.9.0"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "snowpack dev",
+    "build": "snowpack build",
+    "test": "echo \"No tests to run :(\" && exit 1"
   },
   "eslintConfig": {
     "extends": "react-app"

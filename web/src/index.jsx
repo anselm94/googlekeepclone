@@ -5,7 +5,7 @@ import { Provider as UrqlProvider, createClient, defaultExchanges, subscriptionE
 import { SubscriptionClient } from 'subscriptions-transport-ws';
 
 const subscriptionClient = new SubscriptionClient(
-  process.env.REACT_APP_WEBSOCKET_ENDPOINT,
+  import.meta.env.REACT_APP_WEBSOCKET_ENDPOINT,
   {}
 );
 const gqlclient = createClient({
