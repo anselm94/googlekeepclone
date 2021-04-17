@@ -8,13 +8,12 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"time"
 
-	"github.com/99designs/gqlgen/handler"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	gkc "github.com/anselm94/googlekeepclone"
 	gkcserver "github.com/anselm94/googlekeepclone/server"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/rs/cors"
@@ -55,24 +54,18 @@ func main() {
 		AllowCredentials: true,
 	}).Handler
 
-	handlerGraphQL := handler.GraphQL(
+	handlerGraphQL := handler.NewDefaultServer(
 		gkcserver.NewExecutableSchema(gkcserver.Config{
 			Resolvers: &gkcserver.Resolver{
 				DB: db,
 			},
 		}),
-		handler.WebsocketUpgrader(websocket.Upgrader{
-			CheckOrigin: func(r *http.Request) bool {
-				return true
-			},
-		}),
-		handler.WebsocketKeepAliveDuration(10*time.Second), // Don't drop websocket after being idle for few seconds https://github.com/99designs/gqlgen/issues/640
 	)
 
 	log.Println("Setting up routes ...")
 	router := mux.NewRouter()
 	router.Use(handlerCors, ab.LoadClientStateMiddleware, handlerUserContext)
-	router.Path("/playground").Handler(handler.Playground("Playground", "/query"))
+	router.Path("/playground").Handler(playground.Handler("Playground", "/query"))
 	router.PathPrefix("/query").Handler(handlerGraphQL)
 	router.PathPrefix("/auth").Handler(http.StripPrefix("/auth", ab.Config.Core.Router))
 	router.PathPrefix("/login").Handler(http.RedirectHandler("/", http.StatusMovedPermanently))    // handled by SPA client router

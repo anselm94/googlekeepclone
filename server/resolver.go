@@ -10,11 +10,13 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 ) // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
+type CtxUserID string
+
 const (
 	// MsgNotAuthenticated is the constant for Not Authenticated message
 	MsgNotAuthenticated string = "NotAuthenticated"
 	// CtxUserIDKey holds the key for 'userid' value
-	CtxUserIDKey string = "userid"
+	CtxUserIDKey CtxUserID = "userid"
 	// IDSize is the size of the UIDs generated for DB columns
 	IDSize int = 4
 )
