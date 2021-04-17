@@ -1,5 +1,5 @@
 # Build Go module
-FROM golang:1.13 AS gobuilder
+FROM golang:1.16 AS gobuilder
 WORKDIR /app
 COPY ./server ./server
 COPY ./cmd ./cmd
@@ -10,7 +10,7 @@ RUN go mod download
 RUN go build -o bin/server ./cmd/server
 
 # Build Web resources
-FROM node:13 AS webbuilder
+FROM node:14.16.1 AS webbuilder
 WORKDIR /web
 COPY /web .
 ENV REACT_APP_WEBSOCKET_ENDPOINT="wss://googlekeep-anselm94.herokuapp.com/query"
@@ -20,7 +20,7 @@ RUN npm run build
 # Build final image
 # Need to use Golang image, as SQLite requires CGO,
 # and cannot be created a standalone executable
-FROM golang:1.13
+FROM golang:1.16
 WORKDIR /
 COPY --from=gobuilder /app/bin/ ./
 COPY --from=webbuilder /web/build ./static

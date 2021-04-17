@@ -200,15 +200,18 @@ npm run build
 
 ```
 cd ..
-EXPORT PORT=8080
-EXPORT STATIC_DIR=/web/build
-EXPORT DB_FILE=keepclone.db
-EXPORT COOKIE_STORE_KEY=$(uuidgen | base64)
-EXPORT SESSION_STORE_KEY=$(uuidgen | base64)
+export HOST=http://localhost
+export PORT=8080
+export STATIC_DIR=web/build
+export DB_FILE=keepclone.db
+export COOKIE_STORE_KEY=$(uuidgen | base64)
+export SESSION_STORE_KEY=$(uuidgen | base64)
 go run server/main.go
 ```
 
-5) Open the URL in browser - https://localhost:8080
+5) Open the URL in browser - 
+  - Root - https://localhost:8080
+  - GraphQL Playground - https://localhost:8080/playground
 
 ## Development
 
