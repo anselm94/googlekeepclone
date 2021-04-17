@@ -201,17 +201,17 @@ npm run build
 ```
 cd ..
 export HOST=http://localhost
-export PORT=8080
+export PORT=3000
 export STATIC_DIR=web/build
 export DB_FILE=keepclone.db
 export COOKIE_STORE_KEY=$(uuidgen | base64)
 export SESSION_STORE_KEY=$(uuidgen | base64)
-go run server/main.go
+go run ./cmd/server/main.go
 ```
 
 5) Open the URL in browser - 
-  - Root - https://localhost:8080
-  - GraphQL Playground - https://localhost:8080/playground
+  - Root - http://localhost:3000
+  - GraphQL Playground - http://localhost:3000/playground
 
 ## Development
 
