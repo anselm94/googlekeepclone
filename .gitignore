@@ -24,3 +24,4 @@ yarn-debug.log*
 yarn-error.log*
 __debug_bin
 *.db
+package-lock.json
