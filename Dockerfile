@@ -14,7 +14,7 @@ FROM node:14.16.1 AS webbuilder
 WORKDIR /web
 COPY /web .
 ENV REACT_APP_WEBSOCKET_ENDPOINT="wss://googlekeep-anselm94.herokuapp.com/query"
-RUN npm ci --only=production
+RUN npm install
 RUN npm run build
 
 # Build final image
