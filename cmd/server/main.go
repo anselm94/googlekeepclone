@@ -13,17 +13,15 @@ import (
 	gkc "github.com/anselm94/googlekeepclone"
 	gkcserver "github.com/anselm94/googlekeepclone/server"
 	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 	"github.com/gorilla/websocket"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"github.com/rs/cors"
-	"github.com/volatiletech/authboss"
-	abclientstate "github.com/volatiletech/authboss-clientstate"
-	_ "github.com/volatiletech/authboss/auth" // Adds Login support
-	"github.com/volatiletech/authboss/defaults"
-	_ "github.com/volatiletech/authboss/logout"   // Adds Logout support
-	_ "github.com/volatiletech/authboss/register" // Adds Register support
+	"github.com/volatiletech/authboss/v3"
+	_ "github.com/volatiletech/authboss/v3/auth" // Adds Login support
+	"github.com/volatiletech/authboss/v3/defaults"
+	_ "github.com/volatiletech/authboss/v3/logout"   // Adds Logout support
+	_ "github.com/volatiletech/authboss/v3/register" // Adds Register support
 )
 
 var (
@@ -98,18 +96,10 @@ func setupAuthboss() *authboss.Authboss {
 
 	cookieStoreKey, _ := base64.StdEncoding.DecodeString(config.CookieStoreKey)
 	sessionStoreKey, _ := base64.StdEncoding.DecodeString(config.SessionStoreKey)
-	cookieStore := abclientstate.NewCookieStorer(cookieStoreKey, nil)
-	cookieStore.HTTPOnly = config.IsProd
-	cookieStore.Secure = config.IsProd
-	sessionStore := abclientstate.NewSessionStorer(config.SessionCookieName, sessionStoreKey, nil)
-	sessionCookieStore := sessionStore.Store.(*sessions.CookieStore)
-	sessionCookieStore.Options.HttpOnly = config.IsProd
-	sessionCookieStore.Options.Secure = config.IsProd
-	sqliteStorer := gkcserver.NewSQLiteStorer(db)
 
-	ab.Config.Storage.Server = sqliteStorer
-	ab.Config.Storage.SessionState = sessionStore
-	ab.Config.Storage.CookieState = cookieStore
+	ab.Config.Storage.Server = gkcserver.NewSQLiteStorer(db)
+	ab.Config.Storage.SessionState = gkcserver.NewSessionStorer(config.SessionCookieName, sessionStoreKey)
+	ab.Config.Storage.CookieState = gkcserver.NewCookieStorer(cookieStoreKey, config.IsProd)
 	ab.Config.Core.ViewRenderer = defaults.JSONRenderer{}
 
 	defaults.SetCore(&ab.Config, true, false)

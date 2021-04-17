@@ -5,8 +5,12 @@ import (
 	"net/url"
 
 	"github.com/jinzhu/gorm"
-	"github.com/volatiletech/authboss"
+	abclientstate "github.com/volatiletech/authboss-clientstate"
+	"github.com/volatiletech/authboss/v3"
 )
+
+/////////////////////////////////////////////////////////////////
+// ServerStorer
 
 type SQLiteStorer struct {
 	authboss.CreatingServerStorer
@@ -46,8 +50,22 @@ func (s SQLiteStorer) Create(ctx context.Context, user authboss.User) error {
 	return err
 }
 
+////////////////////////////////////////////////////////////
+// Factory Methods
+
 func NewSQLiteStorer(db *gorm.DB) *SQLiteStorer {
 	return &SQLiteStorer{
 		DB: db,
 	}
+}
+
+func NewCookieStorer(cookieStoreKey []byte, isSecure bool) abclientstate.CookieStorer {
+	newCookieStore := abclientstate.NewCookieStorer(cookieStoreKey, nil)
+	newCookieStore.HTTPOnly = isSecure
+	newCookieStore.Secure = isSecure
+	return newCookieStore
+}
+
+func NewSessionStorer(cookieName string, sessionStoreKey []byte) abclientstate.SessionStorer {
+	return abclientstate.NewSessionStorer(cookieName, sessionStoreKey, nil)
 }

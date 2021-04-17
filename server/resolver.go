@@ -7,7 +7,7 @@ import (
 	"errors"
 
 	"github.com/jinzhu/gorm"
-	gonanoid "github.com/matoous/go-nanoid"
+	gonanoid "github.com/matoous/go-nanoid/v2"
 ) // THIS CODE IS A STARTING POINT ONLY. IT WILL NOT BE UPDATED WITH SCHEMA CHANGES.
 
 const (
@@ -44,7 +44,7 @@ type mutationResolver struct{ *Resolver }
 func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes []string, labels []*string, color *string, isCheckboxMode *bool) (*Todo, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
-		newTodoID, _ := gonanoid.Nanoid(IDSize)
+		newTodoID, _ := gonanoid.New(IDSize)
 		todo := Todo{
 			ID:     newTodoID,
 			Title:  title,
@@ -58,7 +58,7 @@ func (r *mutationResolver) CreateTodo(ctx context.Context, title string, notes [
 			todo.IsCheckboxMode = *isCheckboxMode
 		}
 		for index, note := range notes {
-			newNoteID, _ := gonanoid.Nanoid(IDSize)
+			newNoteID, _ := gonanoid.New(IDSize)
 			todo.Notes[index] = &Note{
 				ID:          newNoteID,
 				Text:        note,
@@ -100,7 +100,7 @@ func (r *mutationResolver) UpdateTodo(ctx context.Context, id string, title *str
 		if notes != nil {
 			nts := make([]*Note, len(notes))
 			for index, note := range notes {
-				newNoteID, _ := gonanoid.Nanoid(IDSize)
+				newNoteID, _ := gonanoid.New(IDSize)
 				nts[index] = &Note{
 					ID:          newNoteID,
 					Text:        note.Text,
@@ -163,9 +163,9 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 		if err := r.DB.Where("user_id = ?", userID).Preload("Notes").Preload("Labels").First(&todo).Error; err != nil {
 			return nil, err
 		}
-		todo.ID, _ = gonanoid.Nanoid(IDSize)
+		todo.ID, _ = gonanoid.New(IDSize)
 		for _, note := range todo.Notes {
-			note.ID, _ = gonanoid.Nanoid(IDSize)
+			note.ID, _ = gonanoid.New(IDSize)
 		}
 		if err := r.DB.Create(&todo).Error; err != nil {
 			return nil, err
@@ -177,7 +177,7 @@ func (r *mutationResolver) CopyTodo(ctx context.Context, sourceID string) (*Todo
 func (r *mutationResolver) CreateLabel(ctx context.Context, name string) (*Label, error) {
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
-		newLabelID, _ := gonanoid.Nanoid(IDSize)
+		newLabelID, _ := gonanoid.New(IDSize)
 		label := Label{
 			ID:     newLabelID,
 			Name:   name,
@@ -261,9 +261,9 @@ func (r *subscriptionResolver) TodoStream(ctx context.Context) (<-chan *TodoActi
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		todoAction := make(chan *TodoAction, 1)
-		callbackCreateID, _ := gonanoid.Nanoid(6)
-		callbackUpdateID, _ := gonanoid.Nanoid(6)
-		callbackDeleteID, _ := gonanoid.Nanoid(6)
+		callbackCreateID, _ := gonanoid.New(6)
+		callbackUpdateID, _ := gonanoid.New(6)
+		callbackDeleteID, _ := gonanoid.New(6)
 		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
 			createdTodo, ok := scope.Value.(*Todo)
 			if ok && scope.TableName() == "todos" && createdTodo.UserID == userID {
@@ -305,8 +305,8 @@ func (r *subscriptionResolver) LabelStream(ctx context.Context) (<-chan *LabelAc
 	if userID := ctx.Value(CtxUserIDKey); userID != "" {
 		userID := userID.(string)
 		labelAction := make(chan *LabelAction, 1)
-		callbackCreateID, _ := gonanoid.Nanoid(6)
-		callbackUpdateID, _ := gonanoid.Nanoid(6)
+		callbackCreateID, _ := gonanoid.New(6)
+		callbackUpdateID, _ := gonanoid.New(6)
 		r.DB.Callback().Create().Register(callbackCreateID, func(scope *gorm.Scope) {
 			createdLabel, ok := scope.Value.(*Label)
 			if ok && scope.TableName() == "labels" && createdLabel.UserID == userID {

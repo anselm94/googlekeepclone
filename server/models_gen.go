@@ -7,7 +7,7 @@ import (
 	"io"
 	"strconv"
 
-	"github.com/volatiletech/authboss"
+	"github.com/volatiletech/authboss/v3"
 )
 
 type Label struct {
